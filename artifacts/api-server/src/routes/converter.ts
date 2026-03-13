@@ -27,7 +27,57 @@ function isValidYouTubeUrl(url: string): boolean {
   }
 }
 
+function extractVideoId(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes("youtu.be")) {
+      return parsed.pathname.slice(1).split("?")[0];
+    }
+    return parsed.searchParams.get("v") || "";
+  } catch {
+    return "";
+  }
+}
+
 const inProgressConversions = new Set<string>();
+
+async function fetchVideoInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
+  const videoId = extractVideoId(url);
+
+  const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+  const oembedRes = await fetch(oembedUrl, {
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; Bot/1.0)" },
+  });
+
+  let title = "Unknown Title";
+  let thumbnail = videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : "";
+
+  if (oembedRes.ok) {
+    const data = await oembedRes.json() as any;
+    title = data.title || title;
+    thumbnail = data.thumbnail_url || thumbnail;
+  }
+
+  let duration = 0;
+  try {
+    const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+    });
+    if (pageRes.ok) {
+      const html = await pageRes.text();
+      const match = html.match(/"lengthSeconds":"(\d+)"/);
+      if (match) {
+        duration = parseInt(match[1], 10);
+      }
+    }
+  } catch {
+  }
+
+  return { title, thumbnail, duration };
+}
 
 router.post("/info", async (req: Request, res: Response) => {
   try {
@@ -42,35 +92,18 @@ router.post("/info", async (req: Request, res: Response) => {
       return;
     }
 
-    const info = await (ytDlp as any)(url, {
-      dumpSingleJson: true,
-      noWarnings: true,
-      noCheckCertificate: true,
-      extractorArgs: "youtube:player_client=ios,mweb",
-    }) as any;
+    const { title, thumbnail, duration } = await fetchVideoInfo(url);
 
-    const duration = info.duration as number || 0;
     if (duration > 1200) {
       res.status(400).json({ error: "Video too long. Maximum duration is 20 minutes." });
       return;
     }
 
-    const thumbnail = info.thumbnail as string || `https://img.youtube.com/vi/${extractVideoId(url)}/maxresdefault.jpg`;
-
-    const response = GetVideoInfoResponse.parse({
-      title: info.title as string || "Unknown Title",
-      thumbnail,
-      duration,
-    });
-
+    const response = GetVideoInfoResponse.parse({ title, thumbnail, duration });
     res.json(response);
   } catch (err: any) {
     console.error("Info error:", err.message);
-    if (err.message?.includes("Precondition") || err.message?.includes("400") || err.message?.includes("Requested format")) {
-      res.status(400).json({ error: "YouTube is currently restricting access from this server. To use this app, please deploy it to your own server or use a VPN/proxy configuration." });
-    } else {
-      res.status(400).json({ error: "Failed to fetch video info. Make sure the URL is a valid public YouTube video." });
-    }
+    res.status(400).json({ error: "Failed to fetch video info. Make sure the URL is a valid public YouTube video." });
   }
 });
 
@@ -94,21 +127,14 @@ router.post("/convert", async (req: Request, res: Response) => {
       return;
     }
 
-    const existingFile = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
-    if (fs.existsSync(existingFile)) {
+    const existingMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
+    if (fs.existsSync(existingMp3)) {
       const metaFile = path.join(DOWNLOADS_DIR, `${urlKey}.json`);
       let title = "Audio";
       if (fs.existsSync(metaFile)) {
-        try {
-          const meta = JSON.parse(fs.readFileSync(metaFile, "utf-8"));
-          title = meta.title || title;
-        } catch {}
+        try { title = JSON.parse(fs.readFileSync(metaFile, "utf-8")).title || title; } catch {}
       }
-      const response = ConvertVideoResponse.parse({
-        success: true,
-        title,
-        download: `/api/downloads/${urlKey}.mp3`,
-      });
+      const response = ConvertVideoResponse.parse({ success: true, title, download: `/api/downloads/${urlKey}.mp3` });
       res.json(response);
       return;
     }
@@ -116,43 +142,45 @@ router.post("/convert", async (req: Request, res: Response) => {
     inProgressConversions.add(urlKey);
 
     try {
-      const info = await (ytDlp as any)(url, {
-        dumpSingleJson: true,
-        noWarnings: true,
-        noCheckCertificate: true,
-        extractorArgs: "youtube:player_client=ios,mweb",
-      }) as any;
+      const { title, duration } = await fetchVideoInfo(url);
 
-      const duration = info.duration as number || 0;
       if (duration > 1200) {
         res.status(400).json({ error: "Video too long. Maximum duration is 20 minutes." });
-        inProgressConversions.delete(urlKey);
         return;
       }
 
-      const title = (info.title as string) || "Audio";
-      const tempFile = path.join(DOWNLOADS_DIR, `${urlKey}.webm`);
-      const outputFile = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
+      const tempAudio = path.join(DOWNLOADS_DIR, `${urlKey}.%(ext)s`);
+      const outputMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
 
       await (ytDlp as any)(url, {
-        format: "bestaudio",
-        output: tempFile,
+        format: "bestaudio/best",
+        output: tempAudio,
         noWarnings: true,
         noCheckCertificate: true,
+        extractorArgs: "youtube:player_client=web_creator",
+        addHeaders: [
+          "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+        ],
       });
 
+      const downloadedFiles = fs.readdirSync(DOWNLOADS_DIR).filter(f => f.startsWith(urlKey) && !f.endsWith(".mp3") && !f.endsWith(".json"));
+      const downloadedFile = downloadedFiles[0] ? path.join(DOWNLOADS_DIR, downloadedFiles[0]) : null;
+
+      if (!downloadedFile || !fs.existsSync(downloadedFile)) {
+        res.status(500).json({ error: "Download failed. Please try again." });
+        return;
+      }
+
       await new Promise<void>((resolve, reject) => {
-        ffmpeg(tempFile)
+        ffmpeg(downloadedFile)
           .audioBitrate(parseInt(quality))
           .toFormat("mp3")
           .on("end", () => resolve())
           .on("error", (err: Error) => reject(err))
-          .save(outputFile);
+          .save(outputMp3);
       });
 
-      if (fs.existsSync(tempFile)) {
-        fs.unlinkSync(tempFile);
-      }
+      if (fs.existsSync(downloadedFile)) fs.unlinkSync(downloadedFile);
 
       const metaFile = path.join(DOWNLOADS_DIR, `${urlKey}.json`);
       fs.writeFileSync(metaFile, JSON.stringify({ title, createdAt: Date.now() }));
@@ -169,7 +197,11 @@ router.post("/convert", async (req: Request, res: Response) => {
     }
   } catch (err: any) {
     console.error("Convert error:", err.message);
-    res.status(500).json({ error: "Conversion failed. Please try again with a different video." });
+    if (err.message?.includes("Sign in") || err.message?.includes("Precondition") || err.message?.includes("400")) {
+      res.status(500).json({ error: "YouTube requires authentication for downloads from this server. Please try again or try a different video." });
+    } else {
+      res.status(500).json({ error: "Conversion failed. Please try again with a different video." });
+    }
   }
 });
 
@@ -198,18 +230,6 @@ router.get("/downloads/:filename", (req: Request, res: Response) => {
   res.setHeader("Content-Type", "audio/mpeg");
   res.sendFile(filePath);
 });
-
-function extractVideoId(url: string): string {
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname.includes("youtu.be")) {
-      return parsed.pathname.slice(1);
-    }
-    return parsed.searchParams.get("v") || "";
-  } catch {
-    return "";
-  }
-}
 
 function scheduleCleanup() {
   const ONE_HOUR = 60 * 60 * 1000;
