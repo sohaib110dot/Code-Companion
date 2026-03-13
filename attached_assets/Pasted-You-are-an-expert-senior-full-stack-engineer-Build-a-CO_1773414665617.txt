@@ -1,0 +1,268 @@
+You are an expert senior full-stack engineer.
+
+Build a COMPLETE professional YouTube to MP3 converter website designed to run inside Replit.
+
+The website must include a working backend, modern frontend, SEO pages, fast downloads, and an AdSense-ready layout.
+
+TECH STACK
+
+Backend:
+
+* Node.js
+* Express.js
+* yt-dlp
+* FFmpeg
+
+Frontend:
+
+* HTML
+* CSS
+* Vanilla JavaScript
+
+SERVER REQUIREMENTS
+
+Use:
+
+process.env.PORT || 3000
+
+The backend must run inside Replit and serve both API and frontend.
+
+PROJECT STRUCTURE
+
+project
+│
+├ server.js
+├ package.json
+├ downloads
+│
+└ public
+│
+├ index.html
+├ style.css
+├ script.js
+│
+├ privacy.html
+├ terms.html
+├ about.html
+│
+└ sitemap.xml
+
+FEATURES
+
+1. MAIN CONVERTER PAGE
+
+Create a modern UI with:
+
+* Site title: "Fast YouTube to MP3 Converter"
+* YouTube URL input box
+* Convert button
+* Animated loading spinner
+* Conversion progress bar
+* Video preview section
+* Download MP3 button
+* Quality selector
+
+MP3 QUALITY OPTIONS
+
+Allow users to choose:
+
+* 128 kbps
+* 192 kbps
+* 320 kbps
+
+2. VIDEO PREVIEW
+
+When a user pastes a YouTube link:
+
+Automatically display:
+
+* video title
+* thumbnail image
+
+3. FAST DOWNLOAD SYSTEM
+
+Optimize conversion by using:
+
+yt-dlp -f bestaudio
+
+Then convert to MP3 using FFmpeg.
+
+Save files inside:
+
+/downloads
+
+4. BACKEND API
+
+Create endpoint:
+
+POST /convert
+
+Input:
+
+{
+"url": "YouTube video link",
+"quality": "128|192|320"
+}
+
+Process:
+
+1. validate URL
+2. download audio with yt-dlp
+3. convert to MP3 using FFmpeg
+4. save file
+5. return download link
+
+Response example:
+
+{
+"success": true,
+"title": "Video Title",
+"download": "/downloads/video.mp3"
+}
+
+5. DOWNLOAD SYSTEM
+
+After conversion finishes:
+
+Show:
+
+Download MP3 button
+
+Clicking it downloads the MP3.
+
+6. AUTO FILE CLEANUP
+
+Delete files automatically after 1 hour.
+
+Use a scheduled cleanup function.
+
+7. SECURITY
+
+Add protection:
+
+Allow only:
+
+youtube.com
+youtu.be
+
+Limit:
+
+video duration ≤ 20 minutes
+
+Prevent:
+
+command injection
+duplicate requests
+
+8. SEO OPTIMIZATION
+
+Add pages:
+
+privacy.html
+terms.html
+about.html
+
+Add SEO tags:
+
+* meta title
+* meta description
+* OpenGraph tags
+
+Create sitemap.xml.
+
+Add structured layout for search engines.
+
+9. ADSENSE READY LAYOUT
+
+Design page layout with spaces for ads:
+
+Top banner ad area
+Sidebar ad area
+Bottom ad area
+
+Use placeholder divs:
+
+class="ad-slot"
+
+Example:
+
+Top Ad
+Sidebar Ad
+Bottom Ad
+
+10. UI DESIGN
+
+Design requirements:
+
+* modern converter style
+* centered layout
+* responsive mobile design
+* rounded input field
+* animated buttons
+* modern typography
+* dark/light neutral colors
+
+11. FRONTEND BEHAVIOR
+
+script.js must:
+
+1. detect YouTube URL paste
+
+2. show preview thumbnail
+
+3. send POST request to /convert
+
+4. show spinner
+
+5. update progress bar
+
+6. display Download button when finished
+
+7. PACKAGE.JSON
+
+Include dependencies:
+
+express
+cors
+yt-dlp-exec
+fluent-ffmpeg
+
+13. INSTALLATION
+
+Provide steps:
+
+npm install
+node server.js
+
+14. FINAL RESULT
+
+The finished site must allow users to:
+
+1. paste YouTube link
+
+2. preview video
+
+3. choose MP3 quality
+
+4. convert video to MP3
+
+5. download MP3 file
+
+6. IMPORTANT
+
+Provide FULL WORKING CODE for:
+
+server.js
+package.json
+index.html
+style.css
+script.js
+privacy.html
+terms.html
+about.html
+sitemap.xml
+
+No placeholders.
+No incomplete code.
+
+Make the project fully functional in Replit.

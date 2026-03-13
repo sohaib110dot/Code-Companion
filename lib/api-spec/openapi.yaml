@@ -1,15 +1,16 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: YouTube to MP3 Converter API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: converter
+    description: YouTube to MP3 conversion operations
 paths:
   /healthz:
     get:
@@ -24,6 +25,62 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /info:
+    post:
+      operationId: getVideoInfo
+      tags: [converter]
+      summary: Get video info
+      description: Returns video title and thumbnail for a YouTube URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoInfoRequest"
+      responses:
+        "200":
+          description: Video info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoInfoResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /convert:
+    post:
+      operationId: convertVideo
+      tags: [converter]
+      summary: Convert YouTube video to MP3
+      description: Downloads and converts a YouTube video to MP3
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConvertRequest"
+      responses:
+        "200":
+          description: Conversion successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConvertResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +90,59 @@ components:
           type: string
       required:
         - status
-
+    VideoInfoRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          description: YouTube video URL
+      required:
+        - url
+    VideoInfoResponse:
+      type: object
+      properties:
+        title:
+          type: string
+        thumbnail:
+          type: string
+        duration:
+          type: number
+          description: Duration in seconds
+      required:
+        - title
+        - thumbnail
+        - duration
+    ConvertRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          description: YouTube video URL
+        quality:
+          type: string
+          enum: ["128", "192", "320"]
+          description: MP3 bitrate quality
+      required:
+        - url
+        - quality
+    ConvertResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        title:
+          type: string
+        download:
+          type: string
+          description: Download URL path
+      required:
+        - success
+        - title
+        - download
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
