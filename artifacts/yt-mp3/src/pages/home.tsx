@@ -17,7 +17,16 @@ export default function Home() {
 
   // Handle URL changes and auto-fetch preview
   useEffect(() => {
-    document.title = "Fast YouTube to MP3 Converter - Free Online MP3 Download";
+    document.title = "FastYT Media Converter - Convert Video to MP3 Online Free";
+    const setMeta = (name: string, content: string, prop = false) => {
+      const attr = prop ? "property" : "name";
+      let el = document.querySelector(`meta[${attr}="${name}"]`);
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+    setMeta("description", "FastYT Media Converter lets you convert video to MP3 online for free. Fast, easy and secure audio conversion tool for personal use.");
+    setMeta("keywords", "convert video to mp3, youtube to mp3, mp3 converter online free, extract audio from video, online audio converter, free mp3 download");
+    setMeta("robots", "index, follow");
     
     if (isValidYoutubeUrl(url)) {
       // Avoid refetching if we already have it for this exact URL (basic check)

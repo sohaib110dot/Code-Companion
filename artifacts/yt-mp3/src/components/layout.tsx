@@ -35,8 +35,8 @@ export function Layout({ children }: LayoutProps) {
           </Link>
 
           <nav className="flex items-center gap-6">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
                 location === "/" ? "text-primary" : "text-muted-foreground"
@@ -44,14 +44,23 @@ export function Layout({ children }: LayoutProps) {
             >
               Converter
             </Link>
-            <Link 
-              href="/about" 
+            <Link
+              href="/about"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
                 location === "/about" ? "text-primary" : "text-muted-foreground"
               )}
             >
               About
+            </Link>
+            <Link
+              href="/contact"
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary",
+                location === "/contact" ? "text-primary" : "text-muted-foreground"
+              )}
+            >
+              Contact
             </Link>
           </nav>
         </div>
@@ -82,7 +91,7 @@ export function Layout({ children }: LayoutProps) {
                 <span className="font-display font-bold text-lg">FastYT</span>
               </Link>
               <p className="text-muted-foreground max-w-sm mb-6">
-                The fastest, most reliable YouTube to MP3 converter on the web. High quality audio downloads in seconds, completely free.
+                The fastest, most reliable online media converter on the web. High quality audio downloads in seconds, completely free.
               </p>
               <div className="flex gap-4">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -93,7 +102,7 @@ export function Layout({ children }: LayoutProps) {
                 </div>
               </div>
             </div>
-            
+
             <div>
               <h4 className="font-bold mb-4 text-foreground">Legal</h4>
               <ul className="space-y-3">
@@ -103,19 +112,24 @@ export function Layout({ children }: LayoutProps) {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Contact
                   </Link>
                 </li>
               </ul>
             </div>
-            
+
             <div>
-              <h4 className="font-bold mb-4 text-foreground">Tool</h4>
+              <h4 className="font-bold mb-4 text-foreground">Resources</h4>
               <ul className="space-y-3">
                 <li>
                   <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    YouTube to MP3
+                    Video to MP3 Converter
                   </Link>
                 </li>
                 <li>
@@ -123,16 +137,36 @@ export function Layout({ children }: LayoutProps) {
                     How it works
                   </Link>
                 </li>
+                <li>
+                  <Link href="/convert-video-to-mp3" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Convert Video to MP3
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/extract-audio" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Extract Audio
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/mp3-vs-wav" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    MP3 vs WAV Guide
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/mobile-convert" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Convert on Mobile
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
-          
+
           <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} FastYT Converter. All rights reserved.
+              © {new Date().getFullYear()} FastYT Media Converter. All rights reserved.
             </p>
             <p className="text-xs text-muted-foreground/60 max-w-xl text-center md:text-right">
-              We do not host any copyrighted material on our servers. This tool is for personal use only.
+              This tool is for personal use only. Users must ensure they have rights to download content.
             </p>
           </div>
         </div>
