@@ -85,7 +85,7 @@ async function convertWithLoaderTo(url: string): Promise<string> {
   const jobId = initData.id;
   const progressUrl = initData.progress_url || `${PROGRESS_BASE}?id=${jobId}`;
 
-  for (let attempt = 0; attempt < 60; attempt++) {
+  for (let attempt = 0; attempt < 240; attempt++) {
     await new Promise(r => setTimeout(r, 3000));
 
     const progRes = await fetch(progressUrl);
@@ -98,7 +98,7 @@ async function convertWithLoaderTo(url: string): Promise<string> {
     if (progData.success === -1) throw new Error("Conversion failed on remote server");
   }
 
-  throw new Error("Conversion timed out");
+  throw new Error("Conversion timed out after 12 minutes");
 }
 
 router.post("/info", async (req: Request, res: Response) => {
