@@ -5,6 +5,17 @@ import { Layout } from "@/components/layout";
 export default function Mp3VsWav() {
   useEffect(() => {
     document.title = "MP3 vs WAV: Which Audio Format Should You Choose? - FastYT";
+    const setMeta = (name: string, content: string, prop = false) => {
+      const attr = prop ? "property" : "name";
+      let el = document.querySelector(`meta[${attr}="${name}"]`);
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+    setMeta("description", "Compare MP3 vs WAV audio formats. Understand compression, file size, quality differences and choose the right format for your needs.");
+    setMeta("keywords", "mp3 vs wav, audio formats, lossy vs lossless, compression, audio quality");
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", "https://fastyt.io/mp3-vs-wav");
   }, []);
 
   return (

@@ -4,6 +4,17 @@ import { Layout } from "@/components/layout";
 export default function Terms() {
   useEffect(() => {
     document.title = "Terms of Service - FastYT Converter";
+    const setMeta = (name: string, content: string, prop = false) => {
+      const attr = prop ? "property" : "name";
+      let el = document.querySelector(`meta[${attr}="${name}"]`);
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+    setMeta("description", "FastYT Converter Terms of Service. Understand the rules, copyright policy, and acceptable use of our media conversion tool.");
+    setMeta("keywords", "terms of service, terms and conditions, legal terms, user agreement");
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", "https://fastyt.io/terms");
   }, []);
 
   return (

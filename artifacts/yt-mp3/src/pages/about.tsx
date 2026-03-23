@@ -4,6 +4,17 @@ import { Layout } from "@/components/layout";
 export default function About() {
   useEffect(() => {
     document.title = "About Us - FastYT Converter";
+    const setMeta = (name: string, content: string, prop = false) => {
+      const attr = prop ? "property" : "name";
+      let el = document.querySelector(`meta[${attr}="${name}"]`);
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+    setMeta("description", "Learn about FastYT Media Converter - the fastest and most reliable online tool for converting video to MP3. No registration required, completely free.");
+    setMeta("keywords", "about fastyt, converter tool, about us, company info");
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", "https://fastyt.io/about");
   }, []);
 
   return (

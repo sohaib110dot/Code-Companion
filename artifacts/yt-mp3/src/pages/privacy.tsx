@@ -4,6 +4,17 @@ import { Layout } from "@/components/layout";
 export default function Privacy() {
   useEffect(() => {
     document.title = "Privacy Policy - FastYT Converter";
+    const setMeta = (name: string, content: string, prop = false) => {
+      const attr = prop ? "property" : "name";
+      let el = document.querySelector(`meta[${attr}="${name}"]`);
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+    setMeta("description", "Read FastYT Converter's privacy policy. We protect your data and don't require registration. Learn how we handle your information.");
+    setMeta("keywords", "privacy policy, data protection, user privacy");
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", "https://fastyt.io/privacy-policy");
   }, []);
 
   return (

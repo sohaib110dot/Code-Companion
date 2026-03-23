@@ -27,6 +27,9 @@ export default function Home() {
     setMeta("description", "FastYT Media Converter lets you convert video to MP3 online for free. Fast, easy and secure audio conversion tool for personal use.");
     setMeta("keywords", "convert video to mp3, youtube to mp3, mp3 converter online free, extract audio from video, online audio converter, free mp3 download");
     setMeta("robots", "index, follow");
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", "https://fastyt.io/");
     
     if (isValidYoutubeUrl(url)) {
       // Avoid refetching if we already have it for this exact URL (basic check)

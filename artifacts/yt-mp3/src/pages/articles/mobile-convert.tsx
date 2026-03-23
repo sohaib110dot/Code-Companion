@@ -5,6 +5,17 @@ import { Layout } from "@/components/layout";
 export default function MobileConvert() {
   useEffect(() => {
     document.title = "How to Convert Video to MP3 on Mobile - FastYT Media Converter";
+    const setMeta = (name: string, content: string, prop = false) => {
+      const attr = prop ? "property" : "name";
+      let el = document.querySelector(`meta[${attr}="${name}"]`);
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+      el.setAttribute("content", content);
+    };
+    setMeta("description", "Convert video to MP3 on your phone. Easy guide for iOS and Android users to extract audio from videos using our mobile-friendly online converter.");
+    setMeta("keywords", "mobile conversion, convert on phone, iphone, android, mobile converter, convert on ipad");
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", "https://fastyt.io/mobile-convert");
   }, []);
 
   return (
