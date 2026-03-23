@@ -42,7 +42,7 @@ export function Layout({ children }: LayoutProps) {
                 location === "/" ? "text-primary" : "text-muted-foreground"
               )}
             >
-              Converter
+              Home
             </Link>
             <Link
               href="/about"
