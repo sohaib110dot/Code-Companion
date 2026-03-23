@@ -164,6 +164,11 @@ export function Layout({ children }: LayoutProps) {
                   </Link>
                 </li>
               </ul>
+              <div className="mt-6 pt-4 border-t border-border/30">
+                <p className="text-xs text-muted-foreground/70">
+                  <span className="font-semibold text-foreground/80">Disclaimer:</span> This tool is for personal, non-commercial use only. Users must have the legal right to download content. We are not responsible for unauthorized use.
+                </p>
+              </div>
             </div>
 
             <div>
