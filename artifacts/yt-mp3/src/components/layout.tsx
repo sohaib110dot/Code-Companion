@@ -61,24 +61,25 @@ export function Layout({ children }: LayoutProps) {
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
+        <div className="container mx-auto px-4 h-20 flex items-center justify-center relative">
+          <Link href="/" className="absolute left-4 flex items-center gap-3 group" aria-label="FastYT - Convert Videos to MP3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
-              <Headphones className="w-5 h-5" />
+              <Headphones className="w-5 h-5" aria-hidden="true" />
             </div>
             <span className="font-display font-bold text-xl tracking-tight hidden sm:block">
               Fast<span className="text-primary">YT</span>
             </span>
           </Link>
 
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-6" role="navigation" aria-label="Primary navigation">
             <Link
               href="/"
               className={cn(
                 "text-sm font-medium transition-colors hover:text-primary",
                 location === "/" ? "text-primary" : "text-muted-foreground"
               )}
+              aria-current={location === "/" ? "page" : undefined}
             >
               Home
             </Link>
@@ -88,6 +89,7 @@ export function Layout({ children }: LayoutProps) {
                 "text-sm font-medium transition-colors hover:text-primary",
                 location === "/about" ? "text-primary" : "text-muted-foreground"
               )}
+              aria-current={location === "/about" ? "page" : undefined}
             >
               About
             </Link>
