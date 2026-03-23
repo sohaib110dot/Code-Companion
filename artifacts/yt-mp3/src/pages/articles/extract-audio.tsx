@@ -16,6 +16,25 @@ export default function ExtractAudio() {
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastyt.io/extract-audio");
+    
+    // JSON-LD Article Schema
+    let articleScript = document.querySelector('script[data-type="article-schema"]');
+    if (!articleScript) {
+      articleScript = document.createElement("script");
+      articleScript.type = "application/ld+json";
+      articleScript.setAttribute("data-type", "article-schema");
+      articleScript.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "How to Extract Audio from a Video",
+        "description": "Learn how to extract audio from video files easily. Complete guide to isolating sound tracks and saving as MP3.",
+        "url": "https://fastyt.io/extract-audio",
+        "author": {"@type": "Organization", "name": "FastYT"},
+        "datePublished": "2026-03-23",
+        "keywords": "extract audio, audio extraction, separate audio from video"
+      });
+      document.head.appendChild(articleScript);
+    }
   }, []);
 
   return (

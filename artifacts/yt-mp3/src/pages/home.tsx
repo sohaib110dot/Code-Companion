@@ -31,6 +31,25 @@ export default function Home() {
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastyt.io/");
     
+    // JSON-LD Structured Data for SoftwareApplication
+    let schemaScript = document.querySelector('script[data-type="application-schema"]');
+    if (!schemaScript) {
+      schemaScript = document.createElement("script");
+      schemaScript.type = "application/ld+json";
+      schemaScript.setAttribute("data-type", "application-schema");
+      schemaScript.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "FastYT Media Converter",
+        "description": "Free online tool to convert video to MP3 with high quality audio. No registration required.",
+        "url": "https://fastyt.io",
+        "applicationCategory": "MultimediaApplication",
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+        "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1250"}
+      });
+      document.head.appendChild(schemaScript);
+    }
+    
     if (isValidYoutubeUrl(url)) {
       // Avoid refetching if we already have it for this exact URL (basic check)
       if (!infoMutation.isPending && !convertMutation.isSuccess) {

@@ -16,6 +16,25 @@ export default function ConvertVideoToMp3() {
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastyt.io/convert-video-to-mp3");
+    
+    // JSON-LD Article Schema
+    let articleScript = document.querySelector('script[data-type="article-schema"]');
+    if (!articleScript) {
+      articleScript = document.createElement("script");
+      articleScript.type = "application/ld+json";
+      articleScript.setAttribute("data-type", "article-schema");
+      articleScript.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "How to Convert Video to MP3 Online",
+        "description": "Learn how to convert video to MP3 online for free. Step-by-step guide for extracting high-quality audio from videos without software.",
+        "url": "https://fastyt.io/convert-video-to-mp3",
+        "author": {"@type": "Organization", "name": "FastYT"},
+        "datePublished": "2026-03-23",
+        "keywords": "convert video to mp3, how to convert, online conversion"
+      });
+      document.head.appendChild(articleScript);
+    }
   }, []);
 
   return (

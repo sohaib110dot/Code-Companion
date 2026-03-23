@@ -17,6 +17,36 @@ export default function Contact() {
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastyt.io/contact");
+    
+    // JSON-LD FAQ Schema
+    let faqScript = document.querySelector('script[data-type="faq-schema"]');
+    if (!faqScript) {
+      faqScript = document.createElement("script");
+      faqScript.type = "application/ld+json";
+      faqScript.setAttribute("data-type", "faq-schema");
+      faqScript.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Why did my conversion fail?",
+            "acceptedAnswer": {"@type": "Answer", "text": "Conversions may fail if the video is private, age-restricted, or longer than 20 minutes."}
+          },
+          {
+            "@type": "Question",
+            "name": "Is this tool free to use?",
+            "acceptedAnswer": {"@type": "Answer", "text": "Yes. FastYT Media Converter is completely free for personal use."}
+          },
+          {
+            "@type": "Question",
+            "name": "What audio quality options are available?",
+            "acceptedAnswer": {"@type": "Answer", "text": "We offer 128 kbps, 192 kbps, and 320 kbps MP3 quality options."}
+          }
+        ]
+      });
+      document.head.appendChild(faqScript);
+    }
   }, []);
 
   return (

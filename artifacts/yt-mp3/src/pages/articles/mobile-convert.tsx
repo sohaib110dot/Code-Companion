@@ -16,6 +16,25 @@ export default function MobileConvert() {
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastyt.io/mobile-convert");
+    
+    // JSON-LD Article Schema
+    let articleScript = document.querySelector('script[data-type="article-schema"]');
+    if (!articleScript) {
+      articleScript = document.createElement("script");
+      articleScript.type = "application/ld+json";
+      articleScript.setAttribute("data-type", "article-schema");
+      articleScript.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "How to Convert Video to MP3 on Mobile",
+        "description": "Convert video to MP3 on your phone. Easy guide for iOS and Android users to extract audio from videos.",
+        "url": "https://fastyt.io/mobile-convert",
+        "author": {"@type": "Organization", "name": "FastYT"},
+        "datePublished": "2026-03-23",
+        "keywords": "mobile conversion, convert on phone, iphone, android"
+      });
+      document.head.appendChild(articleScript);
+    }
   }, []);
 
   return (

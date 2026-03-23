@@ -14,6 +14,37 @@ export function Layout({ children }: LayoutProps) {
     window.scrollTo(0, 0);
   }, [location]);
 
+  useEffect(() => {
+    // Add Breadcrumb Schema
+    const breadcrumbMap: Record<string, Array<{name: string; url: string}>> = {
+      "/": [{ name: "Home", url: "https://fastyt.io/" }],
+      "/about": [{ name: "Home", url: "https://fastyt.io/" }, { name: "About", url: "https://fastyt.io/about" }],
+      "/contact": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Contact", url: "https://fastyt.io/contact" }],
+      "/terms": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Terms", url: "https://fastyt.io/terms" }],
+      "/privacy-policy": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Privacy", url: "https://fastyt.io/privacy-policy" }],
+      "/convert-video-to-mp3": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Convert Video to MP3", url: "https://fastyt.io/convert-video-to-mp3" }],
+      "/extract-audio": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Extract Audio", url: "https://fastyt.io/extract-audio" }],
+    };
+    const breadcrumbs = breadcrumbMap[location] || [{ name: "Home", url: "https://fastyt.io/" }];
+    let breadcrumbScript = document.querySelector('script[data-type="breadcrumb-schema"]');
+    if (!breadcrumbScript) {
+      breadcrumbScript = document.createElement("script");
+      breadcrumbScript.type = "application/ld+json";
+      breadcrumbScript.setAttribute("data-type", "breadcrumb-schema");
+      document.head.appendChild(breadcrumbScript);
+    }
+    breadcrumbScript.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": breadcrumbs.map((item, idx) => ({
+        "@type": "ListItem",
+        "position": idx + 1,
+        "name": item.name,
+        "item": item.url
+      }))
+    });
+  }, [location]);
+
   return (
     <div className="min-h-screen flex flex-col relative">
       {/* Abstract Background Elements */}
