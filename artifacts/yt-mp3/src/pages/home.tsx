@@ -57,7 +57,7 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-4xl md:text-6xl lg:text-7xl font-bold max-w-4xl mx-auto leading-tight"
           >
-            Convert YouTube to <span className="text-gradient">High Quality MP3</span>
+            Convert videos to <span className="text-gradient">High Quality MP3</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
