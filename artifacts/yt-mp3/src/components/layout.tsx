@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Headphones, DownloadCloud, Zap, ShieldCheck } from "lucide-react";
+import { Headphones, DownloadCloud, Zap, ShieldCheck, Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,12 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -84,15 +91,17 @@ export function Layout({ children }: LayoutProps) {
             >
               About
             </Link>
-            <Link
-              href="/contact"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                location === "/contact" ? "text-primary" : "text-muted-foreground"
-              )}
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
+              aria-label="Toggle theme"
             >
-              Contact
-            </Link>
+              {mounted ? (
+                theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />
+              ) : (
+                <div className="w-5 h-5" />
+              )}
+            </button>
           </nav>
         </div>
       </header>
