@@ -121,14 +121,15 @@ export default function Home() {
                   </Button>
                 )}
               </div>
-            </div>
 
-          {/* Validation Feedback */}
-          {url && !isValidYoutubeUrl(url) && (
-            <p className="text-destructive text-sm mt-3 ml-2 animate-in fade-in slide-in-from-top-2">
-              Please enter a valid YouTube URL.
-            </p>
-          )}
+              {/* Validation Feedback */}
+              {url && !isValidYoutubeUrl(url) && (
+                <p className="text-destructive text-sm mt-3 ml-2 animate-in fade-in slide-in-from-top-2">
+                  Please enter a valid YouTube URL.
+                </p>
+              )}
+            </div>
+          </div>
 
           {/* Dynamic Content Area (Preview, Settings, Results) */}
           <AnimatePresence mode="wait">
