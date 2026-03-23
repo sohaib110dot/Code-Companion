@@ -49,30 +49,34 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto pt-10 md:pt-20 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16">
         
         {/* Hero Section */}
-        <div className="text-center space-y-6 mb-12">
+        <div className="text-center space-y-8 md:space-y-10 mb-12 md:mb-16">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
+            className="flex justify-center"
           >
-            <Zap className="w-4 h-4" /> The fastest converter online
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <Zap className="w-4 h-4" /> The fastest converter online
+            </div>
           </motion.div>
+          
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold max-w-4xl mx-auto leading-tight"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
           >
-            Convert Videos to <span className="text-gradient">High Quality MP3</span>
+            Convert Videos to <span className="text-gradient block sm:inline">High Quality MP3</span>
           </motion.h1>
+          
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
             Paste your link below to instantly download audio in up to 320kbps. 
             No registration required, completely free.
@@ -84,36 +88,40 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="glass-card rounded-3xl p-6 md:p-8 relative z-10"
+          className="max-w-3xl mx-auto"
         >
-          {/* Input Area */}
-          <div className="relative group flex items-center">
-            <div className="absolute left-4 z-10 text-muted-foreground group-focus-within:text-primary transition-colors">
-              <Search className="w-6 h-6" />
+          <div className="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 relative z-10">
+            {/* Input Area - Responsive Layout */}
+            <div className="w-full">
+              <div className="relative group flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center">
+                <div className="absolute left-4 top-1/2 sm:top-4 -translate-y-1/2 sm:translate-y-0 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
+                  <Search className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <Input 
+                  placeholder="Paste your video link here..." 
+                  className="w-full h-14 sm:h-16 pl-12 pr-4 sm:pr-28 text-base rounded-xl sm:rounded-2xl shadow-inner bg-background"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  disabled={isProcessing}
+                />
+                
+                {!infoMutation.data && !convertMutation.data && (
+                  <Button 
+                    variant="gradient" 
+                    className="h-12 sm:h-14 sm:absolute right-2 rounded-xl px-6 sm:px-7 font-medium w-full sm:w-auto whitespace-nowrap"
+                    onClick={() => {
+                      if (isValidYoutubeUrl(url)) {
+                        infoMutation.mutate({ data: { url } });
+                      }
+                    }}
+                    disabled={!url || isProcessing}
+                  >
+                    {infoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    {infoMutation.isPending ? "Converting..." : "Start"}
+                  </Button>
+                )}
+              </div>
             </div>
-            <Input 
-              placeholder="Paste YouTube link here... (e.g. https://youtube.com/watch?v=...)" 
-              className="pl-14 pr-32 h-16 text-lg rounded-2xl shadow-inner bg-background"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              disabled={isProcessing}
-            />
-            
-            {!infoMutation.data && !convertMutation.data && (
-              <Button 
-                variant="gradient" 
-                className="absolute right-2 h-12 rounded-xl px-6"
-                onClick={() => {
-                  if (isValidYoutubeUrl(url)) {
-                    infoMutation.mutate({ data: { url } });
-                  }
-                }}
-                disabled={!url || isProcessing}
-              >
-                {infoMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Start"}
-              </Button>
-            )}
-          </div>
 
           {/* Validation Feedback */}
           {url && !isValidYoutubeUrl(url) && (
