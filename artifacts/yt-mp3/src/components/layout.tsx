@@ -126,8 +126,8 @@ export function Layout({ children }: LayoutProps) {
       {/* Footer */}
       <footer className="border-t border-border/50 bg-card/50 mt-auto">
         <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            <div className="col-span-1 md:col-span-1">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div className="col-span-1 md:col-span-2">
               <Link href="/" className="flex items-center gap-2 mb-4">
                 <Headphones className="w-6 h-6 text-primary" />
                 <span className="font-display font-bold text-lg">FastYT</span>
@@ -149,13 +149,13 @@ export function Layout({ children }: LayoutProps) {
               <h4 className="font-bold mb-4 text-foreground">Legal</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    Privacy Policy
+                  <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    Terms
+                  <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Privacy Policy
                   </Link>
                 </li>
                 <li>
@@ -163,25 +163,45 @@ export function Layout({ children }: LayoutProps) {
                     Disclaimer
                   </Link>
                 </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold mb-4 text-foreground">More</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    About
-                  </Link>
-                </li>
                 <li>
                   <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     Contact
                   </Link>
                 </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-4 text-foreground">Resources</h4>
+              <ul className="space-y-3">
+                <li>
+                  <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Video to MP3 Converter
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    How it works
+                  </Link>
+                </li>
                 <li>
                   <Link href="/convert-video-to-mp3" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    Guide
+                    Convert Video to MP3
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/extract-audio" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Extract Audio
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/mp3-vs-wav" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    MP3 vs WAV Guide
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/mobile-convert" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Convert on Mobile
                   </Link>
                 </li>
               </ul>
