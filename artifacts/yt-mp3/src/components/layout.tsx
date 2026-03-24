@@ -146,8 +146,7 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             <div>
-              <h4 className="font-bold mb-4 text-foreground">Legal</h4>
-              <ul className="space-y-3">
+              <ul className="space-y-3 mb-4">
                 <li>
                   <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     Terms of Service
@@ -169,6 +168,7 @@ export function Layout({ children }: LayoutProps) {
                   </Link>
                 </li>
               </ul>
+              <h4 className="font-bold text-foreground">Legal</h4>
             </div>
 
             <div>
