@@ -66,7 +66,7 @@ export default function Contact() {
             <div>
               <h3 className="font-bold text-lg mb-1">General Inquiries</h3>
               <p className="text-muted-foreground text-sm">For general questions, feedback, or partnership requests.</p>
-              <p className="text-primary font-medium mt-2 text-sm">support@fastyt.io</p>
+              <p className="text-primary font-medium mt-2 text-sm">sonujee@proton.me</p>
             </div>
           </div>
 
@@ -77,7 +77,7 @@ export default function Contact() {
             <div>
               <h3 className="font-bold text-lg mb-1">Technical Support</h3>
               <p className="text-muted-foreground text-sm">Experiencing an issue with a conversion? Let us know.</p>
-              <p className="text-primary font-medium mt-2 text-sm">tech@fastyt.io</p>
+              <p className="text-primary font-medium mt-2 text-sm">sonujee@proton.me</p>
             </div>
           </div>
         </div>
