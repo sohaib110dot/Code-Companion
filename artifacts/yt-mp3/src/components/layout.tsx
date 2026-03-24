@@ -159,6 +159,11 @@ export function Layout({ children }: LayoutProps) {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/disclaimer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    Disclaimer
+                  </Link>
+                </li>
+                <li>
                   <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     Contact
                   </Link>

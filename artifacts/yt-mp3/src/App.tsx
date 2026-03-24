@@ -10,6 +10,7 @@ import About from "./pages/about";
 import Privacy from "./pages/privacy";
 import Terms from "./pages/terms";
 import Contact from "./pages/contact";
+import Disclaimer from "./pages/disclaimer";
 
 import ConvertVideoToMp3 from "./pages/articles/convert-video-to-mp3";
 import ConvertWithoutSoftware from "./pages/articles/convert-without-software";
@@ -35,6 +36,7 @@ function Router() {
       <Route path="/privacy-policy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/contact" component={Contact} />
+      <Route path="/disclaimer" component={Disclaimer} />
       <Route path="/convert-video-to-mp3" component={ConvertVideoToMp3} />
       <Route path="/convert-without-software" component={ConvertWithoutSoftware} />
       <Route path="/mp3-vs-wav" component={Mp3VsWav} />
