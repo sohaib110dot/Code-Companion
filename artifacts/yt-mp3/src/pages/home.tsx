@@ -49,6 +49,61 @@ export default function Home() {
       });
       document.head.appendChild(schemaScript);
     }
+
+    // JSON-LD FAQ Schema
+    let faqScript = document.querySelector('script[data-type="faq-schema"]');
+    if (!faqScript) {
+      faqScript = document.createElement("script");
+      faqScript.type = "application/ld+json";
+      faqScript.setAttribute("data-type", "faq-schema");
+      faqScript.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I convert a video to MP3?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Simply paste the video URL into the converter, select your preferred audio quality (128kbps, 192kbps, or 320kbps), and click 'Convert Video'. Your MP3 will be ready to download within seconds."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is FastYT converter free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! FastYT Media Converter is completely free to use. No registration, no hidden fees, no annoying ads. Just convert your videos to MP3 instantly."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What video formats are supported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We support YouTube links and most popular video platforms. Simply paste the video URL and our tool will automatically detect and convert it to high-quality MP3."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do you store my files?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No, we do not store any files. Your videos are converted on our secure servers and deleted immediately after download. Your privacy is guaranteed."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What audio quality options are available?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We offer three quality levels: 128kbps (standard), 192kbps (high), and 320kbps (maximum quality). Choose based on your needs and device storage."
+            }
+          }
+        ]
+      });
+      document.head.appendChild(faqScript);
+    }
     
     if (isValidYoutubeUrl(url)) {
       // Avoid refetching if we already have it for this exact URL (basic check)
@@ -314,6 +369,66 @@ export default function Home() {
             </div>
             <h3 className="font-bold text-lg mb-2">Safe & Secure</h3>
             <p className="text-muted-foreground text-sm">No annoying popups, no required software. Completely safe to use.</p>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-32 max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+            <p className="text-muted-foreground text-lg">Get answers to the most common questions about our video to MP3 converter.</p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                q: "How do I convert a video to MP3?",
+                a: "Simply paste the video URL into the converter, select your preferred audio quality (128kbps, 192kbps, or 320kbps), and click 'Convert Video'. Your MP3 will be ready to download within seconds."
+              },
+              {
+                q: "Is FastYT converter free?",
+                a: "Yes! FastYT Media Converter is completely free to use. No registration, no hidden fees, no annoying ads. Just convert your videos to MP3 instantly."
+              },
+              {
+                q: "What video formats are supported?",
+                a: "We support YouTube links and most popular video platforms. Simply paste the video URL and our tool will automatically detect and convert it to high-quality MP3."
+              },
+              {
+                q: "Do you store my files?",
+                a: "No, we do not store any files. Your videos are converted on our secure servers and deleted immediately after download. Your privacy is guaranteed."
+              },
+              {
+                q: "What audio quality options are available?",
+                a: "We offer three quality levels: 128kbps (standard), 192kbps (high), and 320kbps (maximum quality). Choose based on your needs and device storage."
+              }
+            ].map((item, idx) => (
+              <details key={idx} className="group p-4 bg-card rounded-xl border border-border/50 cursor-pointer hover:border-primary/30 transition-colors">
+                <summary className="flex items-center justify-between font-semibold text-foreground">
+                  <span>{item.q}</span>
+                  <span className="text-primary group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <p className="mt-3 text-muted-foreground text-sm leading-relaxed">{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+
+        {/* SEO Content Section */}
+        <div className="mt-32 max-w-3xl mx-auto">
+          <div className="space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold">Convert Video to MP3 Online</h2>
+            
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              FastYT Media Converter is the fastest and easiest way to convert any video to high-quality MP3 audio online. Whether you need to extract music from YouTube videos, save audio from social media, or convert video files to MP3 format, our powerful converter handles it all instantly without requiring any software installation.
+            </p>
+            
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Our platform supports multiple audio quality options—choose from 128kbps, 192kbps, or pristine 320kbps MP3 files depending on your needs. All conversions happen securely on our cloud servers, and we never store your files. Simply paste the video URL, select your preferred quality, and download your MP3 within seconds. No registration required, completely free, and 100% safe to use.
+            </p>
+            
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Whether you're a musician, podcaster, content creator, or casual user, FastYT makes it simple to convert videos to MP3 format. Our intuitive interface and lightning-fast processing speeds make us the most reliable video to MP3 converter on the web. Start converting now—it's free, fast, and hassle-free.
+            </p>
           </div>
         </div>
 
