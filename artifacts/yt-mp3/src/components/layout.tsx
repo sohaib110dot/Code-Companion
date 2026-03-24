@@ -60,7 +60,7 @@ export function Layout({ children }: LayoutProps) {
 
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
         <div className="container mx-auto px-4 h-20 flex items-center justify-center relative">
-          <Link href="/" className="absolute left-2 flex items-center gap-3 group" aria-label="FastYT - Convert Videos to MP3">
+          <Link href="/" className="absolute left-6 flex items-center gap-3 group" aria-label="FastYT - Convert Videos to MP3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
               <Headphones className="w-5 h-5" aria-hidden="true" />
             </div>
