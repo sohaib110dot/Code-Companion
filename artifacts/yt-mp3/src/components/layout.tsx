@@ -22,7 +22,6 @@ export function Layout({ children }: LayoutProps) {
   }, [location]);
 
   useEffect(() => {
-    // Add Breadcrumb Schema
     const breadcrumbMap: Record<string, Array<{name: string; url: string}>> = {
       "/": [{ name: "Home", url: "https://fastyt.io/" }],
       "/about": [{ name: "Home", url: "https://fastyt.io/" }, { name: "About", url: "https://fastyt.io/about" }],
@@ -33,7 +32,7 @@ export function Layout({ children }: LayoutProps) {
       "/extract-audio": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Extract Audio", url: "https://fastyt.io/extract-audio" }],
     };
     const breadcrumbs = breadcrumbMap[location] || [{ name: "Home", url: "https://fastyt.io/" }];
-    let breadcrumbScript = document.querySelector('script[data-type="breadcrumb-schema"]');
+    let breadcrumbScript = document.querySelector('script[data-type="breadcrumb-schema"]') as HTMLScriptElement | null;
     if (!breadcrumbScript) {
       breadcrumbScript = document.createElement("script");
       breadcrumbScript.type = "application/ld+json";
@@ -54,13 +53,11 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* Abstract Background Elements */}
       <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/10 blur-[120px]" />
       </div>
 
-      {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
         <div className="container mx-auto px-4 h-20 flex items-center justify-center relative">
           <Link href="/" className="absolute left-4 flex items-center gap-3 group" aria-label="FastYT - Convert Videos to MP3">
@@ -108,22 +105,18 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      {/* Top Ad Slot */}
       <div className="container mx-auto px-4 py-6">
         <div className="ad-slot-placeholder w-full h-[90px] md:h-[120px] max-w-4xl mx-auto" />
       </div>
 
-      {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 pb-12">
         {children}
       </main>
 
-      {/* Bottom Ad Slot */}
       <div className="container mx-auto px-4 py-8">
         <div className="ad-slot-placeholder w-full h-[90px] max-w-4xl mx-auto" />
       </div>
 
-      {/* Footer */}
       <footer className="border-t border-border/50 bg-card/50 mt-auto">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
@@ -185,8 +178,8 @@ export function Layout({ children }: LayoutProps) {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    How it works
+                  <Link href="/faqs" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    FAQs
                   </Link>
                 </li>
                 <li>

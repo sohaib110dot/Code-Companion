@@ -8,18 +8,26 @@ export default function Contact() {
     document.title = "Contact Us - FastYT Media Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
-      let el = document.querySelector(`meta[${attr}="${name}"]`);
-      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+      const selector = `meta[${attr}="${name}"]`;
+      let el = document.querySelector(selector) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, name);
+        document.head.appendChild(el);
+      }
       el.setAttribute("content", content);
     };
     setMeta("description", "Contact FastYT Media Converter support team. Get help, report issues, or send feedback about our video to MP3 conversion tool.");
     setMeta("keywords", "contact us, support, customer service, feedback, help");
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
     canonical.setAttribute("href", "https://fastyt.io/contact");
-    
-    // JSON-LD FAQ Schema
-    let faqScript = document.querySelector('script[data-type="faq-schema"]');
+
+    let faqScript = document.querySelector('script[data-type="faq-schema"]') as HTMLScriptElement | null;
     if (!faqScript) {
       faqScript = document.createElement("script");
       faqScript.type = "application/ld+json";
