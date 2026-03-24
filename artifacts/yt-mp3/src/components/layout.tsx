@@ -57,10 +57,9 @@ export function Layout({ children }: LayoutProps) {
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/10 blur-[120px]" />
       </div>
-
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
         <div className="container mx-auto px-4 h-20 flex items-center justify-center relative">
-          <Link href="/" className="absolute left-14 flex items-center gap-3 group" aria-label="FastYT - Convert Videos to MP3">
+          <Link href="/" className="absolute left-14 flex items-center gap-3 group ml-[220px] mr-[220px] mt-[0px] mb-[0px] pl-[22px] pr-[22px] text-[40px] font-bold" aria-label="FastYT - Convert Videos to MP3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
               <Headphones className="w-5 h-5" aria-hidden="true" />
             </div>
@@ -104,19 +103,15 @@ export function Layout({ children }: LayoutProps) {
           </nav>
         </div>
       </header>
-
       <div className="container mx-auto px-4 py-6">
         <div className="ad-slot-placeholder w-full h-[90px] md:h-[120px] max-w-4xl mx-auto" />
       </div>
-
       <main className="flex-1 container mx-auto px-4 pb-12">
         {children}
       </main>
-
       <div className="container mx-auto px-4 py-8">
         <div className="ad-slot-placeholder w-full h-[90px] max-w-4xl mx-auto" />
       </div>
-
       <footer className="border-t border-border/50 bg-card/50 mt-auto">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
