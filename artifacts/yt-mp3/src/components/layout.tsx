@@ -83,16 +83,6 @@ export function Layout({ children }: LayoutProps) {
             >
               Home
             </Link>
-            <Link
-              href="/about"
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                location === "/about" ? "text-primary" : "text-muted-foreground"
-              )}
-              aria-current={location === "/about" ? "page" : undefined}
-            >
-              About
-            </Link>
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="p-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
@@ -166,6 +156,11 @@ export function Layout({ children }: LayoutProps) {
                 <li>
                   <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    About
                   </Link>
                 </li>
               </ul>
