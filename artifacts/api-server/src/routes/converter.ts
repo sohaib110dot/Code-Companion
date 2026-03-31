@@ -46,41 +46,55 @@ function extractMediaId(url: string): string {
 }
 
 const inProgressConversions = new Set<string>();
-const MAX_CONCURRENT_CONVERSIONS = 3; // Limit to 3 concurrent conversions
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB limit
+const MAX_CONCURRENT_CONVERSIONS = 3;
+const MAX_FILE_SIZE = 500 * 1024 * 1024;
 const BITRATE_LIMITS: Record<string, number> = {
   "128": 128,
   "192": 192,
   "320": 320
 };
 
+// FFmpeg quality presets for faster encoding
+// Higher number = higher quality but slower
+function getQualityPreset(quality: string): number {
+  const presets: Record<string, number> = {
+    "128": 8,  // Fast: 128kbps (VBR)
+    "192": 5,  // Medium: 192kbps (VBR)
+    "320": 2   // Best: 320kbps (VBR)
+  };
+  return presets[quality] || 5;
+}
+
 async function fetchMediaInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
   const mediaId = extractMediaId(url);
-  const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
-
+  
   let title = "Unknown Title";
   let thumbnail = mediaId ? `https://img.youtube.com/vi/${mediaId}/hqdefault.jpg` : "";
-
-  try {
-    const oembedRes = await fetch(oembedUrl);
-    if (oembedRes.ok) {
-      const data = await oembedRes.json() as any;
-      title = data.title || title;
-      thumbnail = data.thumbnail_url || thumbnail;
-    }
-  } catch {}
-
   let duration = 0;
-  try {
-    const pageRes = await fetch(`https://www.youtube.com/watch?v=${mediaId}`, {
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36" },
-    });
-    if (pageRes.ok) {
-      const html = await pageRes.text();
-      const match = html.match(/"lengthSeconds":"(\d+)"/);
-      if (match) duration = parseInt(match[1], 10);
-    }
-  } catch {}
+
+  // Parallelize both API calls for faster execution
+  const [oembedData, pageData] = await Promise.all([
+    // Fetch metadata from oembed
+    fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
+      .then(res => res.ok ? res.json() : null)
+      .catch(() => null),
+    // Fetch duration from page
+    fetch(`https://www.youtube.com/watch?v=${mediaId}`, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+    })
+      .then(res => res.ok ? res.text() : null)
+      .catch(() => null)
+  ]);
+
+  if (oembedData) {
+    title = oembedData.title || title;
+    thumbnail = oembedData.thumbnail_url || thumbnail;
+  }
+
+  if (pageData) {
+    const match = pageData.match(/"lengthSeconds":"(\d+)"/);
+    if (match) duration = parseInt(match[1], 10);
+  }
 
   return { title, thumbnail, duration };
 }
@@ -90,7 +104,7 @@ const PROGRESS_BASE = "https://p.savenow.to/api/progress";
 
 async function convertWithLoaderTo(url: string): Promise<string> {
   const initRes = await fetch(`${LOADER_API}?format=mp3&url=${encodeURIComponent(url)}`, {
-    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36" },
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
   });
   if (!initRes.ok) throw new Error("Failed to initiate conversion");
 
@@ -100,17 +114,25 @@ async function convertWithLoaderTo(url: string): Promise<string> {
   const jobId = initData.id;
   const progressUrl = initData.progress_url || `${PROGRESS_BASE}?id=${jobId}`;
 
+  // Aggressive polling: faster intervals for quicker completion
+  const pollIntervals = [1000, 1500, 2000, 2500, 3000]; // Progressive backoff
   for (let attempt = 0; attempt < 240; attempt++) {
-    await new Promise(r => setTimeout(r, 3000));
+    const pollDelay = pollIntervals[Math.min(attempt, pollIntervals.length - 1)];
+    await new Promise(r => setTimeout(r, pollDelay));
 
-    const progRes = await fetch(progressUrl);
-    if (!progRes.ok) continue;
+    try {
+      const progRes = await fetch(progressUrl);
+      if (!progRes.ok) continue;
 
-    const progData = await progRes.json() as any;
-    if (progData.success === 1 && progData.download_url) {
-      return progData.download_url.replace(/\\\//g, "/");
+      const progData = await progRes.json() as any;
+      if (progData.success === 1 && progData.download_url) {
+        return progData.download_url.replace(/\\\//g, "/");
+      }
+      if (progData.success === -1) throw new Error("Conversion failed on remote server");
+    } catch (e) {
+      // Retry on network error
+      continue;
     }
-    if (progData.success === -1) throw new Error("Conversion failed on remote server");
   }
 
   throw new Error("Conversion timed out after 12 minutes");
@@ -220,7 +242,10 @@ router.post("/convert", async (req: Request, res: Response) => {
 
       await new Promise<void>((resolve, reject) => {
         ffmpeg(sourceMp3)
-          .audioBitrate(parseInt(quality))
+          // Use quality-based encoding for faster conversion
+          .audioCodec("libmp3lame")
+          .audioQuality(getQualityPreset(quality))
+          .audioFrequency(44100)
           .toFormat("mp3")
           .on("end", () => resolve())
           .on("error", (e: Error) => reject(e))
