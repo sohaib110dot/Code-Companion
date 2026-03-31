@@ -5,8 +5,18 @@ import { useI18n } from "@/lib/i18n-context";
 import { getPageTranslations } from "@/lib/page-translations";
 
 export default function ConvertVideoToMp3() {
-  const { lang } = useI18n();
+  const { lang, t: globalT } = useI18n();
   const t = getPageTranslations(lang);
+  
+  // Create wrapper that uses auto-translation for missing keys
+  const getTranslation = (key: keyof PageTranslations) => {
+    const value = t[key];
+    if (!value || value === key) {
+      // Use global t which has auto-translation
+      return globalT(key as any) || key;
+    }
+    return value;
+  };
 
   useEffect(() => {
     document.title = `${t.cvmp3_title} - FastAudio`;
