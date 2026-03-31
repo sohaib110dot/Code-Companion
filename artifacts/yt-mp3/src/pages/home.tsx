@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function Home() {
   const [url, setUrl] = useState("");
   const [quality, setQuality] = useState<"128" | "192" | "320">("192");
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   
   const infoMutation = useGetVideoInfo();
   const convertMutation = useConvertVideo();
