@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout";
 
 export default function ConvertWithoutSoftware() {
   useEffect(() => {
-    document.title = "Convert Video to MP3 Without Software - FastYT Media Converter";
+    document.title = "Convert Video to MP3 Without Software - FastAudio Media Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
@@ -29,7 +29,7 @@ export default function ConvertWithoutSoftware() {
         "headline": "Convert Video to MP3 Without Software",
         "description": "Convert video to MP3 without installing any software. Discover the benefits of browser-based audio conversion.",
         "url": "https://fastyt.io/convert-without-software",
-        "author": {"@type": "Organization", "name": "FastYT"},
+        "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "convert without software, online converter, browser-based"
       });

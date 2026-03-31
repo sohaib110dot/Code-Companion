@@ -3,14 +3,14 @@ import { Layout } from "@/components/layout";
 
 export default function FAQs() {
   useEffect(() => {
-    document.title = "FAQs - FastYT Media Converter";
+    document.title = "FAQs - FastAudio Media Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Frequently asked questions about FastYT Media Converter. Get answers to common questions about converting videos to MP3.");
+    setMeta("description", "Frequently asked questions about FastAudio Media Converter. Get answers to common questions about converting videos to MP3.");
     setMeta("keywords", "faqs, faq, frequently asked questions, video converter, mp3 conversion");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
@@ -23,12 +23,12 @@ export default function FAQs() {
       a: "Simply paste the video URL into the converter, select your preferred audio quality (128kbps, 192kbps, or 320kbps), and click 'Convert Video'. Your MP3 will be ready to download within seconds."
     },
     {
-      q: "Is FastYT converter free?",
-      a: "Yes! FastYT Media Converter is completely free to use. No registration, no hidden fees, no annoying ads. Just convert your videos to MP3 instantly."
+      q: "Is FastAudio converter free?",
+      a: "Yes! FastAudio Media Converter is completely free to use. No registration, no hidden fees, no annoying ads. Just convert your videos to MP3 instantly."
     },
     {
       q: "What video formats are supported?",
-      a: "We support YouTube links and most popular video platforms. Simply paste the video URL and our tool will automatically detect and convert it to high-quality MP3."
+      a: "We support most popular video platforms. Simply paste the video URL and our tool will automatically detect and convert it to high-quality MP3."
     },
     {
       q: "Do you store my files?",
@@ -44,7 +44,7 @@ export default function FAQs() {
     },
     {
       q: "Can I convert videos from other platforms?",
-      a: "Yes! While we specialize in YouTube, we support most major video platforms including Vimeo, TikTok, Instagram, and more."
+      a: "Yes! We support most major video platforms including Vimeo, TikTok, Instagram, and more."
     },
     {
       q: "Is my download secure?",
@@ -58,7 +58,7 @@ export default function FAQs() {
         <h1 className="text-4xl font-display font-bold mb-8">Frequently Asked Questions</h1>
 
         <p className="text-muted-foreground mb-12">
-          Have questions about FastYT Media Converter? Find answers to the most common questions below.
+          Have questions about FastAudio Media Converter? Find answers to the most common questions below.
         </p>
 
         <div className="space-y-6">

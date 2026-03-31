@@ -3,15 +3,15 @@ import { Layout } from "@/components/layout";
 
 export default function About() {
   useEffect(() => {
-    document.title = "About Us - FastYT Converter";
+    document.title = "About Us - FastAudio Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Learn about FastYT Media Converter - the fastest and most reliable online tool for converting video to MP3. No registration required, completely free.");
-    setMeta("keywords", "about fastyt, converter tool, about us, company info");
+    setMeta("description", "Learn about FastAudio Media Converter - the fastest and most reliable online tool for converting video to MP3. No registration required, completely free.");
+    setMeta("keywords", "about fastaudio, converter tool, about us, company info");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastyt.io/about");
@@ -20,10 +20,10 @@ export default function About() {
   return (
     <Layout>
       <div className="max-w-3xl mx-auto py-16 prose prose-lg dark:prose-invert">
-        <h1 className="text-4xl font-display font-bold mb-8">About FastYT</h1>
+        <h1 className="text-4xl font-display font-bold mb-8">About FastAudio</h1>
         
         <p className="lead text-xl text-muted-foreground mb-8">
-          FastYT was built with a simple goal: to provide the fastest, cleanest, and most reliable way to convert YouTube videos to MP3 audio files.
+          FastAudio was built with a simple goal: to provide the fastest, cleanest, and most reliable way to convert videos to MP3 audio files.
         </p>
         
         <div className="bg-card p-8 rounded-2xl border border-border mb-10 shadow-sm">
@@ -43,7 +43,7 @@ export default function About() {
 
         <h3>How to use the tool</h3>
         <ol>
-          <li>Find the YouTube video you want to convert.</li>
+          <li>Find the video you want to convert.</li>
           <li>Copy the URL from your browser's address bar.</li>
           <li>Paste the URL into the search box on our homepage.</li>
           <li>Select your desired audio quality.</li>

@@ -3,14 +3,14 @@ import { Layout } from "@/components/layout";
 
 export default function Privacy() {
   useEffect(() => {
-    document.title = "Privacy Policy - FastYT Converter";
+    document.title = "Privacy Policy - FastAudio Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Read FastYT Converter's privacy policy. We protect your data and don't require registration. Learn how we handle your information.");
+    setMeta("description", "Read FastAudio Converter's privacy policy. We protect your data and don't require registration. Learn how we handle your information.");
     setMeta("keywords", "privacy policy, data protection, user privacy");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
@@ -25,7 +25,7 @@ export default function Privacy() {
         <p className="text-muted-foreground mb-8">Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
 
         <p>
-          At FastYT, accessible from our website, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by FastYT and how we use it.
+          At FastAudio, accessible from our website, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by FastAudio and how we use it.
         </p>
 
         <h3>1. Information We Collect</h3>

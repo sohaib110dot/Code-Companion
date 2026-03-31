@@ -3,14 +3,14 @@ import { Layout } from "@/components/layout";
 
 export default function Disclaimer() {
   useEffect(() => {
-    document.title = "Disclaimer - FastYT Media Converter";
+    document.title = "Disclaimer - FastAudio Media Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Disclaimer for FastYT Media Converter. Important legal information about usage rights and limitations.");
+    setMeta("description", "Disclaimer for FastAudio Media Converter. Important legal information about usage rights and limitations.");
     setMeta("keywords", "disclaimer, legal, terms, usage rights");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
@@ -40,7 +40,7 @@ export default function Disclaimer() {
 
         <h3>Use at Your Own Risk</h3>
         <p>
-          FastYT Media Converter is provided on an "as-is" basis. We make no warranties regarding the service, and we shall not be liable for any damages arising from the use of this tool. Users assume all responsibility and risk for the use of this service.
+          FastAudio Media Converter is provided on an "as-is" basis. We make no warranties regarding the service, and we shall not be liable for any damages arising from the use of this tool. Users assume all responsibility and risk for the use of this service.
         </p>
 
         <h3>Intellectual Property</h3>
@@ -50,7 +50,7 @@ export default function Disclaimer() {
 
         <h3>Limitation of Liability</h3>
         <p>
-          FastYT is not liable for any direct, indirect, incidental, special, or consequential damages resulting from your use or inability to use our service, or any action taken in reliance upon information contained within our website.
+          FastAudio is not liable for any direct, indirect, incidental, special, or consequential damages resulting from your use or inability to use our service, or any action taken in reliance upon information contained within our website.
         </p>
 
         <h3>Changes to Terms</h3>

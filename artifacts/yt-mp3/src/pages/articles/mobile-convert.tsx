@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout";
 
 export default function MobileConvert() {
   useEffect(() => {
-    document.title = "How to Convert Video to MP3 on Mobile - FastYT Media Converter";
+    document.title = "How to Convert Video to MP3 on Mobile - FastAudio Media Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
@@ -29,7 +29,7 @@ export default function MobileConvert() {
         "headline": "How to Convert Video to MP3 on Mobile",
         "description": "Convert video to MP3 on your phone. Easy guide for iOS and Android users to extract audio from videos.",
         "url": "https://fastyt.io/mobile-convert",
-        "author": {"@type": "Organization", "name": "FastYT"},
+        "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "mobile conversion, convert on phone, iphone, android"
       });
@@ -58,7 +58,7 @@ export default function MobileConvert() {
         <ol>
           <li>Open the <strong>Safari browser</strong> on your iPhone or iPad.</li>
           <li>Navigate to the video you want to convert and <strong>copy the URL</strong> from the address bar.</li>
-          <li>Open <strong>FastYT Media Converter</strong> in a new tab.</li>
+          <li>Open <strong>FastAudio Media Converter</strong> in a new tab.</li>
           <li><strong>Paste the URL</strong> into the input box and tap "Start".</li>
           <li>Select your <strong>audio quality</strong> and tap "Convert Video".</li>
           <li>Once conversion is complete, tap <strong>"Download MP3"</strong>. The file will be saved to your Files app or Downloads folder.</li>
@@ -68,7 +68,7 @@ export default function MobileConvert() {
         <ol>
           <li>Open <strong>Chrome</strong> (or your preferred browser) on your Android device.</li>
           <li>Find the video you want to convert and <strong>copy its URL</strong>.</li>
-          <li>Go to <strong>FastYT Media Converter</strong> in your browser.</li>
+          <li>Go to <strong>FastAudio Media Converter</strong> in your browser.</li>
           <li><strong>Paste the URL</strong> and tap "Start".</li>
           <li>Choose your preferred <strong>bitrate</strong> and tap "Convert Video".</li>
           <li>Tap <strong>"Download MP3"</strong> — the file will save to your device's Downloads folder.</li>
@@ -82,7 +82,7 @@ export default function MobileConvert() {
           <li>On iPhone, you may need to use the <strong>Share &gt; Save to Files</strong> option to store the MP3 locally.</li>
         </ul>
 
-        <h2>Why Use FastYT on Mobile?</h2>
+        <h2>Why Use FastAudio on Mobile?</h2>
         <ul>
           <li>No app download required — works directly in your browser.</li>
           <li>Optimised layout for touch screens.</li>

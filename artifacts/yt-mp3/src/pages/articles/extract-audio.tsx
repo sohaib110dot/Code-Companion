@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout";
 
 export default function ExtractAudio() {
   useEffect(() => {
-    document.title = "How to Extract Audio from a Video - FastYT Media Converter";
+    document.title = "How to Extract Audio from a Video - FastAudio Media Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
@@ -29,7 +29,7 @@ export default function ExtractAudio() {
         "headline": "How to Extract Audio from a Video",
         "description": "Learn how to extract audio from video files easily. Complete guide to isolating sound tracks and saving as MP3.",
         "url": "https://fastyt.io/extract-audio",
-        "author": {"@type": "Organization", "name": "FastYT"},
+        "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "extract audio, audio extraction, separate audio from video"
       });
@@ -60,7 +60,7 @@ export default function ExtractAudio() {
           <li><strong>Sound design</strong> — Source ambient sounds and effects from video content you own or have rights to.</li>
         </ul>
 
-        <h2>How to Extract Audio Using FastYT</h2>
+        <h2>How to Extract Audio Using FastAudio</h2>
         <p>
           Our online tool makes audio extraction straightforward, with no technical knowledge required.
         </p>

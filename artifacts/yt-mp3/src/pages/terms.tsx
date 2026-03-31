@@ -3,14 +3,14 @@ import { Layout } from "@/components/layout";
 
 export default function Terms() {
   useEffect(() => {
-    document.title = "Terms of Service - FastYT Converter";
+    document.title = "Terms of Service - FastAudio Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "FastYT Converter Terms of Service. Understand the rules, copyright policy, and acceptable use of our media conversion tool.");
+    setMeta("description", "FastAudio Converter Terms of Service. Understand the rules, copyright policy, and acceptable use of our media conversion tool.");
     setMeta("keywords", "terms of service, terms and conditions, legal terms, user agreement");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
@@ -26,17 +26,17 @@ export default function Terms() {
 
         <h3>1. Acceptance of Terms</h3>
         <p>
-          By accessing and using FastYT, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.
+          By accessing and using FastAudio, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.
         </p>
 
         <h3>2. Description of Service</h3>
         <p>
-          FastYT provides a web-based utility that allows users to convert publicly available YouTube videos into downloadable MP3 audio files. The service is provided "AS IS" and "AS AVAILABLE" for personal, non-commercial use only.
+          FastAudio provides a web-based utility that allows users to convert publicly available videos into downloadable MP3 audio files. The service is provided "AS IS" and "AS AVAILABLE" for personal, non-commercial use only.
         </p>
 
         <h3>3. Copyright and Acceptable Use</h3>
         <p>
-          FastYT respects the intellectual property rights of others. You agree to use the service <strong>only for content that you own, or for which you have explicit permission from the copyright owner to download and convert.</strong>
+          FastAudio respects the intellectual property rights of others. You agree to use the service <strong>only for content that you own, or for which you have explicit permission from the copyright owner to download and convert.</strong>
         </p>
         <p>
           You agree NOT to use the service to download copyrighted material without permission. We do not host, store, or distribute any copyrighted material. The tool simply acts as a conduit to extract audio from URLs provided by the user. If you are a copyright owner and believe your content is being misused, please note that we do not host the files, but you may contact us to block specific URLs from being processed.

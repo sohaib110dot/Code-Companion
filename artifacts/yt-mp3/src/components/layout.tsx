@@ -59,12 +59,12 @@ export function Layout({ children }: LayoutProps) {
       </div>
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
         <div className="container mx-auto px-4 h-20 flex items-center justify-center relative">
-          <Link href="/" className="absolute left-14 flex items-center gap-3 group mt-[0px] pl-[22px] pr-[22px] border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px] rounded-tl-[0px] rounded-tr-[0px] rounded-br-[0px] rounded-bl-[0px] text-[45px] ml-[201px] mr-[201px] mb-[0px] pt-[5px] pb-[5px] bg-[transparent] font-bold" aria-label="FastYT - Convert Videos to MP3">
+          <Link href="/" className="absolute left-14 flex items-center gap-3 group mt-[0px] pl-[22px] pr-[22px] border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px] rounded-tl-[0px] rounded-tr-[0px] rounded-br-[0px] rounded-bl-[0px] text-[45px] ml-[201px] mr-[201px] mb-[0px] pt-[5px] pb-[5px] bg-[transparent] font-bold" aria-label="FastAudio - Convert Videos to MP3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
               <Headphones className="w-5 h-5" aria-hidden="true" />
             </div>
             <span className="font-display font-bold text-xl tracking-tight hidden sm:block">
-              Fast<span className="text-primary">YT</span>
+              Fast<span className="text-primary">Audio</span>
             </span>
           </Link>
 
@@ -118,10 +118,10 @@ export function Layout({ children }: LayoutProps) {
             <div className="col-span-1 md:col-span-2">
               <Link href="/" className="flex items-center gap-2 mb-4">
                 <Headphones className="w-6 h-6 text-primary" />
-                <span className="font-display font-bold text-lg">FastYT</span>
+                <span className="font-display font-bold text-lg">FastAudio</span>
               </Link>
               <p className="text-muted-foreground max-w-sm mb-6">
-                The fastest, most reliable online media converter on the web. High quality audio downloads in seconds, completely free.
+                The fastest, most reliable online audio converter on the web. High quality audio downloads in seconds, completely free.
               </p>
               <div className="flex gap-4">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -203,7 +203,7 @@ export function Layout({ children }: LayoutProps) {
 
           <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} FastYT Media Converter. All rights reserved.
+              © {new Date().getFullYear()} FastAudio Media Converter. All rights reserved.
             </p>
             <p className="text-xs text-muted-foreground/60 max-w-xl text-center md:text-right">
               This tool is for personal use only. Users must ensure they have rights to download content.

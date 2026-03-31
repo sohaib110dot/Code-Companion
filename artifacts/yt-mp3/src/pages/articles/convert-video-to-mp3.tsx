@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout";
 
 export default function ConvertVideoToMp3() {
   useEffect(() => {
-    document.title = "How to Convert Video to MP3 Online - FastYT Media Converter";
+    document.title = "How to Convert Video to MP3 Online - FastAudio Media Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
@@ -29,7 +29,7 @@ export default function ConvertVideoToMp3() {
         "headline": "How to Convert Video to MP3 Online",
         "description": "Learn how to convert video to MP3 online for free. Step-by-step guide for extracting high-quality audio from videos without software.",
         "url": "https://fastyt.io/convert-video-to-mp3",
-        "author": {"@type": "Organization", "name": "FastYT"},
+        "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "convert video to mp3, how to convert, online conversion"
       });

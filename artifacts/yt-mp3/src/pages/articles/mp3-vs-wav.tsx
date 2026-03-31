@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout";
 
 export default function Mp3VsWav() {
   useEffect(() => {
-    document.title = "MP3 vs WAV: Which Audio Format Should You Choose? - FastYT";
+    document.title = "MP3 vs WAV: Which Audio Format Should You Choose? - FastAudio";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
@@ -29,7 +29,7 @@ export default function Mp3VsWav() {
         "headline": "MP3 vs WAV: Which Audio Format Should You Choose?",
         "description": "Compare MP3 vs WAV audio formats. Understand compression, file size, quality differences.",
         "url": "https://fastyt.io/mp3-vs-wav",
-        "author": {"@type": "Organization", "name": "FastYT"},
+        "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "mp3 vs wav, audio formats, lossy vs lossless"
       });

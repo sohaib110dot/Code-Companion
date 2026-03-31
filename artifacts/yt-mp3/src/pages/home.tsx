@@ -17,15 +17,15 @@ export default function Home() {
 
   // Handle URL changes and auto-fetch preview
   useEffect(() => {
-    document.title = "FastYT Media Converter - Convert Video to MP3 Online Free";
+    document.title = "FastAudio Media Converter - Convert Video to MP3 Online Free";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "FastYT Media Converter lets you convert video to MP3 online for free. Fast, easy and secure audio conversion tool for personal use.");
-    setMeta("keywords", "convert video to mp3, youtube to mp3, mp3 converter online free, extract audio from video, online audio converter, free mp3 download");
+    setMeta("description", "FastAudio Media Converter lets you convert video to MP3 online for free. Fast, easy and secure audio conversion tool for personal use.");
+    setMeta("keywords", "convert video to mp3, video to mp3, mp3 converter online free, extract audio from video, online audio converter, free mp3 download");
     setMeta("robots", "index, follow");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
@@ -40,7 +40,7 @@ export default function Home() {
       schemaScript.textContent = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "FastYT Media Converter",
+        "name": "FastAudio Media Converter",
         "description": "Free online tool to convert video to MP3 with high quality audio. No registration required.",
         "url": "https://fastyt.io",
         "applicationCategory": "MultimediaApplication",

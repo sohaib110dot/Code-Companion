@@ -5,7 +5,7 @@ import { Mail, MessageSquare } from "lucide-react";
 
 export default function Contact() {
   useEffect(() => {
-    document.title = "Contact Us - FastYT Media Converter";
+    document.title = "Contact Us - FastAudio Media Converter";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       const selector = `meta[${attr}="${name}"]`;
@@ -17,7 +17,7 @@ export default function Contact() {
       }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Contact FastYT Media Converter support team. Get help, report issues, or send feedback about our video to MP3 conversion tool.");
+    setMeta("description", "Contact FastAudio Media Converter support team. Get help, report issues, or send feedback about our video to MP3 conversion tool.");
     setMeta("keywords", "contact us, support, customer service, feedback, help");
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) {
@@ -44,7 +44,7 @@ export default function Contact() {
           {
             "@type": "Question",
             "name": "Is this tool free to use?",
-            "acceptedAnswer": {"@type": "Answer", "text": "Yes. FastYT Media Converter is completely free for personal use."}
+            "acceptedAnswer": {"@type": "Answer", "text": "Yes. FastAudio Media Converter is completely free for personal use."}
           },
           {
             "@type": "Question",
