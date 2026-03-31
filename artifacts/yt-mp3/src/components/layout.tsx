@@ -1,8 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Headphones, DownloadCloud, Zap, ShieldCheck, Sun, Moon } from "lucide-react";
+import { Headphones, DownloadCloud, Zap, ShieldCheck, Sun, Moon, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+
+const LANGUAGES = [
+  { code: "en", name: "English", flag: "🇬🇧" },
+  { code: "es", name: "Spanish", flag: "🇪🇸" },
+  { code: "de", name: "German", flag: "🇩🇪" },
+  { code: "ar", name: "Arabic", flag: "🇸🇦" },
+  { code: "pt", name: "Portuguese", flag: "🇵🇹" },
+  { code: "ru", name: "Russian", flag: "🇷🇺" },
+  { code: "id", name: "Indonesian", flag: "🇮🇩" },
+  { code: "tr", name: "Turkish", flag: "🇹🇷" },
+  { code: "fr", name: "Français", flag: "🇫🇷" },
+  { code: "it", name: "Italian", flag: "🇮🇹" },
+  { code: "hi", name: "Hindi", flag: "🇮🇳" },
+  { code: "ja", name: "Japanese", flag: "🇯🇵" },
+  { code: "ko", name: "Korean", flag: "🇰🇷" },
+  { code: "th", name: "Thai", flag: "🇹🇭" },
+];
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,14 +29,42 @@ export function Layout({ children }: LayoutProps) {
   const [location] = useLocation();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [language, setLanguage] = useState("en");
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Load saved language preference
+    const savedLang = localStorage.getItem("app-language") || "en";
+    setLanguage(savedLang);
   }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
+
+  useEffect(() => {
+    // Close dropdown when clicking outside
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[aria-label="Change language"]') && !target.closest('.language-dropdown')) {
+        setShowLanguageDropdown(false);
+      }
+    };
+    
+    if (showLanguageDropdown) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [showLanguageDropdown]);
+
+  const handleLanguageChange = (langCode: string) => {
+    setLanguage(langCode);
+    localStorage.setItem("app-language", langCode);
+    setShowLanguageDropdown(false);
+  };
+
+  const currentLang = LANGUAGES.find(l => l.code === language) || LANGUAGES[0];
 
   useEffect(() => {
     const breadcrumbMap: Record<string, Array<{name: string; url: string}>> = {
@@ -106,6 +151,39 @@ export function Layout({ children }: LayoutProps) {
                 <div className="w-5 h-5" />
               )}
             </button>
+            
+            {/* Language Selector */}
+            <div className="relative language-dropdown">
+              <button
+                onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+                className="p-2 px-3 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium"
+                aria-label="Change language"
+              >
+                <span>{currentLang.flag}</span>
+                <span className="hidden sm:inline">{currentLang.name}</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              
+              {/* Dropdown Menu */}
+              {showLanguageDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto language-dropdown">
+                  {LANGUAGES.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => handleLanguageChange(lang.code)}
+                      className={cn(
+                        "w-full px-4 py-2.5 text-left text-sm flex items-center gap-2 transition-colors hover:bg-primary/10",
+                        language === lang.code ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-primary"
+                      )}
+                    >
+                      <span>{lang.flag}</span>
+                      <span>{lang.name}</span>
+                      {language === lang.code && <span className="ml-auto text-xs">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
         </div>
       </header>
