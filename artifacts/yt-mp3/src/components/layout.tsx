@@ -233,16 +233,6 @@ export function Layout({ children }: LayoutProps) {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("contact")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("about")}
-                  </Link>
-                </li>
-                <li>
                   <Link href="/dmca" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     {t("dmcaPolicy")}
                   </Link>
