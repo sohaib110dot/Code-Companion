@@ -23,15 +23,21 @@ export function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     const breadcrumbMap: Record<string, Array<{name: string; url: string}>> = {
-      "/": [{ name: "Home", url: "https://fastyt.io/" }],
-      "/about": [{ name: "Home", url: "https://fastyt.io/" }, { name: "About", url: "https://fastyt.io/about" }],
-      "/contact": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Contact", url: "https://fastyt.io/contact" }],
-      "/terms": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Terms", url: "https://fastyt.io/terms" }],
-      "/privacy-policy": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Privacy", url: "https://fastyt.io/privacy-policy" }],
-      "/convert-video-to-mp3": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Convert Video to MP3", url: "https://fastyt.io/convert-video-to-mp3" }],
-      "/extract-audio": [{ name: "Home", url: "https://fastyt.io/" }, { name: "Extract Audio", url: "https://fastyt.io/extract-audio" }],
+      "/": [{ name: "Home", url: "https://fastyt.cc/" }],
+      "/about": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "About", url: "https://fastyt.cc/about" }],
+      "/contact": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Contact", url: "https://fastyt.cc/contact" }],
+      "/terms": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Terms", url: "https://fastyt.cc/terms" }],
+      "/privacy-policy": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Privacy", url: "https://fastyt.cc/privacy-policy" }],
+      "/disclaimer": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Disclaimer", url: "https://fastyt.cc/disclaimer" }],
+      "/dmca": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "DMCA Policy", url: "https://fastyt.cc/dmca" }],
+      "/faqs": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "FAQs", url: "https://fastyt.cc/faqs" }],
+      "/convert-video-to-mp3": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Convert Video to MP3", url: "https://fastyt.cc/convert-video-to-mp3" }],
+      "/extract-audio": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Extract Audio", url: "https://fastyt.cc/extract-audio" }],
+      "/mobile-convert": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Convert on Mobile", url: "https://fastyt.cc/mobile-convert" }],
+      "/mp3-vs-wav": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "MP3 vs WAV", url: "https://fastyt.cc/mp3-vs-wav" }],
+      "/convert-without-software": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Convert Without Software", url: "https://fastyt.cc/convert-without-software" }],
     };
-    const breadcrumbs = breadcrumbMap[location] || [{ name: "Home", url: "https://fastyt.io/" }];
+    const breadcrumbs = breadcrumbMap[location] || [{ name: "Home", url: "https://fastyt.cc/" }];
     let breadcrumbScript = document.querySelector('script[data-type="breadcrumb-schema"]') as HTMLScriptElement | null;
     if (!breadcrumbScript) {
       breadcrumbScript = document.createElement("script");
@@ -159,6 +165,11 @@ export function Layout({ children }: LayoutProps) {
                 <li>
                   <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     About
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dmca" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    DMCA Policy
                   </Link>
                 </li>
               </ul>

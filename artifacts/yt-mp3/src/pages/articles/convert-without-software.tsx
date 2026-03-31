@@ -15,7 +15,7 @@ export default function ConvertWithoutSoftware() {
     setMeta("keywords", "convert without software, online converter, browser-based, no installation");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/convert-without-software");
+    canonical.setAttribute("href", "https://fastyt.cc/convert-without-software");
     
     // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
@@ -28,7 +28,7 @@ export default function ConvertWithoutSoftware() {
         "@type": "BlogPosting",
         "headline": "Convert Video to MP3 Without Software",
         "description": "Convert video to MP3 without installing any software. Discover the benefits of browser-based audio conversion.",
-        "url": "https://fastyt.io/convert-without-software",
+        "url": "https://fastyt.cc/convert-without-software",
         "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "convert without software, online converter, browser-based"
@@ -70,7 +70,7 @@ export default function ConvertWithoutSoftware() {
 
         <h2>Is It Safe to Convert Without Software?</h2>
         <p>
-          Yes — as long as you use a reputable online converter. FastYT Media Converter does not require you to log in, does not install browser extensions, and does not store your converted files permanently. All files are automatically removed from our servers within one hour of conversion. No malware, no tracking, no risk.
+          Yes — as long as you use a reputable online converter. FastAudio Media Converter does not require you to log in, does not install browser extensions, and does not store your converted files permanently. All files are automatically removed from our servers within one hour of conversion. No malware, no tracking, no risk.
         </p>
 
         <h2>When to Use a Desktop App Instead</h2>

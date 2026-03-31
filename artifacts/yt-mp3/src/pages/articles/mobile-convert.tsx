@@ -15,7 +15,7 @@ export default function MobileConvert() {
     setMeta("keywords", "mobile conversion, convert on phone, iphone, android, mobile converter, convert on ipad");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/mobile-convert");
+    canonical.setAttribute("href", "https://fastyt.cc/mobile-convert");
     
     // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
@@ -28,7 +28,7 @@ export default function MobileConvert() {
         "@type": "BlogPosting",
         "headline": "How to Convert Video to MP3 on Mobile",
         "description": "Convert video to MP3 on your phone. Easy guide for iOS and Android users to extract audio from videos.",
-        "url": "https://fastyt.io/mobile-convert",
+        "url": "https://fastyt.cc/mobile-convert",
         "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "mobile conversion, convert on phone, iphone, android"
@@ -51,7 +51,7 @@ export default function MobileConvert() {
           Absolutely. Online converters that work in a browser are fully compatible with mobile devices. Since all the processing happens on remote servers, your phone only needs to send a URL and receive a download — tasks any modern smartphone handles effortlessly.
         </p>
         <p>
-          FastYT Media Converter is designed to be fully responsive, meaning it looks and works great on every screen size, from compact phones to large tablets.
+          FastAudio Media Converter is designed to be fully responsive, meaning it looks and works great on every screen size, from compact phones to large tablets.
         </p>
 
         <h2>How to Convert Video to MP3 on iPhone (iOS)</h2>

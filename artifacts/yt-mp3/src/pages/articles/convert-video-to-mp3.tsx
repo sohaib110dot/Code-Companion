@@ -15,7 +15,7 @@ export default function ConvertVideoToMp3() {
     setMeta("keywords", "convert video to mp3, how to convert, online conversion, video to audio");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/convert-video-to-mp3");
+    canonical.setAttribute("href", "https://fastyt.cc/convert-video-to-mp3");
     
     // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
@@ -28,7 +28,7 @@ export default function ConvertVideoToMp3() {
         "@type": "BlogPosting",
         "headline": "How to Convert Video to MP3 Online",
         "description": "Learn how to convert video to MP3 online for free. Step-by-step guide for extracting high-quality audio from videos without software.",
-        "url": "https://fastyt.io/convert-video-to-mp3",
+        "url": "https://fastyt.cc/convert-video-to-mp3",
         "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "convert video to mp3, how to convert, online conversion"
@@ -60,12 +60,12 @@ export default function ConvertVideoToMp3() {
           <li>The URL of the video you want to convert</li>
           <li>An internet connection</li>
         </ul>
-        <p>No software installation is required when using an online converter like FastYT Media Converter.</p>
+        <p>No software installation is required when using an online converter like FastAudio Media Converter.</p>
 
         <h2>Step-by-Step: How to Convert Video to MP3</h2>
         <ol>
           <li><strong>Copy the video URL</strong> from your browser's address bar.</li>
-          <li><strong>Visit FastYT Media Converter</strong> at the homepage.</li>
+          <li><strong>Visit FastAudio Media Converter</strong> at the homepage.</li>
           <li><strong>Paste the URL</strong> into the input box and click "Start".</li>
           <li><strong>Choose your audio quality</strong> — 128 kbps, 192 kbps, or 320 kbps.</li>
           <li><strong>Click "Convert Video"</strong> and wait a few moments.</li>

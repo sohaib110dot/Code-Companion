@@ -29,7 +29,7 @@ export default function Home() {
     setMeta("robots", "index, follow");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/");
+    canonical.setAttribute("href", "https://fastyt.cc/");
     
     // JSON-LD Structured Data for SoftwareApplication
     let schemaScript = document.querySelector('script[data-type="application-schema"]');
@@ -42,7 +42,7 @@ export default function Home() {
         "@type": "SoftwareApplication",
         "name": "FastAudio Media Converter",
         "description": "Free online tool to convert video to MP3 with high quality audio. No registration required.",
-        "url": "https://fastyt.io",
+        "url": "https://fastyt.cc",
         "applicationCategory": "MultimediaApplication",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
         "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1250"}

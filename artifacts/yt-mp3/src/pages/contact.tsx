@@ -25,7 +25,7 @@ export default function Contact() {
       canonical.setAttribute("rel", "canonical");
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute("href", "https://fastyt.io/contact");
+    canonical.setAttribute("href", "https://fastyt.cc/contact");
 
     let faqScript = document.querySelector('script[data-type="faq-schema"]') as HTMLScriptElement | null;
     if (!faqScript) {
@@ -99,7 +99,7 @@ export default function Contact() {
 
         <h3>Is this tool free to use?</h3>
         <p>
-          Yes. FastYT Media Converter is completely free for personal use. No registration, subscription, or payment is required.
+          Yes. FastAudio Media Converter is completely free for personal use. No registration, subscription, or payment is required.
         </p>
 
         <h3>What audio quality options are available?</h3>

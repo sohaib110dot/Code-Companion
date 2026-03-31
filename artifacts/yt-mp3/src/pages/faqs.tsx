@@ -14,7 +14,7 @@ export default function FAQs() {
     setMeta("keywords", "faqs, faq, frequently asked questions, video converter, mp3 conversion");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/faqs");
+    canonical.setAttribute("href", "https://fastyt.cc/faqs");
   }, []);
 
   const faqs = [

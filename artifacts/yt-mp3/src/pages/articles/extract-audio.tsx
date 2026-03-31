@@ -15,7 +15,7 @@ export default function ExtractAudio() {
     setMeta("keywords", "extract audio, audio extraction, separate audio from video, video to audio, sound extraction");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/extract-audio");
+    canonical.setAttribute("href", "https://fastyt.cc/extract-audio");
     
     // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
@@ -28,7 +28,7 @@ export default function ExtractAudio() {
         "@type": "BlogPosting",
         "headline": "How to Extract Audio from a Video",
         "description": "Learn how to extract audio from video files easily. Complete guide to isolating sound tracks and saving as MP3.",
-        "url": "https://fastyt.io/extract-audio",
+        "url": "https://fastyt.cc/extract-audio",
         "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "extract audio, audio extraction, separate audio from video"
@@ -66,7 +66,7 @@ export default function ExtractAudio() {
         </p>
         <ol>
           <li><strong>Find the video</strong> you want to extract audio from and copy its URL.</li>
-          <li><strong>Open FastYT Media Converter</strong> in your browser.</li>
+          <li><strong>Open FastAudio Media Converter</strong> in your browser.</li>
           <li><strong>Paste the URL</strong> into the converter input field.</li>
           <li><strong>Select your preferred quality</strong>: 128 kbps, 192 kbps, or 320 kbps.</li>
           <li><strong>Click "Convert Video"</strong> — our servers handle the extraction.</li>

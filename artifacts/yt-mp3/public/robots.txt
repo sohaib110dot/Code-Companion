@@ -3,7 +3,7 @@ Allow: /
 Disallow: /api/
 Disallow: /*.json$
 
-Sitemap: https://fastyt.io/sitemap.xml
+Sitemap: https://fastyt.cc/sitemap.xml
 
 User-agent: Googlebot
 Allow: /
@@ -11,7 +11,23 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-# Anti-scraping rules
+# Block AI training scrapers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Block low-quality scrapers
 User-agent: AhrefsBot
 Disallow: /
 
@@ -19,4 +35,7 @@ User-agent: SemrushBot
 Disallow: /
 
 User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
 Disallow: /

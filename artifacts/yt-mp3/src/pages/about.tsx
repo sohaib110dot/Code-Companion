@@ -14,7 +14,7 @@ export default function About() {
     setMeta("keywords", "about fastaudio, converter tool, about us, company info");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/about");
+    canonical.setAttribute("href", "https://fastyt.cc/about");
   }, []);
 
   return (
