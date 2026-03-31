@@ -25,7 +25,7 @@ export default function Contact() {
       canonical.setAttribute("rel", "canonical");
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute("href", "https://fastyt.cc/contact");
+    canonical.setAttribute("href", "https://fastaudio.cc/contact");
 
     let faqScript = document.querySelector('script[data-type="faq-schema"]') as HTMLScriptElement | null;
     if (!faqScript) {

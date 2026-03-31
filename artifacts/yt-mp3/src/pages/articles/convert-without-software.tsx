@@ -15,7 +15,7 @@ export default function ConvertWithoutSoftware() {
     setMeta("keywords", "convert without software, online converter, browser-based, no installation");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.cc/convert-without-software");
+    canonical.setAttribute("href", "https://fastaudio.cc/convert-without-software");
     
     // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
@@ -28,7 +28,7 @@ export default function ConvertWithoutSoftware() {
         "@type": "BlogPosting",
         "headline": "Convert Video to MP3 Without Software",
         "description": "Convert video to MP3 without installing any software. Discover the benefits of browser-based audio conversion.",
-        "url": "https://fastyt.cc/convert-without-software",
+        "url": "https://fastaudio.cc/convert-without-software",
         "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "convert without software, online converter, browser-based"

@@ -14,7 +14,7 @@ export default function Disclaimer() {
     setMeta("keywords", "disclaimer, legal notice, terms, usage rights, copyright notice");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.cc/disclaimer");
+    canonical.setAttribute("href", "https://fastaudio.cc/disclaimer");
   }, []);
 
   return (

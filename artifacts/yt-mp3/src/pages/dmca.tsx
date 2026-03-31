@@ -15,7 +15,7 @@ export default function DMCA() {
     setMeta("keywords", "DMCA, copyright, takedown notice, intellectual property, copyright infringement");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.cc/dmca");
+    canonical.setAttribute("href", "https://fastaudio.cc/dmca");
 
     let schemaScript = document.querySelector('script[data-type="dmca-schema"]');
     if (!schemaScript) {
@@ -27,7 +27,7 @@ export default function DMCA() {
         "@type": "WebPage",
         "name": "DMCA Policy - FastAudio Media Converter",
         "description": "FastAudio Media Converter DMCA Policy and Copyright Takedown Procedure",
-        "url": "https://fastyt.cc/dmca",
+        "url": "https://fastaudio.cc/dmca",
         "publisher": {
           "@type": "Organization",
           "name": "FastAudio Media Converter"

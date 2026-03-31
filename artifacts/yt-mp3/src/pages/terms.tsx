@@ -14,7 +14,7 @@ export default function Terms() {
     setMeta("keywords", "terms of service, terms and conditions, legal terms, user agreement, DMCA");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.cc/terms");
+    canonical.setAttribute("href", "https://fastaudio.cc/terms");
   }, []);
 
   return (

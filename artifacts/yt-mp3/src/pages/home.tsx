@@ -17,19 +17,19 @@ export default function Home() {
 
   // Handle URL changes and auto-fetch preview
   useEffect(() => {
-    document.title = "FastAudio Media Converter - Convert Video to MP3 Online Free";
+    document.title = "FastAudio Media Converter - Convert Media Files to High Quality Audio Online";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "FastAudio Media Converter lets you convert video to MP3 online for free. Fast, easy and secure audio conversion tool for personal use.");
-    setMeta("keywords", "convert video to mp3, video to mp3, mp3 converter online free, extract audio from video, online audio converter, free mp3 download");
+    setMeta("description", "FastAudio Media Converter lets you convert media files to high quality audio online for free. Fast, easy and secure audio conversion tool for personal use.");
+    setMeta("keywords", "media converter, audio converter, convert media, audio extraction, online converter, audio processing");
     setMeta("robots", "index, follow");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.cc/");
+    canonical.setAttribute("href", "https://fastaudio.cc/");
     
     // JSON-LD Structured Data for SoftwareApplication
     let schemaScript = document.querySelector('script[data-type="application-schema"]');
@@ -41,8 +41,8 @@ export default function Home() {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "FastAudio Media Converter",
-        "description": "Free online tool to convert video to MP3 with high quality audio. No registration required.",
-        "url": "https://fastyt.cc",
+        "description": "Free online tool to convert media files to high quality audio. No registration required.",
+        "url": "https://fastaudio.cc",
         "applicationCategory": "MultimediaApplication",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
         "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1250"}
@@ -91,7 +91,7 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
           >
-            Convert Videos to <span className="text-gradient block sm:inline">High Quality MP3</span>
+            Convert Media Files to <span className="text-gradient block sm:inline">High Quality Audio</span>
           </motion.h1>
           
           <motion.p 
@@ -100,7 +100,7 @@ export default function Home() {
             transition={{ delay: 0.2 }}
             className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            Paste your link below to instantly download audio in up to 320kbps. 
+            Upload your file or provide a media source to process audio instantly in up to 320kbps. 
             No registration required, completely free.
           </motion.p>
         </div>
@@ -120,7 +120,7 @@ export default function Home() {
                   <Search className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <Input 
-                  placeholder="Paste your video link here..." 
+                  placeholder="Upload your file or enter media source..." 
                   className="w-full h-14 sm:h-16 pl-12 pr-4 sm:pr-28 text-base rounded-xl sm:rounded-2xl shadow-inner bg-background"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
@@ -147,7 +147,7 @@ export default function Home() {
               {/* Validation Feedback */}
               {url && !isValidYoutubeUrl(url) && (
                 <p className="text-destructive text-sm mt-3 ml-2 animate-in fade-in slide-in-from-top-2">
-                  Please enter a valid YouTube URL.
+                  Please enter a valid media source URL.
                 </p>
               )}
             </div>
@@ -205,7 +205,7 @@ export default function Home() {
                         </>
                       ) : (
                         <>
-                          Convert Video <ArrowRight className="w-5 h-5 ml-2" />
+                          Convert Media <ArrowRight className="w-5 h-5 ml-2" />
                         </>
                       )}
                     </Button>
@@ -215,7 +215,7 @@ export default function Home() {
                   {convertMutation.isPending && (
                     <div className="mt-6 space-y-2">
                       <div className="flex justify-between text-sm font-medium text-primary">
-                        <span>Processing audio track...</span>
+                        <span>Processing your media file...</span>
                       </div>
                       <div className="h-2 bg-secondary rounded-full overflow-hidden">
                         <motion.div 
@@ -255,7 +255,7 @@ export default function Home() {
                   >
                     <Button variant="gradient" size="lg" className="w-full h-16 text-lg rounded-2xl px-12 shadow-glow">
                       <Download className="w-6 h-6 mr-3" />
-                      Download MP3
+                      Download Audio
                     </Button>
                   </a>
                   <Button 
@@ -292,6 +292,13 @@ export default function Home() {
           </AnimatePresence>
         </motion.div>
 
+        {/* Disclaimer Section */}
+        <div className="max-w-3xl mx-auto mt-12 p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl text-center">
+          <p className="text-sm text-muted-foreground">
+            <strong>Important:</strong> This tool processes only user-provided content. Users must ensure they have rights to use the media they convert.
+          </p>
+        </div>
+
         {/* Features Section below converter */}
         <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
@@ -299,14 +306,14 @@ export default function Home() {
               <Zap className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-lg mb-2">Instant Conversions</h3>
-            <p className="text-muted-foreground text-sm">Our powerful cloud servers process videos in seconds, not minutes.</p>
+            <p className="text-muted-foreground text-sm">Our powerful cloud servers process media files in seconds, not minutes.</p>
           </div>
           <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
             <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mx-auto mb-4">
               <Music className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-lg mb-2">High Quality Audio</h3>
-            <p className="text-muted-foreground text-sm">Choose between 128kbps, 192kbps, or pristine 320kbps MP3 files.</p>
+            <p className="text-muted-foreground text-sm">Choose between 128kbps, 192kbps, or pristine 320kbps audio quality.</p>
           </div>
           <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
             <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500 mx-auto mb-4">

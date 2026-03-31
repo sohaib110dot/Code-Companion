@@ -14,25 +14,25 @@ export default function FAQs() {
     setMeta("keywords", "faqs, faq, frequently asked questions, video converter, mp3 conversion");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.cc/faqs");
+    canonical.setAttribute("href", "https://fastaudio.cc/faqs");
   }, []);
 
   const faqs = [
     {
-      q: "How do I convert a video to MP3?",
-      a: "Simply paste the video URL into the converter, select your preferred audio quality (128kbps, 192kbps, or 320kbps), and click 'Convert Video'. Your MP3 will be ready to download within seconds."
+      q: "How do I convert media to audio?",
+      a: "Simply paste the media URL into the converter, select your preferred audio quality (128kbps, 192kbps, or 320kbps), and click 'Convert Media'. Your audio file will be ready to download within seconds."
     },
     {
       q: "Is FastAudio converter free?",
-      a: "Yes! FastAudio Media Converter is completely free to use. No registration, no hidden fees, no annoying ads. Just convert your videos to MP3 instantly."
+      a: "Yes! FastAudio Media Converter is completely free to use. No registration, no hidden fees, no annoying ads. Just convert your media to audio instantly."
     },
     {
-      q: "What video formats are supported?",
-      a: "We support most popular video platforms. Simply paste the video URL and our tool will automatically detect and convert it to high-quality MP3."
+      q: "What media formats are supported?",
+      a: "We support most popular media platforms. Simply paste the media URL and our tool will automatically detect and convert it to high-quality audio."
     },
     {
       q: "Do you store my files?",
-      a: "No, we do not store any files. Your videos are converted on our secure servers and deleted immediately after download. Your privacy is guaranteed."
+      a: "No, we do not store any files. Your media is converted on our secure servers and deleted immediately after download. Your privacy is guaranteed."
     },
     {
       q: "What audio quality options are available?",
@@ -40,11 +40,11 @@ export default function FAQs() {
     },
     {
       q: "How long does the conversion take?",
-      a: "Most conversions complete within seconds. The time depends on the video length and our server load. Typically, you'll have your MP3 ready in 15-30 seconds."
+      a: "Most conversions complete within seconds. The time depends on the media length and our server load. Typically, you'll have your audio ready in 15-30 seconds."
     },
     {
-      q: "Can I convert videos from other platforms?",
-      a: "Yes! We support most major video platforms including Vimeo, TikTok, Instagram, and more."
+      q: "Can I convert media from other platforms?",
+      a: "Yes! We support most major media platforms including Vimeo, TikTok, Instagram, and more."
     },
     {
       q: "Is my download secure?",

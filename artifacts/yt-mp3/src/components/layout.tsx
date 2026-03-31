@@ -23,21 +23,21 @@ export function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     const breadcrumbMap: Record<string, Array<{name: string; url: string}>> = {
-      "/": [{ name: "Home", url: "https://fastyt.cc/" }],
-      "/about": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "About", url: "https://fastyt.cc/about" }],
-      "/contact": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Contact", url: "https://fastyt.cc/contact" }],
-      "/terms": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Terms", url: "https://fastyt.cc/terms" }],
-      "/privacy-policy": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Privacy", url: "https://fastyt.cc/privacy-policy" }],
-      "/disclaimer": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Disclaimer", url: "https://fastyt.cc/disclaimer" }],
-      "/dmca": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "DMCA Policy", url: "https://fastyt.cc/dmca" }],
-      "/faqs": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "FAQs", url: "https://fastyt.cc/faqs" }],
-      "/convert-video-to-mp3": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Convert Video to MP3", url: "https://fastyt.cc/convert-video-to-mp3" }],
-      "/extract-audio": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Extract Audio", url: "https://fastyt.cc/extract-audio" }],
-      "/mobile-convert": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Convert on Mobile", url: "https://fastyt.cc/mobile-convert" }],
-      "/mp3-vs-wav": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "MP3 vs WAV", url: "https://fastyt.cc/mp3-vs-wav" }],
-      "/convert-without-software": [{ name: "Home", url: "https://fastyt.cc/" }, { name: "Convert Without Software", url: "https://fastyt.cc/convert-without-software" }],
+      "/": [{ name: "Home", url: "https://fastaudio.cc/" }],
+      "/about": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "About", url: "https://fastaudio.cc/about" }],
+      "/contact": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Contact", url: "https://fastaudio.cc/contact" }],
+      "/terms": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Terms", url: "https://fastaudio.cc/terms" }],
+      "/privacy-policy": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Privacy", url: "https://fastaudio.cc/privacy-policy" }],
+      "/disclaimer": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Disclaimer", url: "https://fastaudio.cc/disclaimer" }],
+      "/dmca": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "DMCA Policy", url: "https://fastaudio.cc/dmca" }],
+      "/faqs": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "FAQs", url: "https://fastaudio.cc/faqs" }],
+      "/convert-video-to-mp3": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Convert Video to MP3", url: "https://fastaudio.cc/convert-video-to-mp3" }],
+      "/extract-audio": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Extract Audio", url: "https://fastaudio.cc/extract-audio" }],
+      "/mobile-convert": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Convert on Mobile", url: "https://fastaudio.cc/mobile-convert" }],
+      "/mp3-vs-wav": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "MP3 vs WAV", url: "https://fastaudio.cc/mp3-vs-wav" }],
+      "/convert-without-software": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Convert Without Software", url: "https://fastaudio.cc/convert-without-software" }],
     };
-    const breadcrumbs = breadcrumbMap[location] || [{ name: "Home", url: "https://fastyt.cc/" }];
+    const breadcrumbs = breadcrumbMap[location] || [{ name: "Home", url: "https://fastaudio.cc/" }];
     let breadcrumbScript = document.querySelector('script[data-type="breadcrumb-schema"]') as HTMLScriptElement | null;
     if (!breadcrumbScript) {
       breadcrumbScript = document.createElement("script");

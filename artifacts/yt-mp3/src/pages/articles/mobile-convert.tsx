@@ -15,7 +15,7 @@ export default function MobileConvert() {
     setMeta("keywords", "mobile conversion, convert on phone, iphone, android, mobile converter, convert on ipad");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.cc/mobile-convert");
+    canonical.setAttribute("href", "https://fastaudio.cc/mobile-convert");
     
     // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
@@ -28,7 +28,7 @@ export default function MobileConvert() {
         "@type": "BlogPosting",
         "headline": "How to Convert Video to MP3 on Mobile",
         "description": "Convert video to MP3 on your phone. Easy guide for iOS and Android users to extract audio from videos.",
-        "url": "https://fastyt.cc/mobile-convert",
+        "url": "https://fastaudio.cc/mobile-convert",
         "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "mobile conversion, convert on phone, iphone, android"

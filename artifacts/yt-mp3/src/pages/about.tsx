@@ -14,7 +14,7 @@ export default function About() {
     setMeta("keywords", "about fastaudio, converter tool, about us, company info");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.cc/about");
+    canonical.setAttribute("href", "https://fastaudio.cc/about");
   }, []);
 
   return (
@@ -23,13 +23,13 @@ export default function About() {
         <h1 className="text-4xl font-display font-bold mb-8">About FastAudio</h1>
         
         <p className="lead text-xl text-muted-foreground mb-8">
-          FastAudio was built with a simple goal: to provide the fastest, cleanest, and most reliable way to convert videos to MP3 audio files.
+          FastAudio was built with a simple goal: to provide the fastest, cleanest, and most reliable way to convert media files to high quality audio.
         </p>
         
         <div className="bg-card p-8 rounded-2xl border border-border mb-10 shadow-sm">
           <h2 className="text-2xl font-bold mb-4 mt-0">Our Mission</h2>
           <p className="mb-0">
-            The internet is full of converter tools that are bloated with intrusive ads, malicious popups, and slow processing times. We wanted to build an alternative that respects the user's time and security. Our infrastructure leverages high-speed cloud servers to process audio extraction instantly, delivering high-bitrate MP3s without the hassle.
+            The internet is full of converter tools that are bloated with intrusive ads, malicious popups, and slow processing times. We wanted to build an alternative that respects the user's time and security. Our infrastructure leverages high-speed cloud servers to process audio extraction instantly, delivering high-quality audio files without the hassle.
           </p>
         </div>
 
@@ -43,12 +43,12 @@ export default function About() {
 
         <h3>How to use the tool</h3>
         <ol>
-          <li>Find the video you want to convert.</li>
-          <li>Copy the URL from your browser's address bar.</li>
+          <li>Find the media you want to convert.</li>
+          <li>Copy the media URL from your browser's address bar.</li>
           <li>Paste the URL into the search box on our homepage.</li>
           <li>Select your desired audio quality.</li>
           <li>Click Convert and wait a few seconds.</li>
-          <li>Click Download to save the MP3 to your device.</li>
+          <li>Click Download to save the audio file to your device.</li>
         </ol>
 
         <hr className="my-10" />
