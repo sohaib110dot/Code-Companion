@@ -280,13 +280,13 @@ router.get("/downloads/:filename", (req: Request, res: Response) => {
     } catch {}
   }
 
-  // Optimize for fast download
+  // Optimize for fast download (simple, reliable approach)
   res.setHeader("Content-Disposition", `attachment; filename="${downloadName}"`);
   res.setHeader("Content-Type", "audio/mpeg");
   res.setHeader("Content-Length", fileStats.size);
   res.setHeader("Cache-Control", "public, max-age=3600");
+  // Remove problematic headers for downloads
   res.setHeader("Accept-Ranges", "bytes");
-  res.setHeader("Content-Encoding", "gzip");
   res.sendFile(filePath);
 });
 
