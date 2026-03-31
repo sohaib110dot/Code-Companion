@@ -46,6 +46,13 @@ function extractMediaId(url: string): string {
 }
 
 const inProgressConversions = new Set<string>();
+const MAX_CONCURRENT_CONVERSIONS = 3; // Limit to 3 concurrent conversions
+const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB limit
+const BITRATE_LIMITS: Record<string, number> = {
+  "128": 128,
+  "192": 192,
+  "320": 320
+};
 
 async function fetchMediaInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
   const mediaId = extractMediaId(url);
@@ -150,9 +157,21 @@ router.post("/convert", async (req: Request, res: Response) => {
       return;
     }
 
+    // Check concurrent conversion limit
+    if (inProgressConversions.size >= MAX_CONCURRENT_CONVERSIONS) {
+      res.status(429).json({ error: "Server busy. Too many conversions. Please wait a moment and try again." });
+      return;
+    }
+
     const urlKey = crypto.createHash("md5").update(url + quality).digest("hex");
     if (inProgressConversions.has(urlKey)) {
       res.status(400).json({ error: "This media is already being converted. Please wait." });
+      return;
+    }
+
+    // Validate bitrate
+    if (!BITRATE_LIMITS[quality]) {
+      res.status(400).json({ error: "Invalid quality selection. Choose 128, 192, or 320 kbps." });
       return;
     }
 
@@ -183,9 +202,18 @@ router.post("/convert", async (req: Request, res: Response) => {
       const outputMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.m4a`);
 
       const dlRes = await fetch(downloadUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36" },
+        headers: { 
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+          "Accept-Encoding": "gzip, deflate, br"
+        },
       });
       if (!dlRes.ok || !dlRes.body) throw new Error("Failed to download converted audio");
+
+      // Check file size before processing
+      const contentLength = parseInt(dlRes.headers.get("content-length") || "0", 10);
+      if (contentLength > MAX_FILE_SIZE) {
+        throw new Error(`File too large (${Math.round(contentLength / 1024 / 1024)}MB). Maximum: 500MB`);
+      }
 
       const fileStream = fs.createWriteStream(sourceMp3);
       await pipeline(Readable.fromWeb(dlRes.body as any), fileStream);
@@ -223,7 +251,8 @@ router.post("/convert", async (req: Request, res: Response) => {
 
 router.get("/downloads/:filename", (req: Request, res: Response) => {
   const { filename } = req.params;
-  if (!/^[a-f0-9]{32}\.mp3$/.test(filename)) {
+  // Accept both .mp3 and .m4a for backwards compatibility
+  if (!/^[a-f0-9]{32}\.(mp3|m4a)$/.test(filename)) {
     res.status(400).json({ error: "Invalid filename" });
     return;
   }
@@ -232,18 +261,32 @@ router.get("/downloads/:filename", (req: Request, res: Response) => {
     res.status(404).json({ error: "File not found or expired" });
     return;
   }
-  const metaFile = path.join(DOWNLOADS_DIR, filename.replace(".mp3", ".json"));
-  let downloadName = "audio.mp3";
+
+  // Get file stats for size
+  const fileStats = fs.statSync(filePath);
+  if (fileStats.size > MAX_FILE_SIZE) {
+    res.status(413).json({ error: "File too large" });
+    return;
+  }
+
+  const metaFile = path.join(DOWNLOADS_DIR, filename.replace(/\.(mp3|m4a)$/, ".json"));
+  let downloadName = "audio.m4a";
   if (fs.existsSync(metaFile)) {
     try {
       const meta = JSON.parse(fs.readFileSync(metaFile, "utf-8"));
       if (meta.title) {
-        downloadName = meta.title.replace(/[^a-zA-Z0-9 _-]/g, "").trim() + ".mp3";
+        downloadName = meta.title.replace(/[^a-zA-Z0-9 _-]/g, "").trim() + ".m4a";
       }
     } catch {}
   }
+
+  // Optimize for fast download
   res.setHeader("Content-Disposition", `attachment; filename="${downloadName}"`);
-  res.setHeader("Content-Type", "audio/mpeg");
+  res.setHeader("Content-Type", "audio/mp4");
+  res.setHeader("Content-Length", fileStats.size);
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("Content-Encoding", "gzip");
   res.sendFile(filePath);
 });
 
@@ -260,8 +303,11 @@ function scheduleCleanup() {
           const meta = JSON.parse(fs.readFileSync(metaPath, "utf-8"));
           if (now - meta.createdAt > ONE_HOUR) {
             fs.unlinkSync(metaPath);
-            const mp3 = metaPath.replace(".json", ".mp3");
-            if (fs.existsSync(mp3)) fs.unlinkSync(mp3);
+            const audioFile = metaPath.replace(".json", ".m4a");
+            if (fs.existsSync(audioFile)) fs.unlinkSync(audioFile);
+            // Also clean up old .mp3 files for backwards compatibility
+            const mp3File = metaPath.replace(".json", ".mp3");
+            if (fs.existsSync(mp3File)) fs.unlinkSync(mp3File);
           }
         } catch {}
       }
