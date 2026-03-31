@@ -22,7 +22,6 @@ export default function ConvertWithoutSoftware() {
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastaudio.cc/convert-without-software");
     
-    // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
     if (!articleScript) {
       articleScript = document.createElement("script");
@@ -49,33 +48,29 @@ export default function ConvertWithoutSoftware() {
 
         <p className="lead text-xl text-muted-foreground mb-8">{t.cws_lead}</p>
 
-        <h2>{t.cws_problem_title}</h2>
-        <p>{t.cws_problem_p1}</p>
-        <p>{t.cws_problem_p2}</p>
-
-        <h2>{t.cws_benefits_title}</h2>
-        <ul>
-          <li>{t.cws_benefit1}</li>
-          <li>{t.cws_benefit2}</li>
-          <li>{t.cws_benefit3}</li>
-          <li>{t.cws_benefit4}</li>
-          <li>{t.cws_benefit5}</li>
-        </ul>
+        <h2>{t.cws_why_title}</h2>
+        <p>{t.cws_why_body}</p>
 
         <h2>{t.cws_how_title}</h2>
-        <p>{t.cws_how_body}</p>
+        <ol>
+          <li>{t.cws_step1}</li>
+          <li>{t.cws_step2}</li>
+          <li>{t.cws_step3}</li>
+          <li>{t.cws_step4}</li>
+          <li>{t.cws_step5}</li>
+          <li>{t.cws_step6}</li>
+        </ol>
 
         <h2>{t.cws_safe_title}</h2>
         <p>{t.cws_safe_body}</p>
 
-        <h2>{t.cws_when_title}</h2>
-        <p>{t.cws_when_body}</p>
+        <h2>{t.cws_tips_title}</h2>
         <ul>
-          <li>{t.cws_when_li1}</li>
-          <li>{t.cws_when_li2}</li>
-          <li>{t.cws_when_li3}</li>
+          <li>{t.cws_why_li1}</li>
+          <li>{t.cws_why_li2}</li>
+          <li>{t.cws_why_li3}</li>
+          <li>{t.cws_why_li4}</li>
         </ul>
-        <p>{t.cws_when_conclusion}</p>
 
         <h2>{t.cws_cta_title}</h2>
         <p>{t.cws_cta_body}</p>

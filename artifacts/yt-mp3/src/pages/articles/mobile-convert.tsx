@@ -22,7 +22,6 @@ export default function MobileConvert() {
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastaudio.cc/mobile-convert");
     
-    // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
     if (!articleScript) {
       articleScript = document.createElement("script");
@@ -49,28 +48,17 @@ export default function MobileConvert() {
 
         <p className="lead text-xl text-muted-foreground mb-8">{t.mc_lead}</p>
 
-        <h2>{t.mc_can_title}</h2>
-        <p>{t.mc_can_p1}</p>
-        <p>{t.mc_can_p2}</p>
+        <h2>{t.mc_works_title}</h2>
+        <p>{t.mc_works_body}</p>
 
-        <h2>{t.mc_iphone_title}</h2>
+        <h2>{t.mc_steps_title}</h2>
         <ol>
-          <li>{t.mc_iphone_step1}</li>
-          <li>{t.mc_iphone_step2}</li>
-          <li>{t.mc_iphone_step3}</li>
-          <li>{t.mc_iphone_step4}</li>
-          <li>{t.mc_iphone_step5}</li>
-          <li>{t.mc_iphone_step6}</li>
-        </ol>
-
-        <h2>{t.mc_android_title}</h2>
-        <ol>
-          <li>{t.mc_android_step1}</li>
-          <li>{t.mc_android_step2}</li>
-          <li>{t.mc_android_step3}</li>
-          <li>{t.mc_android_step4}</li>
-          <li>{t.mc_android_step5}</li>
-          <li>{t.mc_android_step6}</li>
+          <li>{t.mc_step1}</li>
+          <li>{t.mc_step2}</li>
+          <li>{t.mc_step3}</li>
+          <li>{t.mc_step4}</li>
+          <li>{t.mc_step5}</li>
+          <li>{t.mc_step6}</li>
         </ol>
 
         <h2>{t.mc_tips_title}</h2>
@@ -81,16 +69,8 @@ export default function MobileConvert() {
           <li>{t.mc_tip4}</li>
         </ul>
 
-        <h2>{t.mc_why_title}</h2>
-        <ul>
-          <li>{t.mc_why1}</li>
-          <li>{t.mc_why2}</li>
-          <li>{t.mc_why3}</li>
-          <li>{t.mc_why4}</li>
-        </ul>
-
-        <h2>{t.mc_ready_title}</h2>
-        <p>{t.mc_ready_body}</p>
+        <h2>{t.mc_cta_title}</h2>
+        <p>{t.mc_cta_body}</p>
         <div className="not-prose my-8">
           <Link
             href="/"

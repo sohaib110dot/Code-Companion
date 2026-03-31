@@ -22,7 +22,6 @@ export default function Mp3VsWav() {
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastaudio.cc/mp3-vs-wav");
     
-    // JSON-LD Article Schema
     let articleScript = document.querySelector('script[data-type="article-schema"]');
     if (!articleScript) {
       articleScript = document.createElement("script");
@@ -49,73 +48,50 @@ export default function Mp3VsWav() {
 
         <p className="lead text-xl text-muted-foreground mb-8">{t.mvw_lead}</p>
 
-        <h2>{t.mvw_what_mp3_title}</h2>
-        <p>{t.mvw_what_mp3_p1}</p>
-        <p>{t.mvw_what_mp3_p2}</p>
+        <h2>{t.mvw_mp3_title}</h2>
+        <p>{t.mvw_mp3_body}</p>
 
-        <h2>{t.mvw_what_wav_title}</h2>
-        <p>{t.mvw_what_wav_p1}</p>
-        <p>{t.mvw_what_wav_p2}</p>
+        <h2>{t.mvw_wav_title}</h2>
+        <p>{t.mvw_wav_body}</p>
 
-        <h2>{t.mvw_differences_title}</h2>
+        <h2>{t.mvw_diff_title}</h2>
         <div className="not-prose overflow-x-auto my-6">
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-muted">
-                <th className="text-left px-4 py-3 font-semibold border border-border">{t.mvw_table_feature}</th>
+                <th className="text-left px-4 py-3 font-semibold border border-border">Feature</th>
                 <th className="text-left px-4 py-3 font-semibold border border-border">MP3</th>
                 <th className="text-left px-4 py-3 font-semibold border border-border">WAV</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_compression}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_mp3_compression}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_wav_compression}</td>
+                <td className="px-4 py-3 border border-border">{t.mvw_size_label}</td>
+                <td className="px-4 py-3 border border-border">{t.mvw_size_mp3}</td>
+                <td className="px-4 py-3 border border-border">{t.mvw_size_wav}</td>
               </tr>
               <tr className="bg-muted/30">
-                <td className="px-4 py-3 border border-border">{t.mvw_table_filesize}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_mp3_filesize}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_wav_filesize}</td>
+                <td className="px-4 py-3 border border-border">{t.mvw_quality_label}</td>
+                <td className="px-4 py-3 border border-border">{t.mvw_quality_mp3}</td>
+                <td className="px-4 py-3 border border-border">{t.mvw_quality_wav}</td>
               </tr>
               <tr>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_quality}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_mp3_quality}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_wav_quality}</td>
-              </tr>
-              <tr className="bg-muted/30">
-                <td className="px-4 py-3 border border-border">{t.mvw_table_bestfor}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_mp3_bestfor}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_wav_bestfor}</td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_compatibility}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_mp3_compatibility}</td>
-                <td className="px-4 py-3 border border-border">{t.mvw_table_wav_compatibility}</td>
+                <td className="px-4 py-3 border border-border">Compatibility</td>
+                <td className="px-4 py-3 border border-border">{t.mvw_compat_mp3}</td>
+                <td className="px-4 py-3 border border-border">{t.mvw_compat_wav}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <h2>{t.mvw_when_mp3_title}</h2>
+        <h2>{t.mvw_choose_title}</h2>
         <ul>
-          <li>{t.mvw_when_mp3_1}</li>
-          <li>{t.mvw_when_mp3_2}</li>
-          <li>{t.mvw_when_mp3_3}</li>
-          <li>{t.mvw_when_mp3_4}</li>
+          <li><strong>MP3:</strong> {t.mvw_choose_mp3}</li>
+          <li><strong>WAV:</strong> {t.mvw_choose_wav}</li>
         </ul>
-
-        <h2>{t.mvw_when_wav_title}</h2>
-        <ul>
-          <li>{t.mvw_when_wav_1}</li>
-          <li>{t.mvw_when_wav_2}</li>
-          <li>{t.mvw_when_wav_3}</li>
-        </ul>
-
-        <h2>{t.mvw_recommendation_title}</h2>
-        <p>{t.mvw_recommendation_body}</p>
 
         <h2>{t.mvw_cta_title}</h2>
+        <p>{t.mvw_cta_body}</p>
         <div className="not-prose my-8">
           <Link
             href="/"
