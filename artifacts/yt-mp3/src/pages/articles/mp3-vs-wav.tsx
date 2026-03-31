@@ -5,7 +5,7 @@ import { useI18n } from "@/lib/i18n-context";
 import { getPageTranslations } from "@/lib/page-translations";
 
 export default function Mp3VsWav() {
-  const { lang, t: globalT } = useI18n();
+  const { lang } = useI18n();
   const t = getPageTranslations(lang);
 
   useEffect(() => {
