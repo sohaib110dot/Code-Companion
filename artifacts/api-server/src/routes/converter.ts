@@ -130,8 +130,8 @@ router.post("/info", async (req: Request, res: Response) => {
     }
 
     const { title, thumbnail, duration } = await fetchMediaInfo(url);
-    if (duration > 1200) {
-      res.status(400).json({ error: "Media file too long. Maximum duration is 20 minutes." });
+    if (duration > 36000) {
+      res.status(400).json({ error: "Media file too long. Maximum duration is 10 hours." });
       return;
     }
 
@@ -191,8 +191,8 @@ router.post("/convert", async (req: Request, res: Response) => {
 
     try {
       const { title, duration } = await fetchMediaInfo(url);
-      if (duration > 1200) {
-        res.status(400).json({ error: "Media file too long. Maximum duration is 20 minutes." });
+      if (duration > 36000) {
+        res.status(400).json({ error: "Media file too long. Maximum duration is 10 hours." });
         return;
       }
 
