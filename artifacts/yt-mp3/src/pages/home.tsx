@@ -36,7 +36,7 @@ export default function Home() {
     // JSON-LD Structured Data for SoftwareApplication
     let schemaScript = document.querySelector('script[data-type="application-schema"]');
     if (!schemaScript) {
-      schemaScript = document.createElement("script");
+      schemaScript = document.createElement("script") as HTMLScriptElement;
       schemaScript.type = "application/ld+json";
       schemaScript.setAttribute("data-type", "application-schema");
       schemaScript.textContent = JSON.stringify({

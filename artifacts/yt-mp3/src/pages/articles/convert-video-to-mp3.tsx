@@ -7,16 +7,6 @@ import { getPageTranslations } from "@/lib/page-translations";
 export default function ConvertVideoToMp3() {
   const { lang, t: globalT } = useI18n();
   const t = getPageTranslations(lang);
-  
-  // Create wrapper that uses auto-translation for missing keys
-  const getTranslation = (key: keyof PageTranslations) => {
-    const value = t[key];
-    if (!value || value === key) {
-      // Use global t which has auto-translation
-      return globalT(key as any) || key;
-    }
-    return value;
-  };
 
   useEffect(() => {
     document.title = `${t.cvmp3_title} - FastAudio`;
@@ -34,7 +24,7 @@ export default function ConvertVideoToMp3() {
 
     let articleScript = document.querySelector('script[data-type="article-schema"]');
     if (!articleScript) {
-      articleScript = document.createElement("script");
+      articleScript = document.createElement("script") as HTMLScriptElement;
       articleScript.type = "application/ld+json";
       articleScript.setAttribute("data-type", "article-schema");
       articleScript.textContent = JSON.stringify({

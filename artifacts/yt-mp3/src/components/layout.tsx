@@ -42,6 +42,8 @@ export function Layout({ children }: LayoutProps) {
   }, [location]);
 
   useEffect(() => {
+    if (!showLanguageDropdown) return;
+    
     // Close dropdown when clicking outside
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -50,10 +52,8 @@ export function Layout({ children }: LayoutProps) {
       }
     };
     
-    if (showLanguageDropdown) {
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
-    }
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [showLanguageDropdown]);
 
   const handleLanguageChange = (langCode: string) => {

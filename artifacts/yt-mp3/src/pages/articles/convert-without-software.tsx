@@ -7,10 +7,6 @@ import { getPageTranslations } from "@/lib/page-translations";
 export default function ConvertWithoutSoftware() {
   const { lang, t: globalT } = useI18n();
   const t = getPageTranslations(lang);
-  const getTranslation = (key: any) => {
-    const value = t[key];
-    return (!value || value === key) ? (globalT(key as any) || key) : value;
-  };
 
   useEffect(() => {
     document.title = `${t.cws_title} - FastAudio`;
@@ -28,7 +24,7 @@ export default function ConvertWithoutSoftware() {
     
     let articleScript = document.querySelector('script[data-type="article-schema"]');
     if (!articleScript) {
-      articleScript = document.createElement("script");
+      articleScript = document.createElement("script") as HTMLScriptElement;
       articleScript.type = "application/ld+json";
       articleScript.setAttribute("data-type", "article-schema");
       articleScript.textContent = JSON.stringify({
