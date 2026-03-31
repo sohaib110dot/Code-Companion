@@ -18,9 +18,16 @@ if (!fs.existsSync(DOWNLOADS_DIR)) {
 function isValidMediaUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    const host = parsed.hostname.replace("www.", "");
-    const validHosts = ['youtube.com', 'youtu.be', 'vimeo.com', 'instagram.com', 'tiktok.com', 'facebook.com', 'twitter.com', 'x.com'];
-    return validHosts.includes(host);
+    const hostname = parsed.hostname || '';
+    // Check if hostname contains any valid media platform
+    return hostname.includes('youtube.com') || 
+           hostname.includes('youtu.be') || 
+           hostname.includes('vimeo.com') || 
+           hostname.includes('instagram.com') || 
+           hostname.includes('tiktok.com') || 
+           hostname.includes('facebook.com') || 
+           hostname.includes('twitter.com') || 
+           hostname.includes('x.com');
   } catch {
     return false;
   }
