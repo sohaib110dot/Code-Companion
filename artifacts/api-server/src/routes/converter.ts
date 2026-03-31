@@ -197,17 +197,7 @@ router.post("/convert", async (req: Request, res: Response) => {
       return;
     }
 
-    const existingMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
-    if (fs.existsSync(existingMp3)) {
-      const metaFile = path.join(DOWNLOADS_DIR, `${urlKey}.json`);
-      let title = "Audio";
-      if (fs.existsSync(metaFile)) {
-        try { title = JSON.parse(fs.readFileSync(metaFile, "utf-8")).title || title; } catch {}
-      }
-      const response = ConvertVideoResponse.parse({ success: true, title, download: `/api/downloads/${urlKey}.mp3` });
-      res.json(response);
-      return;
-    }
+    // Skip cache - stream directly from loader.to for instant conversion
 
     inProgressConversions.add(urlKey);
 
@@ -218,51 +208,15 @@ router.post("/convert", async (req: Request, res: Response) => {
         return;
       }
 
+      // Get direct download URL from loader.to - NO local processing!
       const downloadUrl = await convertWithLoaderTo(url);
 
-      const sourceMp3 = path.join(DOWNLOADS_DIR, `${urlKey}_source.mp3`);
-      const outputMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
-
-      const dlRes = await fetch(downloadUrl, {
-        headers: { 
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-          "Accept-Encoding": "gzip, deflate, br"
-        },
-      });
-      if (!dlRes.ok || !dlRes.body) throw new Error("Failed to download converted audio");
-
-      // Check file size before processing
-      const contentLength = parseInt(dlRes.headers.get("content-length") || "0", 10);
-      if (contentLength > MAX_FILE_SIZE) {
-        throw new Error(`File too large (${Math.round(contentLength / 1024 / 1024)}MB). Maximum: 500MB`);
-      }
-
-      const fileStream = fs.createWriteStream(sourceMp3);
-      await pipeline(Readable.fromWeb(dlRes.body as any), fileStream);
-
-      await new Promise<void>((resolve, reject) => {
-        ffmpeg(sourceMp3)
-          // Use quality-based encoding for faster conversion
-          .audioCodec("libmp3lame")
-          .audioQuality(getQualityPreset(quality))
-          .audioFrequency(44100)
-          .toFormat("mp3")
-          .on("end", () => resolve())
-          .on("error", (e: Error) => reject(e))
-          .save(outputMp3);
-      });
-
-      if (fs.existsSync(sourceMp3)) fs.unlinkSync(sourceMp3);
-
-      fs.writeFileSync(
-        path.join(DOWNLOADS_DIR, `${urlKey}.json`),
-        JSON.stringify({ title, createdAt: Date.now() })
-      );
-
+      // Return loader.to URL directly for instant streaming download
+      // loader.to output is already MP3 - skip FFmpeg for maximum speed
       const response = ConvertVideoResponse.parse({
         success: true,
         title,
-        download: `/api/downloads/${urlKey}.mp3`,
+        download: downloadUrl
       });
       res.json(response);
     } finally {
