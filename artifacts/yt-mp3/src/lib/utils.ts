@@ -19,7 +19,13 @@ export function formatDuration(seconds: number): string {
   return `${mDisplay}:${sDisplay}`;
 }
 
-export function isValidYoutubeUrl(url: string): boolean {
-  const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
-  return pattern.test(url);
+export function isValidMediaUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Accept common media platforms
+    const validHosts = ['youtube.com', 'youtu.be', 'vimeo.com', 'instagram.com', 'tiktok.com', 'facebook.com', 'twitter.com', 'x.com'];
+    return validHosts.some(host => parsed.hostname?.includes(host));
+  } catch {
+    return false;
+  }
 }

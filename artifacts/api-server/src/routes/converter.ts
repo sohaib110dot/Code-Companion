@@ -15,17 +15,18 @@ if (!fs.existsSync(DOWNLOADS_DIR)) {
   fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
 }
 
-function isValidYouTubeUrl(url: string): boolean {
+function isValidMediaUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     const host = parsed.hostname.replace("www.", "");
-    return host === "youtube.com" || host === "youtu.be";
+    const validHosts = ['youtube.com', 'youtu.be', 'vimeo.com', 'instagram.com', 'tiktok.com', 'facebook.com', 'twitter.com', 'x.com'];
+    return validHosts.includes(host);
   } catch {
     return false;
   }
 }
 
-function extractVideoId(url: string): string {
+function extractMediaId(url: string): string {
   try {
     const parsed = new URL(url);
     if (parsed.hostname.includes("youtu.be")) {
@@ -39,12 +40,12 @@ function extractVideoId(url: string): string {
 
 const inProgressConversions = new Set<string>();
 
-async function fetchVideoInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
-  const videoId = extractVideoId(url);
+async function fetchMediaInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
+  const mediaId = extractMediaId(url);
   const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
 
   let title = "Unknown Title";
-  let thumbnail = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
+  let thumbnail = mediaId ? `https://img.youtube.com/vi/${mediaId}/hqdefault.jpg` : "";
 
   try {
     const oembedRes = await fetch(oembedUrl);
@@ -57,7 +58,7 @@ async function fetchVideoInfo(url: string): Promise<{ title: string; thumbnail: 
 
   let duration = 0;
   try {
-    const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+    const pageRes = await fetch(`https://www.youtube.com/watch?v=${mediaId}`, {
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36" },
     });
     if (pageRes.ok) {
@@ -109,14 +110,14 @@ router.post("/info", async (req: Request, res: Response) => {
       return;
     }
     const { url } = parsed.data;
-    if (!isValidYouTubeUrl(url)) {
-      res.status(400).json({ error: "Invalid YouTube URL. Only youtube.com and youtu.be are allowed." });
+    if (!isValidMediaUrl(url)) {
+      res.status(400).json({ error: "Invalid media URL. Please provide a valid media source link." });
       return;
     }
 
-    const { title, thumbnail, duration } = await fetchVideoInfo(url);
+    const { title, thumbnail, duration } = await fetchMediaInfo(url);
     if (duration > 1200) {
-      res.status(400).json({ error: "Video too long. Maximum duration is 20 minutes." });
+      res.status(400).json({ error: "Media file too long. Maximum duration is 20 minutes." });
       return;
     }
 
@@ -124,7 +125,7 @@ router.post("/info", async (req: Request, res: Response) => {
     res.json(response);
   } catch (err: any) {
     console.error("Info error:", err.message);
-    res.status(400).json({ error: "Failed to fetch video info. Make sure the URL is a valid public YouTube video." });
+    res.status(400).json({ error: "Failed to fetch media info. Please ensure the URL is valid and publicly accessible." });
   }
 });
 
@@ -137,14 +138,14 @@ router.post("/convert", async (req: Request, res: Response) => {
     }
     const { url, quality } = parsed.data;
 
-    if (!isValidYouTubeUrl(url)) {
-      res.status(400).json({ error: "Invalid YouTube URL. Only youtube.com and youtu.be are allowed." });
+    if (!isValidMediaUrl(url)) {
+      res.status(400).json({ error: "Invalid media URL. Please provide a valid media source link." });
       return;
     }
 
     const urlKey = crypto.createHash("md5").update(url + quality).digest("hex");
     if (inProgressConversions.has(urlKey)) {
-      res.status(400).json({ error: "This video is already being converted. Please wait." });
+      res.status(400).json({ error: "This media is already being converted. Please wait." });
       return;
     }
 
@@ -163,9 +164,9 @@ router.post("/convert", async (req: Request, res: Response) => {
     inProgressConversions.add(urlKey);
 
     try {
-      const { title, duration } = await fetchVideoInfo(url);
+      const { title, duration } = await fetchMediaInfo(url);
       if (duration > 1200) {
-        res.status(400).json({ error: "Video too long. Maximum duration is 20 minutes." });
+        res.status(400).json({ error: "Media file too long. Maximum duration is 20 minutes." });
         return;
       }
 

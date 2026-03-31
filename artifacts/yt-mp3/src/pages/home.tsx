@@ -4,7 +4,7 @@ import { Layout } from "@/components/layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoPreview } from "@/components/video-preview";
-import { isValidYoutubeUrl, cn } from "@/lib/utils";
+import { isValidMediaUrl, cn } from "@/lib/utils";
 import { Search, Loader2, Download, ArrowRight, Zap, CheckCircle2, Shield, Music } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -50,7 +50,7 @@ export default function Home() {
       document.head.appendChild(schemaScript);
     }
 
-    if (isValidYoutubeUrl(url)) {
+    if (isValidMediaUrl(url)) {
       // Avoid refetching if we already have it for this exact URL (basic check)
       if (!infoMutation.isPending && !convertMutation.isSuccess) {
         infoMutation.mutate({ data: { url } });
@@ -63,7 +63,7 @@ export default function Home() {
   }, [url]);
 
   const handleConvert = () => {
-    if (!isValidYoutubeUrl(url)) return;
+    if (!isValidMediaUrl(url)) return;
     convertMutation.mutate({ data: { url, quality } });
   };
 
@@ -132,7 +132,7 @@ export default function Home() {
                     variant="gradient" 
                     className="h-12 sm:h-14 sm:absolute right-2 rounded-xl px-6 sm:px-7 font-medium w-full sm:w-auto whitespace-nowrap"
                     onClick={() => {
-                      if (isValidYoutubeUrl(url)) {
+                      if (isValidMediaUrl(url)) {
                         infoMutation.mutate({ data: { url } });
                       }
                     }}
@@ -145,7 +145,7 @@ export default function Home() {
               </div>
 
               {/* Validation Feedback */}
-              {url && !isValidYoutubeUrl(url) && (
+              {url && !isValidMediaUrl(url) && (
                 <p className="text-destructive text-sm mt-3 ml-2 animate-in fade-in slide-in-from-top-2">
                   Please enter a valid media source URL.
                 </p>
