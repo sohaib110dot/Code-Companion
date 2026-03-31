@@ -175,14 +175,14 @@ router.post("/convert", async (req: Request, res: Response) => {
       return;
     }
 
-    const existingMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.m4a`);
+    const existingMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
     if (fs.existsSync(existingMp3)) {
       const metaFile = path.join(DOWNLOADS_DIR, `${urlKey}.json`);
       let title = "Audio";
       if (fs.existsSync(metaFile)) {
         try { title = JSON.parse(fs.readFileSync(metaFile, "utf-8")).title || title; } catch {}
       }
-      const response = ConvertVideoResponse.parse({ success: true, title, download: `/api/downloads/${urlKey}.m4a` });
+      const response = ConvertVideoResponse.parse({ success: true, title, download: `/api/downloads/${urlKey}.mp3` });
       res.json(response);
       return;
     }
@@ -198,8 +198,8 @@ router.post("/convert", async (req: Request, res: Response) => {
 
       const downloadUrl = await convertWithLoaderTo(url);
 
-      const sourceMp3 = path.join(DOWNLOADS_DIR, `${urlKey}_source.m4a`);
-      const outputMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.m4a`);
+      const sourceMp3 = path.join(DOWNLOADS_DIR, `${urlKey}_source.mp3`);
+      const outputMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
 
       const dlRes = await fetch(downloadUrl, {
         headers: { 
@@ -221,7 +221,7 @@ router.post("/convert", async (req: Request, res: Response) => {
       await new Promise<void>((resolve, reject) => {
         ffmpeg(sourceMp3)
           .audioBitrate(parseInt(quality))
-          .toFormat("m4a")
+          .toFormat("mp3")
           .on("end", () => resolve())
           .on("error", (e: Error) => reject(e))
           .save(outputMp3);
@@ -237,7 +237,7 @@ router.post("/convert", async (req: Request, res: Response) => {
       const response = ConvertVideoResponse.parse({
         success: true,
         title,
-        download: `/api/downloads/${urlKey}.m4a`,
+        download: `/api/downloads/${urlKey}.mp3`,
       });
       res.json(response);
     } finally {
@@ -251,7 +251,7 @@ router.post("/convert", async (req: Request, res: Response) => {
 
 router.get("/downloads/:filename", (req: Request, res: Response) => {
   const { filename } = req.params;
-  // Accept both .mp3 and .m4a for backwards compatibility
+  // Accept both .mp3 and .mp3 for backwards compatibility
   if (!/^[a-f0-9]{32}\.(mp3|m4a)$/.test(filename)) {
     res.status(400).json({ error: "Invalid filename" });
     return;
@@ -270,19 +270,19 @@ router.get("/downloads/:filename", (req: Request, res: Response) => {
   }
 
   const metaFile = path.join(DOWNLOADS_DIR, filename.replace(/\.(mp3|m4a)$/, ".json"));
-  let downloadName = "audio.m4a";
+  let downloadName = "audio.mp3";
   if (fs.existsSync(metaFile)) {
     try {
       const meta = JSON.parse(fs.readFileSync(metaFile, "utf-8"));
       if (meta.title) {
-        downloadName = meta.title.replace(/[^a-zA-Z0-9 _-]/g, "").trim() + ".m4a";
+        downloadName = meta.title.replace(/[^a-zA-Z0-9 _-]/g, "").trim() + ".mp3";
       }
     } catch {}
   }
 
   // Optimize for fast download
   res.setHeader("Content-Disposition", `attachment; filename="${downloadName}"`);
-  res.setHeader("Content-Type", "audio/mp4");
+  res.setHeader("Content-Type", "audio/mpeg");
   res.setHeader("Content-Length", fileStats.size);
   res.setHeader("Cache-Control", "public, max-age=3600");
   res.setHeader("Accept-Ranges", "bytes");
@@ -303,7 +303,7 @@ function scheduleCleanup() {
           const meta = JSON.parse(fs.readFileSync(metaPath, "utf-8"));
           if (now - meta.createdAt > ONE_HOUR) {
             fs.unlinkSync(metaPath);
-            const audioFile = metaPath.replace(".json", ".m4a");
+            const audioFile = metaPath.replace(".json", ".mp3");
             if (fs.existsSync(audioFile)) fs.unlinkSync(audioFile);
             // Also clean up old .mp3 files for backwards compatibility
             const mp3File = metaPath.replace(".json", ".mp3");
