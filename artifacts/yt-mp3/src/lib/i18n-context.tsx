@@ -3,6 +3,7 @@ import { translations, LanguageCode, TranslationKey } from "./translations";
 
 interface I18nContextType {
   language: LanguageCode;
+  lang: LanguageCode;
   setLanguage: (lang: LanguageCode) => void;
   t: (key: TranslationKey, variables?: Record<string, string | number>) => string;
 }
@@ -35,7 +36,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <I18nContext.Provider value={{ language, setLanguage, t }}>
+    <I18nContext.Provider value={{ language, lang: language, setLanguage, t }}>
       {children}
     </I18nContext.Provider>
   );
