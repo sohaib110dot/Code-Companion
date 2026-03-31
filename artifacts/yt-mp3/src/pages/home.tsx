@@ -255,7 +255,7 @@ export default function Home() {
                   >
                     <Button variant="gradient" size="lg" className="w-full h-16 text-lg rounded-2xl px-12 shadow-glow">
                       <Download className="w-6 h-6 mr-3" />
-                      Download Audio
+                      Download File
                     </Button>
                   </a>
                   <Button 

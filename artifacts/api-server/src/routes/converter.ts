@@ -156,14 +156,14 @@ router.post("/convert", async (req: Request, res: Response) => {
       return;
     }
 
-    const existingMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
+    const existingMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.m4a`);
     if (fs.existsSync(existingMp3)) {
       const metaFile = path.join(DOWNLOADS_DIR, `${urlKey}.json`);
       let title = "Audio";
       if (fs.existsSync(metaFile)) {
         try { title = JSON.parse(fs.readFileSync(metaFile, "utf-8")).title || title; } catch {}
       }
-      const response = ConvertVideoResponse.parse({ success: true, title, download: `/api/downloads/${urlKey}.mp3` });
+      const response = ConvertVideoResponse.parse({ success: true, title, download: `/api/downloads/${urlKey}.m4a` });
       res.json(response);
       return;
     }
@@ -179,8 +179,8 @@ router.post("/convert", async (req: Request, res: Response) => {
 
       const downloadUrl = await convertWithLoaderTo(url);
 
-      const sourceMp3 = path.join(DOWNLOADS_DIR, `${urlKey}_source.mp3`);
-      const outputMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
+      const sourceMp3 = path.join(DOWNLOADS_DIR, `${urlKey}_source.m4a`);
+      const outputMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.m4a`);
 
       const dlRes = await fetch(downloadUrl, {
         headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36" },
@@ -193,7 +193,7 @@ router.post("/convert", async (req: Request, res: Response) => {
       await new Promise<void>((resolve, reject) => {
         ffmpeg(sourceMp3)
           .audioBitrate(parseInt(quality))
-          .toFormat("mp3")
+          .toFormat("m4a")
           .on("end", () => resolve())
           .on("error", (e: Error) => reject(e))
           .save(outputMp3);
@@ -209,7 +209,7 @@ router.post("/convert", async (req: Request, res: Response) => {
       const response = ConvertVideoResponse.parse({
         success: true,
         title,
-        download: `/api/downloads/${urlKey}.mp3`,
+        download: `/api/downloads/${urlKey}.m4a`,
       });
       res.json(response);
     } finally {
