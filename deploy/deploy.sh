@@ -28,18 +28,17 @@ echo "✓ Backend built: artifacts/api-server/dist/index.cjs"
 # Step 3: Upload frontend static files
 echo ""
 echo "[3/5] Uploading frontend..."
-rsync -avz --delete \
-    artifacts/yt-mp3/dist/public/ \
-    $VPS_USER@$VPS_IP:$DEPLOY_DIR/public/
+ssh $VPS_USER@$VPS_IP "rm -rf $DEPLOY_DIR/public/*"
+scp -r artifacts/yt-mp3/dist/public/* $VPS_USER@$VPS_IP:$DEPLOY_DIR/public/
 echo "✓ Frontend uploaded"
 
 # Step 4: Upload backend
 echo ""
 echo "[4/5] Uploading backend..."
-rsync -avz artifacts/api-server/dist/index.cjs $VPS_USER@$VPS_IP:$DEPLOY_DIR/api/
-rsync -avz deploy/api-package.json $VPS_USER@$VPS_IP:$DEPLOY_DIR/api/package.json
-rsync -avz deploy/ecosystem.config.cjs $VPS_USER@$VPS_IP:$DEPLOY_DIR/
-rsync -avz deploy/nginx.conf $VPS_USER@$VPS_IP:/tmp/fastaudio-nginx.conf
+scp artifacts/api-server/dist/index.cjs $VPS_USER@$VPS_IP:$DEPLOY_DIR/api/
+scp deploy/api-package.json $VPS_USER@$VPS_IP:$DEPLOY_DIR/api/package.json
+scp deploy/ecosystem.config.cjs $VPS_USER@$VPS_IP:$DEPLOY_DIR/
+scp deploy/nginx.conf $VPS_USER@$VPS_IP:/tmp/fastaudio-nginx.conf
 echo "✓ Backend uploaded"
 
 # Step 5: Install deps, restart app, reload nginx
