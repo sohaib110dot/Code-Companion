@@ -1,0 +1,10 @@
+services:
+ app:
+ image: node:20-alpine
+ working_dir: /app
+ volumes:
+ - ./:/app
+ command: sh -lc "npm ci && npm run start"
+ ports:
+ - "3000:3000"
+ restart: unless-stopped
