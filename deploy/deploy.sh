@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-VPS_IP="187.77.150.58"
+VPS_IP="187.77.159.58"
 VPS_USER="root"
 DEPLOY_DIR="/var/www/fastaudio"
 

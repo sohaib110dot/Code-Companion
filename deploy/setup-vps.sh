@@ -3,7 +3,7 @@ set -e
 
 echo "=========================================="
 echo "  FastAudio VPS Setup Script"
-echo "  VPS: 187.77.150.58 | Domain: fastaudio.cc"
+echo "  VPS: 187.77.159.58 | Domain: fastaudio.cc"
 echo "=========================================="
 
 # Update system
@@ -73,7 +73,7 @@ nginx -t && systemctl enable nginx && systemctl restart nginx
 # Get SSL certificate
 echo "[8/8] Setting up SSL certificate..."
 echo ""
-echo "IMPORTANT: DNS A record must point fastaudio.cc → 187.77.150.58"
+echo "IMPORTANT: DNS A record must point fastaudio.cc → 187.77.159.58"
 echo "Check with: nslookup fastaudio.cc"
 echo ""
 read -p "Is DNS ready? (y/n): " dns_ready

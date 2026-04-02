@@ -1,7 +1,7 @@
 # FastAudio Deployment Guide
 
 **Domain:** fastaudio.cc  
-**VPS IP:** 187.77.150.58
+**VPS IP:** 187.77.159.58
 
 ---
 
@@ -13,15 +13,15 @@
 
 | Type | Name (Host) | Value (Points to) | TTL |
 |------|-------------|-------------------|-----|
-| **A** | **@** | **187.77.150.58** | 3600 |
-| **A** | **www** | **187.77.150.58** | 3600 |
+| **A** | **@** | **187.77.159.58** | 3600 |
+| **A** | **www** | **187.77.159.58** | 3600 |
 
 4. Save karo aur **10-15 minute wait karo**
 
 DNS check karo (kisi bhi computer se):
 ```bash
 nslookup fastaudio.cc
-# Result mein 187.77.150.58 aana chahiye
+# Result mein 187.77.159.58 aana chahiye
 ```
 
 ---
@@ -30,7 +30,7 @@ nslookup fastaudio.cc
 
 SSH se VPS login karo:
 ```bash
-ssh root@187.77.150.58
+ssh root@187.77.159.58
 ```
 
 Setup script copy karke run karo:
@@ -76,7 +76,7 @@ Browser mein open karo:
 
 ```bash
 # SSH se connect
-ssh root@187.77.150.58
+ssh root@187.77.159.58
 
 # App status
 pm2 status
