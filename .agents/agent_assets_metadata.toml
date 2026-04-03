@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "5u6wzlbxYHIpPmgi5OqAu"
+uri = "file://artifacts/yt-mp3/public/favicon.png"
+type = "image"
+title = "FastAudio favicon with headphones and gradient"
