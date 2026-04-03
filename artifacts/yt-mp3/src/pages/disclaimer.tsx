@@ -1,65 +1,80 @@
 import React, { useEffect } from "react";
 import { Layout } from "@/components/layout";
+import { useI18n } from "@/lib/i18n-context";
+import { getPageTranslations } from "@/lib/page-translations";
 
 export default function Disclaimer() {
+  const { lang } = useI18n();
+  const t = getPageTranslations(lang);
+
   useEffect(() => {
-    document.title = "Disclaimer - FastYT Media Converter";
+    document.title = `${t.disclaimer_h1} - FastAudio`;
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Disclaimer for FastYT Media Converter. Important legal information about usage rights and limitations.");
-    setMeta("keywords", "disclaimer, legal, terms, usage rights");
+    setMeta("description", t.disclaimer_notice_body.slice(0, 160));
+    setMeta("keywords", "disclaimer, legal notice, terms, usage rights, copyright notice");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/disclaimer");
-  }, []);
+    canonical.setAttribute("href", "https://fastaudio.cc/disclaimer");
+  }, [lang, t]);
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto py-16 prose prose-lg dark:prose-invert">
-        <h1 className="text-4xl font-display font-bold mb-8">Disclaimer</h1>
+        <h1 className="text-4xl font-display font-bold mb-8">{t.disclaimer_h1}</h1>
 
-        <p>
-          This tool is provided for personal use only.
-        </p>
+        <p className="text-muted-foreground mb-8">{t.disclaimer_last_updated}: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
 
-        <p>
-          Users must ensure they have the legal right to download or convert any content.
-        </p>
+        <div className="bg-card p-6 rounded-2xl border border-border not-prose mb-8">
+          <p className="text-foreground font-semibold text-lg mb-2">{t.disclaimer_notice_title}</p>
+          <p className="text-muted-foreground">{t.disclaimer_notice_body}</p>
+        </div>
 
-        <p>
-          We do not host or store any media files.
-        </p>
+        <h2>{t.disclaimer_s1_title}</h2>
+        <p>{t.disclaimer_s1_body}</p>
+        <p>{t.disclaimer_s1_body2}</p>
 
-        <p>
-          We are not responsible for misuse of this service.
-        </p>
+        <h2>{t.disclaimer_s2_title}</h2>
+        <p>{t.disclaimer_s2_body}</p>
+        <p>{t.disclaimer_s2_body2}</p>
 
-        <h3>Use at Your Own Risk</h3>
-        <p>
-          FastYT Media Converter is provided on an "as-is" basis. We make no warranties regarding the service, and we shall not be liable for any damages arising from the use of this tool. Users assume all responsibility and risk for the use of this service.
-        </p>
+        <h2>{t.disclaimer_s3_title}</h2>
+        <p>{t.disclaimer_s3_intro}</p>
+        <ul>
+          <li>{t.disclaimer_s3_li1}</li>
+          <li>{t.disclaimer_s3_li2}</li>
+          <li>{t.disclaimer_s3_li3}</li>
+          <li>{t.disclaimer_s3_li4}</li>
+        </ul>
 
-        <h3>Intellectual Property</h3>
-        <p>
-          You are solely responsible for ensuring that you have the necessary rights to download, convert, or use any content processed through our service. Downloading copyrighted content without proper authorization may violate copyright laws and intellectual property rights.
-        </p>
+        <h2>{t.disclaimer_s4_title}</h2>
+        <p>{t.disclaimer_s4_body}</p>
+        <p>{t.disclaimer_s4_body2}</p>
 
-        <h3>Limitation of Liability</h3>
-        <p>
-          FastYT is not liable for any direct, indirect, incidental, special, or consequential damages resulting from your use or inability to use our service, or any action taken in reliance upon information contained within our website.
-        </p>
+        <h2>{t.disclaimer_s5_title}</h2>
+        <p>{t.disclaimer_s5_intro}</p>
+        <ul>
+          <li>{t.disclaimer_s5_li1}</li>
+          <li>{t.disclaimer_s5_li2}</li>
+          <li>{t.disclaimer_s5_li3}</li>
+        </ul>
+        <p>{t.disclaimer_s5_body2}</p>
 
-        <h3>Changes to Terms</h3>
-        <p>
-          We reserve the right to modify this disclaimer at any time without notice. Your continued use of the service constitutes your acceptance of any changes.
-        </p>
+        <h2>{t.disclaimer_s6_title}</h2>
+        <p>{t.disclaimer_s6_body}</p>
 
-        <p className="text-sm text-muted-foreground mt-8">
-          Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        <h2>{t.disclaimer_s7_title}</h2>
+        <p>{t.disclaimer_s7_body}</p>
+
+        <h2>{t.disclaimer_s8_title}</h2>
+        <p>{t.disclaimer_s8_body}</p>
+
+        <p className="text-sm text-muted-foreground mt-8 border-t border-border pt-6">
+          {t.disclaimer_footer_note}
         </p>
       </div>
     </Layout>

@@ -15,17 +15,25 @@ if (!fs.existsSync(DOWNLOADS_DIR)) {
   fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
 }
 
-function isValidYouTubeUrl(url: string): boolean {
+function isValidMediaUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    const host = parsed.hostname.replace("www.", "");
-    return host === "youtube.com" || host === "youtu.be";
+    const hostname = parsed.hostname || '';
+    // Check if hostname contains any valid media platform
+    return hostname.includes('youtube.com') || 
+           hostname.includes('youtu.be') || 
+           hostname.includes('vimeo.com') || 
+           hostname.includes('instagram.com') || 
+           hostname.includes('tiktok.com') || 
+           hostname.includes('facebook.com') || 
+           hostname.includes('twitter.com') || 
+           hostname.includes('x.com');
   } catch {
     return false;
   }
 }
 
-function extractVideoId(url: string): string {
+function extractMediaId(url: string): string {
   try {
     const parsed = new URL(url);
     if (parsed.hostname.includes("youtu.be")) {
@@ -38,34 +46,55 @@ function extractVideoId(url: string): string {
 }
 
 const inProgressConversions = new Set<string>();
+const MAX_CONCURRENT_CONVERSIONS = 3;
+const MAX_FILE_SIZE = 500 * 1024 * 1024;
+const BITRATE_LIMITS: Record<string, number> = {
+  "128": 128,
+  "192": 192,
+  "320": 320
+};
 
-async function fetchVideoInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
-  const videoId = extractVideoId(url);
-  const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`;
+// FFmpeg quality presets for faster encoding
+// Higher number = higher quality but slower
+function getQualityPreset(quality: string): number {
+  const presets: Record<string, number> = {
+    "128": 8,  // Fast: 128kbps (VBR)
+    "192": 5,  // Medium: 192kbps (VBR)
+    "320": 2   // Best: 320kbps (VBR)
+  };
+  return presets[quality] || 5;
+}
 
+async function fetchMediaInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
+  const mediaId = extractMediaId(url);
+  
   let title = "Unknown Title";
-  let thumbnail = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
-
-  try {
-    const oembedRes = await fetch(oembedUrl);
-    if (oembedRes.ok) {
-      const data = await oembedRes.json() as any;
-      title = data.title || title;
-      thumbnail = data.thumbnail_url || thumbnail;
-    }
-  } catch {}
-
+  let thumbnail = mediaId ? `https://img.youtube.com/vi/${mediaId}/hqdefault.jpg` : "";
   let duration = 0;
-  try {
-    const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36" },
-    });
-    if (pageRes.ok) {
-      const html = await pageRes.text();
-      const match = html.match(/"lengthSeconds":"(\d+)"/);
-      if (match) duration = parseInt(match[1], 10);
-    }
-  } catch {}
+
+  // Parallelize both API calls for faster execution
+  const [oembedData, pageData] = await Promise.all([
+    // Fetch metadata from oembed
+    fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
+      .then(res => res.ok ? res.json() : null)
+      .catch(() => null),
+    // Fetch duration from page
+    fetch(`https://www.youtube.com/watch?v=${mediaId}`, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+    })
+      .then(res => res.ok ? res.text() : null)
+      .catch(() => null)
+  ]);
+
+  if (oembedData) {
+    title = oembedData.title || title;
+    thumbnail = oembedData.thumbnail_url || thumbnail;
+  }
+
+  if (pageData) {
+    const match = pageData.match(/"lengthSeconds":"(\d+)"/);
+    if (match) duration = parseInt(match[1], 10);
+  }
 
   return { title, thumbnail, duration };
 }
@@ -75,7 +104,7 @@ const PROGRESS_BASE = "https://p.savenow.to/api/progress";
 
 async function convertWithLoaderTo(url: string): Promise<string> {
   const initRes = await fetch(`${LOADER_API}?format=mp3&url=${encodeURIComponent(url)}`, {
-    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36" },
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
   });
   if (!initRes.ok) throw new Error("Failed to initiate conversion");
 
@@ -85,17 +114,25 @@ async function convertWithLoaderTo(url: string): Promise<string> {
   const jobId = initData.id;
   const progressUrl = initData.progress_url || `${PROGRESS_BASE}?id=${jobId}`;
 
+  // Aggressive polling: faster intervals for quicker completion
+  const pollIntervals = [1000, 1500, 2000, 2500, 3000]; // Progressive backoff
   for (let attempt = 0; attempt < 240; attempt++) {
-    await new Promise(r => setTimeout(r, 3000));
+    const pollDelay = pollIntervals[Math.min(attempt, pollIntervals.length - 1)];
+    await new Promise(r => setTimeout(r, pollDelay));
 
-    const progRes = await fetch(progressUrl);
-    if (!progRes.ok) continue;
+    try {
+      const progRes = await fetch(progressUrl);
+      if (!progRes.ok) continue;
 
-    const progData = await progRes.json() as any;
-    if (progData.success === 1 && progData.download_url) {
-      return progData.download_url.replace(/\\\//g, "/");
+      const progData = await progRes.json() as any;
+      if (progData.success === 1 && progData.download_url) {
+        return progData.download_url.replace(/\\\//g, "/");
+      }
+      if (progData.success === -1) throw new Error("Conversion failed on remote server");
+    } catch (e) {
+      // Retry on network error
+      continue;
     }
-    if (progData.success === -1) throw new Error("Conversion failed on remote server");
   }
 
   throw new Error("Conversion timed out after 12 minutes");
@@ -109,14 +146,14 @@ router.post("/info", async (req: Request, res: Response) => {
       return;
     }
     const { url } = parsed.data;
-    if (!isValidYouTubeUrl(url)) {
-      res.status(400).json({ error: "Invalid YouTube URL. Only youtube.com and youtu.be are allowed." });
+    if (!isValidMediaUrl(url)) {
+      res.status(400).json({ error: "Invalid media URL. Please provide a valid media source link." });
       return;
     }
 
-    const { title, thumbnail, duration } = await fetchVideoInfo(url);
-    if (duration > 1200) {
-      res.status(400).json({ error: "Video too long. Maximum duration is 20 minutes." });
+    const { title, thumbnail, duration } = await fetchMediaInfo(url);
+    if (duration > 36000) {
+      res.status(400).json({ error: "Media file too long. Maximum duration is 10 hours." });
       return;
     }
 
@@ -124,7 +161,7 @@ router.post("/info", async (req: Request, res: Response) => {
     res.json(response);
   } catch (err: any) {
     console.error("Info error:", err.message);
-    res.status(400).json({ error: "Failed to fetch video info. Make sure the URL is a valid public YouTube video." });
+    res.status(400).json({ error: "Failed to fetch media info. Please ensure the URL is valid and publicly accessible." });
   }
 });
 
@@ -137,71 +174,49 @@ router.post("/convert", async (req: Request, res: Response) => {
     }
     const { url, quality } = parsed.data;
 
-    if (!isValidYouTubeUrl(url)) {
-      res.status(400).json({ error: "Invalid YouTube URL. Only youtube.com and youtu.be are allowed." });
+    if (!isValidMediaUrl(url)) {
+      res.status(400).json({ error: "Invalid media URL. Please provide a valid media source link." });
+      return;
+    }
+
+    // Check concurrent conversion limit
+    if (inProgressConversions.size >= MAX_CONCURRENT_CONVERSIONS) {
+      res.status(429).json({ error: "Server busy. Too many conversions. Please wait a moment and try again." });
       return;
     }
 
     const urlKey = crypto.createHash("md5").update(url + quality).digest("hex");
     if (inProgressConversions.has(urlKey)) {
-      res.status(400).json({ error: "This video is already being converted. Please wait." });
+      res.status(400).json({ error: "This media is already being converted. Please wait." });
       return;
     }
 
-    const existingMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
-    if (fs.existsSync(existingMp3)) {
-      const metaFile = path.join(DOWNLOADS_DIR, `${urlKey}.json`);
-      let title = "Audio";
-      if (fs.existsSync(metaFile)) {
-        try { title = JSON.parse(fs.readFileSync(metaFile, "utf-8")).title || title; } catch {}
-      }
-      const response = ConvertVideoResponse.parse({ success: true, title, download: `/api/downloads/${urlKey}.mp3` });
-      res.json(response);
+    // Validate bitrate
+    if (!BITRATE_LIMITS[quality]) {
+      res.status(400).json({ error: "Invalid quality selection. Choose 128, 192, or 320 kbps." });
       return;
     }
+
+    // Skip cache - stream directly from loader.to for instant conversion
 
     inProgressConversions.add(urlKey);
 
     try {
-      const { title, duration } = await fetchVideoInfo(url);
-      if (duration > 1200) {
-        res.status(400).json({ error: "Video too long. Maximum duration is 20 minutes." });
+      const { title, duration } = await fetchMediaInfo(url);
+      if (duration > 36000) {
+        res.status(400).json({ error: "Media file too long. Maximum duration is 10 hours." });
         return;
       }
 
+      // Get direct download URL from loader.to - NO local processing!
       const downloadUrl = await convertWithLoaderTo(url);
 
-      const sourceMp3 = path.join(DOWNLOADS_DIR, `${urlKey}_source.mp3`);
-      const outputMp3 = path.join(DOWNLOADS_DIR, `${urlKey}.mp3`);
-
-      const dlRes = await fetch(downloadUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36" },
-      });
-      if (!dlRes.ok || !dlRes.body) throw new Error("Failed to download converted audio");
-
-      const fileStream = fs.createWriteStream(sourceMp3);
-      await pipeline(Readable.fromWeb(dlRes.body as any), fileStream);
-
-      await new Promise<void>((resolve, reject) => {
-        ffmpeg(sourceMp3)
-          .audioBitrate(parseInt(quality))
-          .toFormat("mp3")
-          .on("end", () => resolve())
-          .on("error", (e: Error) => reject(e))
-          .save(outputMp3);
-      });
-
-      if (fs.existsSync(sourceMp3)) fs.unlinkSync(sourceMp3);
-
-      fs.writeFileSync(
-        path.join(DOWNLOADS_DIR, `${urlKey}.json`),
-        JSON.stringify({ title, createdAt: Date.now() })
-      );
-
+      // Return loader.to URL directly for instant streaming download
+      // loader.to output is already MP3 - skip FFmpeg for maximum speed
       const response = ConvertVideoResponse.parse({
         success: true,
         title,
-        download: `/api/downloads/${urlKey}.mp3`,
+        download: downloadUrl
       });
       res.json(response);
     } finally {
@@ -215,7 +230,8 @@ router.post("/convert", async (req: Request, res: Response) => {
 
 router.get("/downloads/:filename", (req: Request, res: Response) => {
   const { filename } = req.params;
-  if (!/^[a-f0-9]{32}\.mp3$/.test(filename)) {
+  // Accept both .mp3 and .mp3 for backwards compatibility
+  if (!/^[a-f0-9]{32}\.(mp3|m4a)$/.test(filename)) {
     res.status(400).json({ error: "Invalid filename" });
     return;
   }
@@ -224,7 +240,15 @@ router.get("/downloads/:filename", (req: Request, res: Response) => {
     res.status(404).json({ error: "File not found or expired" });
     return;
   }
-  const metaFile = path.join(DOWNLOADS_DIR, filename.replace(".mp3", ".json"));
+
+  // Get file stats for size
+  const fileStats = fs.statSync(filePath);
+  if (fileStats.size > MAX_FILE_SIZE) {
+    res.status(413).json({ error: "File too large" });
+    return;
+  }
+
+  const metaFile = path.join(DOWNLOADS_DIR, filename.replace(/\.(mp3|m4a)$/, ".json"));
   let downloadName = "audio.mp3";
   if (fs.existsSync(metaFile)) {
     try {
@@ -234,8 +258,14 @@ router.get("/downloads/:filename", (req: Request, res: Response) => {
       }
     } catch {}
   }
+
+  // Optimize for fast download (simple, reliable approach)
   res.setHeader("Content-Disposition", `attachment; filename="${downloadName}"`);
   res.setHeader("Content-Type", "audio/mpeg");
+  res.setHeader("Content-Length", fileStats.size);
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  // Remove problematic headers for downloads
+  res.setHeader("Accept-Ranges", "bytes");
   res.sendFile(filePath);
 });
 
@@ -252,8 +282,11 @@ function scheduleCleanup() {
           const meta = JSON.parse(fs.readFileSync(metaPath, "utf-8"));
           if (now - meta.createdAt > ONE_HOUR) {
             fs.unlinkSync(metaPath);
-            const mp3 = metaPath.replace(".json", ".mp3");
-            if (fs.existsSync(mp3)) fs.unlinkSync(mp3);
+            const audioFile = metaPath.replace(".json", ".mp3");
+            if (fs.existsSync(audioFile)) fs.unlinkSync(audioFile);
+            // Also clean up old .mp3 files for backwards compatibility
+            const mp3File = metaPath.replace(".json", ".mp3");
+            if (fs.existsSync(mp3File)) fs.unlinkSync(mp3File);
           }
         } catch {}
       }

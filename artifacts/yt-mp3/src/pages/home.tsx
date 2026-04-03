@@ -4,45 +4,47 @@ import { Layout } from "@/components/layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoPreview } from "@/components/video-preview";
-import { isValidYoutubeUrl, cn } from "@/lib/utils";
+import { isValidMediaUrl, cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n-context";
 import { Search, Loader2, Download, ArrowRight, Zap, CheckCircle2, Shield, Music } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [quality, setQuality] = useState<"128" | "192" | "320">("192");
+  const { lang, t } = useI18n();
   
   const infoMutation = useGetVideoInfo();
   const convertMutation = useConvertVideo();
 
   // Handle URL changes and auto-fetch preview
   useEffect(() => {
-    document.title = "FastYT Media Converter - Convert Video to MP3 Online Free";
+    document.title = "FastAudio Media Converter - Convert Media Files to High Quality Audio Online";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "FastYT Media Converter lets you convert video to MP3 online for free. Fast, easy and secure audio conversion tool for personal use.");
-    setMeta("keywords", "convert video to mp3, youtube to mp3, mp3 converter online free, extract audio from video, online audio converter, free mp3 download");
+    setMeta("description", "FastAudio Media Converter lets you convert media files to high quality audio online for free. Fast, easy and secure audio conversion tool for personal use.");
+    setMeta("keywords", "media converter, audio converter, convert media, audio extraction, online converter, audio processing");
     setMeta("robots", "index, follow");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/");
+    canonical.setAttribute("href", "https://fastaudio.cc/");
     
     // JSON-LD Structured Data for SoftwareApplication
     let schemaScript = document.querySelector('script[data-type="application-schema"]');
     if (!schemaScript) {
-      schemaScript = document.createElement("script");
+      schemaScript = document.createElement("script") as HTMLScriptElement;
       schemaScript.type = "application/ld+json";
       schemaScript.setAttribute("data-type", "application-schema");
       schemaScript.textContent = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "FastYT Media Converter",
-        "description": "Free online tool to convert video to MP3 with high quality audio. No registration required.",
-        "url": "https://fastyt.io",
+        "name": "FastAudio Media Converter",
+        "description": "Free online tool to convert media files to high quality audio. No registration required.",
+        "url": "https://fastaudio.cc",
         "applicationCategory": "MultimediaApplication",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
         "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1250"}
@@ -50,7 +52,7 @@ export default function Home() {
       document.head.appendChild(schemaScript);
     }
 
-    if (isValidYoutubeUrl(url)) {
+    if (isValidMediaUrl(url)) {
       // Avoid refetching if we already have it for this exact URL (basic check)
       if (!infoMutation.isPending && !convertMutation.isSuccess) {
         infoMutation.mutate({ data: { url } });
@@ -63,7 +65,7 @@ export default function Home() {
   }, [url]);
 
   const handleConvert = () => {
-    if (!isValidYoutubeUrl(url)) return;
+    if (!isValidMediaUrl(url)) return;
     convertMutation.mutate({ data: { url, quality } });
   };
 
@@ -81,7 +83,7 @@ export default function Home() {
             className="flex justify-center"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Zap className="w-4 h-4" /> The fastest converter online
+              <Zap className="w-4 h-4" /> {t("fastestConverterOnline")}
             </div>
           </motion.div>
           
@@ -91,7 +93,7 @@ export default function Home() {
             transition={{ delay: 0.1 }}
             className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
           >
-            Convert Videos to <span className="text-gradient block sm:inline">High Quality MP3</span>
+            {t("heroTitle1")} <span className="text-gradient block sm:inline">{t("heroTitle2")}</span>
           </motion.h1>
           
           <motion.p 
@@ -100,8 +102,7 @@ export default function Home() {
             transition={{ delay: 0.2 }}
             className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
           >
-            Paste your link below to instantly download audio in up to 320kbps. 
-            No registration required, completely free.
+            {t("heroDescription")}
           </motion.p>
         </div>
 
@@ -120,7 +121,7 @@ export default function Home() {
                   <Search className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <Input 
-                  placeholder="Paste your video link here..." 
+                  placeholder={t("placeholder")}
                   className="w-full h-14 sm:h-16 pl-12 pr-4 sm:pr-28 text-base rounded-xl sm:rounded-2xl shadow-inner bg-background"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
@@ -132,22 +133,22 @@ export default function Home() {
                     variant="gradient" 
                     className="h-12 sm:h-14 sm:absolute right-2 rounded-xl px-6 sm:px-7 font-medium w-full sm:w-auto whitespace-nowrap"
                     onClick={() => {
-                      if (isValidYoutubeUrl(url)) {
+                      if (isValidMediaUrl(url)) {
                         infoMutation.mutate({ data: { url } });
                       }
                     }}
                     disabled={!url || isProcessing}
                   >
                     {infoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                    {infoMutation.isPending ? "Converting..." : "Start"}
+                    {infoMutation.isPending ? t("converting") : t("start")}
                   </Button>
                 )}
               </div>
 
               {/* Validation Feedback */}
-              {url && !isValidYoutubeUrl(url) && (
+              {url && !isValidMediaUrl(url) && (
                 <p className="text-destructive text-sm mt-3 ml-2 animate-in fade-in slide-in-from-top-2">
-                  Please enter a valid YouTube URL.
+                  {t("validationError")}
                 </p>
               )}
             </div>
@@ -169,7 +170,7 @@ export default function Home() {
                 
                 <div className="bg-background/50 rounded-2xl p-6 border border-border">
                   <h4 className="font-semibold mb-4 flex items-center gap-2">
-                    Select Audio Quality
+                    {t("selectAudioQuality")}
                   </h4>
                   <div className="grid grid-cols-3 gap-3">
                     {(["128", "192", "320"] as const).map((q) => (
@@ -185,7 +186,7 @@ export default function Home() {
                         )}
                       >
                         <span className="text-lg">{q}</span>
-                        <span className="text-xs opacity-80">kbps</span>
+                        <span className="text-xs opacity-80">{t("kbps")}</span>
                       </button>
                     ))}
                   </div>
@@ -201,11 +202,11 @@ export default function Home() {
                       {convertMutation.isPending ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Converting...
+                          {t("converting")}
                         </>
                       ) : (
                         <>
-                          Convert Video <ArrowRight className="w-5 h-5 ml-2" />
+                          {t("convertMedia")} <ArrowRight className="w-5 h-5 ml-2" />
                         </>
                       )}
                     </Button>
@@ -215,7 +216,7 @@ export default function Home() {
                   {convertMutation.isPending && (
                     <div className="mt-6 space-y-2">
                       <div className="flex justify-between text-sm font-medium text-primary">
-                        <span>Processing audio track...</span>
+                        <span>{t("processingMedia")}</span>
                       </div>
                       <div className="h-2 bg-secondary rounded-full overflow-hidden">
                         <motion.div 
@@ -242,7 +243,7 @@ export default function Home() {
                 <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">Conversion Successful!</h3>
+                <h3 className="text-2xl font-bold mb-2">{t("conversionSuccessful")}</h3>
                 <p className="text-muted-foreground mb-8 max-w-md mx-auto line-clamp-2">
                   {convertMutation.data.title}
                 </p>
@@ -255,7 +256,7 @@ export default function Home() {
                   >
                     <Button variant="gradient" size="lg" className="w-full h-16 text-lg rounded-2xl px-12 shadow-glow">
                       <Download className="w-6 h-6 mr-3" />
-                      Download MP3
+                      {t("downloadMp3")}
                     </Button>
                   </a>
                   <Button 
@@ -268,7 +269,7 @@ export default function Home() {
                       infoMutation.reset();
                     }}
                   >
-                    Convert Another
+                    {t("convertAnother")}
                   </Button>
                 </div>
               </motion.div>
@@ -282,9 +283,9 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 className="mt-8 p-6 bg-destructive/10 border border-destructive/20 rounded-2xl text-center text-destructive"
               >
-                <p className="font-semibold mb-4">An error occurred during conversion.</p>
+                <p className="font-semibold mb-4">{t("errorOccurred")}</p>
                 <Button variant="outline" onClick={() => convertMutation.reset()}>
-                  Try Again
+                  {t("tryAgain")}
                 </Button>
               </motion.div>
             )}
@@ -292,28 +293,35 @@ export default function Home() {
           </AnimatePresence>
         </motion.div>
 
+        {/* Disclaimer Section */}
+        <div className="max-w-3xl mx-auto mt-12 p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl text-center">
+          <p className="text-sm text-muted-foreground">
+            <strong>Important:</strong> {t("disclaimer_text")}
+          </p>
+        </div>
+
         {/* Features Section below converter */}
         <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
             <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mx-auto mb-4">
               <Zap className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-lg mb-2">Instant Conversions</h3>
-            <p className="text-muted-foreground text-sm">Our powerful cloud servers process videos in seconds, not minutes.</p>
+            <h3 className="font-bold text-lg mb-2">{t("instantConversions")}</h3>
+            <p className="text-muted-foreground text-sm">{t("instantConversionsDesc")}</p>
           </div>
           <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
             <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mx-auto mb-4">
               <Music className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-lg mb-2">High Quality Audio</h3>
-            <p className="text-muted-foreground text-sm">Choose between 128kbps, 192kbps, or pristine 320kbps MP3 files.</p>
+            <h3 className="font-bold text-lg mb-2">{t("highQualityAudio")}</h3>
+            <p className="text-muted-foreground text-sm">{t("highQualityAudioDesc")}</p>
           </div>
           <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
             <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500 mx-auto mb-4">
               <Shield className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-lg mb-2">Safe & Secure</h3>
-            <p className="text-muted-foreground text-sm">No annoying popups, no required software. Completely safe to use.</p>
+            <h3 className="font-bold text-lg mb-2">{t("safeSecure")}</h3>
+            <p className="text-muted-foreground text-sm">{t("safeSecureDesc")}</p>
           </div>
         </div>
 

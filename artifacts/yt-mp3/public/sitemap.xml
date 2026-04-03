@@ -1,62 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://fastyt.io/</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/about</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/about</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/contact</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/faqs</loc>
+    <lastmod>2026-03-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fastaudio.cc/contact</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/terms</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/terms</loc>
+    <lastmod>2026-03-31</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://fastaudio.cc/privacy-policy</loc>
+    <lastmod>2026-03-31</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://fastaudio.cc/disclaimer</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/privacy-policy</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/dmca</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/convert-video-to-mp3</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/convert-video-to-mp3</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/convert-without-software</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/convert-without-software</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/mp3-vs-wav</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/mp3-vs-wav</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/extract-audio</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/extract-audio</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://fastyt.io/mobile-convert</loc>
-    <lastmod>2026-03-23</lastmod>
+    <loc>https://fastaudio.cc/mobile-convert</loc>
+    <lastmod>2026-03-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

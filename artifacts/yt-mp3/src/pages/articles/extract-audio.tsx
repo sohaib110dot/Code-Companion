@@ -1,106 +1,97 @@
 import React, { useEffect } from "react";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
+import { useI18n } from "@/lib/i18n-context";
+import { getPageTranslations } from "@/lib/page-translations";
 
 export default function ExtractAudio() {
+  const { lang } = useI18n();
+  const t = getPageTranslations(lang);
+
   useEffect(() => {
-    document.title = "How to Extract Audio from a Video - FastYT Media Converter";
+    document.title = `${t.ea_title} - FastAudio`;
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Learn how to extract audio from video files easily. Complete guide to isolating sound tracks and saving as MP3 with our free online tool.");
-    setMeta("keywords", "extract audio, audio extraction, separate audio from video, video to audio, sound extraction");
+    setMeta("description", t.ea_lead.slice(0, 160));
+    setMeta("keywords", "extract audio, audio extraction, separate audio from video, video to audio");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/extract-audio");
-    
-    // JSON-LD Article Schema
+    canonical.setAttribute("href", "https://fastaudio.cc/extract-audio");
+
     let articleScript = document.querySelector('script[data-type="article-schema"]');
     if (!articleScript) {
-      articleScript = document.createElement("script");
+      articleScript = document.createElement("script") as HTMLScriptElement;
       articleScript.type = "application/ld+json";
       articleScript.setAttribute("data-type", "article-schema");
       articleScript.textContent = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-        "headline": "How to Extract Audio from a Video",
-        "description": "Learn how to extract audio from video files easily. Complete guide to isolating sound tracks and saving as MP3.",
-        "url": "https://fastyt.io/extract-audio",
-        "author": {"@type": "Organization", "name": "FastYT"},
+        "headline": t.ea_title,
+        "description": t.ea_lead,
+        "url": "https://fastaudio.cc/extract-audio",
+        "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "extract audio, audio extraction, separate audio from video"
       });
       document.head.appendChild(articleScript);
     }
-  }, []);
+  }, [lang, t]);
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto py-16 prose prose-lg dark:prose-invert">
-        <h1 className="text-4xl font-display font-bold mb-8">How to Extract Audio from a Video</h1>
+        <h1 className="text-4xl font-display font-bold mb-8">{t.ea_title}</h1>
 
-        <p className="lead text-xl text-muted-foreground mb-8">
-          Extracting audio from a video means isolating the sound track and saving it as a standalone audio file like MP3. It's a common task for educators, content creators, music fans, and language learners.
-        </p>
+        <p className="lead text-xl text-muted-foreground mb-8">{t.ea_lead}</p>
 
-        <h2>What Does "Extracting Audio" Mean?</h2>
-        <p>
-          A video file contains two separate streams of data: the video (picture) stream and the audio (sound) stream. When you extract audio, you take only the sound component and save it independently — discarding the visual portion entirely. The result is an audio file you can listen to on any device, import into a music app, or use for other personal purposes.
-        </p>
+        <h2>{t.ea_what_title}</h2>
+        <p>{t.ea_what_body}</p>
 
-        <h2>Common Reasons to Extract Audio</h2>
+        <h2>{t.ea_reasons_title}</h2>
         <ul>
-          <li><strong>Music and concerts</strong> — Save audio from live performance videos for offline listening.</li>
-          <li><strong>Podcasts and interviews</strong> — Extract the audio from video podcasts posted online.</li>
-          <li><strong>Language learning</strong> — Pull audio from educational videos to practise listening on the go.</li>
-          <li><strong>Lecture recordings</strong> — Extract audio from recorded university or training sessions.</li>
-          <li><strong>Sound design</strong> — Source ambient sounds and effects from video content you own or have rights to.</li>
+          <li><strong>{t.ea_reason1.split("—")[0].trim()}</strong>{t.ea_reason1.includes("—") ? " — " + t.ea_reason1.split("—").slice(1).join("—").trim() : ""}</li>
+          <li><strong>{t.ea_reason2.split("—")[0].trim()}</strong>{t.ea_reason2.includes("—") ? " — " + t.ea_reason2.split("—").slice(1).join("—").trim() : ""}</li>
+          <li><strong>{t.ea_reason3.split("—")[0].trim()}</strong>{t.ea_reason3.includes("—") ? " — " + t.ea_reason3.split("—").slice(1).join("—").trim() : ""}</li>
+          <li><strong>{t.ea_reason4.split("—")[0].trim()}</strong>{t.ea_reason4.includes("—") ? " — " + t.ea_reason4.split("—").slice(1).join("—").trim() : ""}</li>
+          <li><strong>{t.ea_reason5.split("—")[0].trim()}</strong>{t.ea_reason5.includes("—") ? " — " + t.ea_reason5.split("—").slice(1).join("—").trim() : ""}</li>
         </ul>
 
-        <h2>How to Extract Audio Using FastYT</h2>
-        <p>
-          Our online tool makes audio extraction straightforward, with no technical knowledge required.
-        </p>
+        <h2>{t.ea_how_title}</h2>
+        <p>{t.ea_how_body}</p>
         <ol>
-          <li><strong>Find the video</strong> you want to extract audio from and copy its URL.</li>
-          <li><strong>Open FastYT Media Converter</strong> in your browser.</li>
-          <li><strong>Paste the URL</strong> into the converter input field.</li>
-          <li><strong>Select your preferred quality</strong>: 128 kbps, 192 kbps, or 320 kbps.</li>
-          <li><strong>Click "Convert Video"</strong> — our servers handle the extraction.</li>
-          <li><strong>Download the MP3</strong> to your device.</li>
+          <li>{t.ea_step1}</li>
+          <li>{t.ea_step2}</li>
+          <li>{t.ea_step3}</li>
+          <li>{t.ea_step4}</li>
+          <li>{t.ea_step5}</li>
+          <li>{t.ea_step6}</li>
         </ol>
 
-        <h2>What Happens During Extraction?</h2>
-        <p>
-          Our servers fetch the video's audio stream from the source, process it through a media pipeline, and encode it as an MP3 file at the bitrate you selected. This happens entirely in the cloud — your device does not download the video. You receive the finished audio file directly.
-        </p>
+        <h2>{t.ea_happens_title}</h2>
+        <p>{t.ea_happens_body}</p>
 
-        <h2>Tips for Best Results</h2>
+        <h2>{t.ea_tips_title}</h2>
         <ul>
-          <li>Choose a higher bitrate (192 or 320 kbps) for music to preserve sound quality.</li>
-          <li>For speech or podcasts, 128 kbps is usually more than sufficient.</li>
-          <li>Make sure the source video has clear, high-quality audio — our tool cannot improve audio that was poor to begin with.</li>
-          <li>Keep conversions to videos you own or have permission to use.</li>
+          <li>{t.ea_tip1}</li>
+          <li>{t.ea_tip2}</li>
+          <li>{t.ea_tip3}</li>
+          <li>{t.ea_tip4}</li>
         </ul>
 
-        <h2>Extract Your Audio Now</h2>
-        <p>
-          Start extracting audio in seconds — no account needed, no software to install.
-        </p>
+        <h2>{t.ea_cta_title}</h2>
+        <p>{t.ea_cta_body}</p>
         <div className="not-prose my-8">
-          <Link
-            href="/"
-            className="inline-block bg-primary text-white font-semibold px-8 py-4 rounded-2xl shadow-lg hover:opacity-90 transition-opacity"
-          >
-            Try our free media converter tool →
+          <Link href="/" className="inline-block bg-primary text-white font-semibold px-8 py-4 rounded-2xl shadow-lg hover:opacity-90 transition-opacity">
+            {t.ea_cta_btn}
           </Link>
         </div>
 
         <p className="text-sm text-muted-foreground">
-          <strong>Disclaimer:</strong> This tool is for personal use only. Users must ensure they have rights to download content.
+          <strong>Disclaimer:</strong> {t.ea_disclaimer}
         </p>
       </div>
     </Layout>

@@ -1,113 +1,102 @@
 import React, { useEffect } from "react";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
+import { useI18n } from "@/lib/i18n-context";
+import { getPageTranslations } from "@/lib/page-translations";
 
 export default function ConvertVideoToMp3() {
+  const { lang } = useI18n();
+  const t = getPageTranslations(lang);
+
   useEffect(() => {
-    document.title = "How to Convert Video to MP3 Online - FastYT Media Converter";
+    document.title = `${t.cvmp3_title} - FastAudio`;
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Learn how to convert video to MP3 online for free. Step-by-step guide for extracting high-quality audio from videos without software.");
+    setMeta("description", t.cvmp3_lead.slice(0, 160));
     setMeta("keywords", "convert video to mp3, how to convert, online conversion, video to audio");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/convert-video-to-mp3");
-    
-    // JSON-LD Article Schema
+    canonical.setAttribute("href", "https://fastaudio.cc/convert-video-to-mp3");
+
     let articleScript = document.querySelector('script[data-type="article-schema"]');
     if (!articleScript) {
-      articleScript = document.createElement("script");
+      articleScript = document.createElement("script") as HTMLScriptElement;
       articleScript.type = "application/ld+json";
       articleScript.setAttribute("data-type", "article-schema");
       articleScript.textContent = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-        "headline": "How to Convert Video to MP3 Online",
-        "description": "Learn how to convert video to MP3 online for free. Step-by-step guide for extracting high-quality audio from videos without software.",
-        "url": "https://fastyt.io/convert-video-to-mp3",
-        "author": {"@type": "Organization", "name": "FastYT"},
+        "headline": t.cvmp3_title,
+        "description": t.cvmp3_lead,
+        "url": "https://fastaudio.cc/convert-video-to-mp3",
+        "author": {"@type": "Organization", "name": "FastAudio"},
         "datePublished": "2026-03-23",
         "keywords": "convert video to mp3, how to convert, online conversion"
       });
       document.head.appendChild(articleScript);
     }
-  }, []);
+  }, [lang, t]);
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto py-16 prose prose-lg dark:prose-invert">
-        <h1 className="text-4xl font-display font-bold mb-8">How to Convert Video to MP3 Online</h1>
+        <h1 className="text-4xl font-display font-bold mb-8">{t.cvmp3_title}</h1>
 
-        <p className="lead text-xl text-muted-foreground mb-8">
-          Converting video to MP3 online has never been easier. With the right tool, you can extract high-quality audio from any publicly available video in just seconds — no downloads, no sign-ups.
-        </p>
+        <p className="lead text-xl text-muted-foreground mb-8">{t.cvmp3_lead}</p>
 
-        <h2>Why Convert Video to MP3?</h2>
-        <p>
-          There are many practical reasons to convert video content into audio. Whether you're saving a podcast-style interview, a music performance, a language lesson, or a conference talk, having an MP3 file means you can listen anywhere — even offline. Audio files are smaller, easier to transfer, and compatible with virtually every device and media player.
-        </p>
+        <h2>{t.cvmp3_why_title}</h2>
+        <p>{t.cvmp3_why_body}</p>
 
-        <h2>What You Need</h2>
-        <p>
-          To convert a video to MP3 online, all you need is:
-        </p>
+        <h2>{t.cvmp3_need_title}</h2>
+        <p>{t.cvmp3_need_body}</p>
         <ul>
-          <li>A modern web browser (Chrome, Firefox, Safari, Edge)</li>
-          <li>The URL of the video you want to convert</li>
-          <li>An internet connection</li>
+          <li>{t.cvmp3_need_li1}</li>
+          <li>{t.cvmp3_need_li2}</li>
+          <li>{t.cvmp3_need_li3}</li>
         </ul>
-        <p>No software installation is required when using an online converter like FastYT Media Converter.</p>
+        <p>{t.cvmp3_need_note}</p>
 
-        <h2>Step-by-Step: How to Convert Video to MP3</h2>
+        <h2>{t.cvmp3_steps_title}</h2>
         <ol>
-          <li><strong>Copy the video URL</strong> from your browser's address bar.</li>
-          <li><strong>Visit FastYT Media Converter</strong> at the homepage.</li>
-          <li><strong>Paste the URL</strong> into the input box and click "Start".</li>
-          <li><strong>Choose your audio quality</strong> — 128 kbps, 192 kbps, or 320 kbps.</li>
-          <li><strong>Click "Convert Video"</strong> and wait a few moments.</li>
-          <li><strong>Download your MP3</strong> with a single click.</li>
+          <li>{t.cvmp3_step1}</li>
+          <li>{t.cvmp3_step2}</li>
+          <li>{t.cvmp3_step3}</li>
+          <li>{t.cvmp3_step4}</li>
+          <li>{t.cvmp3_step5}</li>
+          <li>{t.cvmp3_step6}</li>
         </ol>
 
-        <h2>Choosing the Right Audio Bitrate</h2>
-        <p>
-          The audio quality you choose affects both the file size and sound clarity:
-        </p>
+        <h2>{t.cvmp3_bitrate_title}</h2>
+        <p>{t.cvmp3_bitrate_body}</p>
         <ul>
-          <li><strong>128 kbps</strong> — Suitable for spoken word, podcasts, or when storage is limited.</li>
-          <li><strong>192 kbps</strong> — A balanced choice for most music and general audio.</li>
-          <li><strong>320 kbps</strong> — The highest quality available; ideal for music enthusiasts.</li>
+          <li><strong>128 kbps</strong> — {t.cvmp3_br_128.replace("128 kbps — ", "")}</li>
+          <li><strong>192 kbps</strong> — {t.cvmp3_br_192.replace("192 kbps — ", "")}</li>
+          <li><strong>320 kbps</strong> — {t.cvmp3_br_320.replace("320 kbps — ", "")}</li>
         </ul>
 
-        <h2>Tips for a Smooth Conversion</h2>
-        <p>
-          For the best experience when converting video to MP3, keep these tips in mind:
-        </p>
+        <h2>{t.cvmp3_tips_title}</h2>
+        <p>{t.cvmp3_tips_body}</p>
         <ul>
-          <li>Make sure the video is publicly accessible before converting.</li>
-          <li>Videos longer than 20 minutes may take additional processing time.</li>
-          <li>Use a stable internet connection for faster processing.</li>
-          <li>Only convert content you have the rights to use.</li>
+          <li>{t.cvmp3_tip1}</li>
+          <li>{t.cvmp3_tip2}</li>
+          <li>{t.cvmp3_tip3}</li>
+          <li>{t.cvmp3_tip4}</li>
         </ul>
 
-        <h2>Start Converting Now</h2>
-        <p>
-          Ready to extract audio from your favourite video? Our fast, free tool makes it simple.
-        </p>
+        <h2>{t.cvmp3_cta_title}</h2>
+        <p>{t.cvmp3_cta_body}</p>
         <div className="not-prose my-8">
-          <Link
-            href="/"
-            className="inline-block bg-primary text-white font-semibold px-8 py-4 rounded-2xl shadow-lg hover:opacity-90 transition-opacity"
-          >
-            Try our free media converter tool →
+          <Link href="/" className="inline-block bg-primary text-white font-semibold px-8 py-4 rounded-2xl shadow-lg hover:opacity-90 transition-opacity">
+            {t.cvmp3_cta_btn}
           </Link>
         </div>
 
         <p className="text-sm text-muted-foreground">
-          <strong>Disclaimer:</strong> This tool is for personal use only. Users must ensure they have rights to download content.
+          <strong>Disclaimer:</strong> {t.cvmp3_disclaimer}
         </p>
       </div>
     </Layout>
