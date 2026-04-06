@@ -113,10 +113,10 @@ export default function Home() {
           transition={{ delay: 0.3 }}
           className="max-w-3xl mx-auto"
         >
-          <div className="glass-card rounded-2xl sm:rounded-3xl p-8 sm:p-10 md:p-12 relative z-10">
+          <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 relative z-10">
             {/* Input Area - Responsive Layout */}
             <div className="w-full">
-              <div className="relative group border-3 border-primary/30 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-card/80 to-card/40 hover:border-primary/60 focus-within:border-primary transition-all duration-200 shadow-lg">
+              <div className="relative group border-3 border-primary/30 rounded-2xl sm:rounded-3xl bg-card/50 hover:border-primary/60 focus-within:border-primary transition-all duration-100 shadow-md sm:shadow-lg">
                 <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
                   <Search className="w-7 h-7 sm:w-8 sm:h-8" />
                 </div>
