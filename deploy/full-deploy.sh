@@ -80,13 +80,17 @@ echo "  → Fixing permissions..."
 chown -R www-data:www-data /var/www/fastaudio/public/ 2>/dev/null || chmod -R 755 /var/www/fastaudio/public/
 chmod -R 755 /var/www/fastaudio/
 
-echo "  → Installing ffmpeg..."
+echo "  → Installing ffmpeg + aria2..."
 if ! command -v ffmpeg &>/dev/null; then
-  apt-get install -y ffmpeg --quiet 2>&1 | tail -3
+  apt-get install -y ffmpeg aria2 --quiet 2>&1 | tail -3
   echo "    ffmpeg installed: $(ffmpeg -version 2>&1 | head -1)"
 else
   echo "    ffmpeg already installed: $(ffmpeg -version 2>&1 | head -1)"
 fi
+if ! command -v aria2c &>/dev/null; then
+  apt-get install -y aria2 --quiet 2>&1 | tail -3
+fi
+echo "    aria2c: $(aria2c --version 2>&1 | head -1)"
 
 echo "  → Installing yt-dlp..."
 YT_DLP_URL="https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp"
