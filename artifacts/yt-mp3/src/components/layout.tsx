@@ -120,7 +120,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
 
           {/* Right Half */}
-          <nav className="w-1/2 flex items-center gap-2 sm:gap-6 flex-wrap justify-end" role="navigation" aria-label="Primary navigation">
+          <nav className="w-1/2 flex items-center gap-2 sm:gap-6 flex-wrap justify-end ml-[-800px] mr-[-800px]" role="navigation" aria-label="Primary navigation">
             <Link
               href="/"
               className={cn(
