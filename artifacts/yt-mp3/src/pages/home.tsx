@@ -180,13 +180,13 @@ export default function Home() {
                         onClick={() => setQuality(q)}
                         disabled={convertMutation.isPending}
                         className={cn(
-                          "py-3 rounded-xl border-2 font-medium transition-all interactive-scale flex flex-col items-center justify-center gap-1",
+                          "w-24 h-24 rounded-xl border-2 font-medium transition-all interactive-scale flex flex-col items-center justify-center gap-1",
                           quality === q 
                             ? "border-primary bg-primary/5 text-primary" 
                             : "border-border bg-background hover:border-primary/50 text-muted-foreground"
                         )}
                       >
-                        <span className="text-lg">{q}</span>
+                        <span className="text-lg font-semibold">{q}</span>
                         <span className="text-xs opacity-80">{t("kbps")}</span>
                       </button>
                     ))}
