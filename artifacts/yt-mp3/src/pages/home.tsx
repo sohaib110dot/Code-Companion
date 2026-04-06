@@ -133,7 +133,7 @@ export default function Home() {
                 {!infoMutation.data && !convertMutation.data && (
                   <Button 
                     variant="gradient" 
-                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-12 sm:h-16 md:h-20 rounded-lg sm:rounded-2xl px-6 sm:px-10 md:px-12 font-bold whitespace-nowrap text-sm sm:text-lg md:text-xl shadow-lg pl-[55px] pr-[55px] ml-[-12px] mr-[-12px]"
+                    className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 h-10 sm:h-14 md:h-16 rounded-lg sm:rounded-xl px-5 sm:px-8 md:px-10 font-semibold whitespace-nowrap text-xs sm:text-base md:text-lg shadow-lg"
                     onClick={() => {
                       if (isValidMediaUrl(url)) {
                         infoMutation.mutate({ data: { url } });
@@ -141,9 +141,9 @@ export default function Home() {
                     }}
                     disabled={!url || isProcessing}
                   >
-                    {infoMutation.isPending ? <Loader2 className="w-5 sm:w-6 h-5 sm:h-6 animate-spin mr-2 sm:mr-3" /> : null}
-                    <span className="hidden sm:inline">{infoMutation.isPending ? t("converting") : t("start")}</span>
-                    <span className="sm:hidden">{infoMutation.isPending ? t("converting") : "Go"}</span>
+                    {infoMutation.isPending ? <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin mr-2" /> : null}
+                    <span className="hidden sm:inline">{infoMutation.isPending ? t("converting") : "Convert"}</span>
+                    <span className="sm:hidden">{infoMutation.isPending ? "..." : "Go"}</span>
                   </Button>
                 )}
               </div>
