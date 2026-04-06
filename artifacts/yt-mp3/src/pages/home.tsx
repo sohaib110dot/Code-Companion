@@ -11,8 +11,10 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function Home() {
   const [url, setUrl] = useState("");
   const [quality, setQuality] = useState<"128" | "192" | "320">("192");
+  const [cacheReady, setCacheReady] = useState(false);
   const { t } = useI18n();
   const fetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cachePollerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   const infoMutation = useGetVideoInfo();
   const convertMutation = useConvertVideo();
@@ -52,13 +54,13 @@ export default function Home() {
     }
   }, []);
 
-  // Auto-fetch video info when valid URL is pasted with debounce
   useEffect(() => {
     if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+    if (cachePollerRef.current) { clearInterval(cachePollerRef.current); cachePollerRef.current = null; }
+    setCacheReady(false);
 
     if (!isValidMediaUrl(url)) return;
 
-    // Reset conversion if user changes URL
     if (convertMutation.isSuccess || convertMutation.isError) {
       convertMutation.reset();
     }
@@ -68,10 +70,32 @@ export default function Home() {
 
     fetchTimeoutRef.current = setTimeout(() => {
       infoMutation.mutate({ data: { url } });
+
+      const apiBase = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+      const pollUrl = `${apiBase}/api/cache-status?url=${encodeURIComponent(url)}&quality=192`;
+      let attempts = 0;
+      cachePollerRef.current = setInterval(async () => {
+        attempts++;
+        if (attempts > 30) {
+          if (cachePollerRef.current) clearInterval(cachePollerRef.current);
+          return;
+        }
+        try {
+          const r = await fetch(pollUrl);
+          const d = await r.json();
+          if (d.ready) {
+            setCacheReady(true);
+            if (cachePollerRef.current) clearInterval(cachePollerRef.current);
+          } else if (d.status === "failed") {
+            if (cachePollerRef.current) clearInterval(cachePollerRef.current);
+          }
+        } catch {}
+      }, 2000);
     }, 500);
 
     return () => {
       if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+      if (cachePollerRef.current) clearInterval(cachePollerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
@@ -254,6 +278,12 @@ export default function Home() {
                         Loading video info...
                       </div>
                     )}
+                    {!infoMutation.isPending && cacheReady && (
+                      <div className="mt-3 flex items-center gap-2 text-xs text-green-500 font-semibold">
+                        <Zap className="w-3.5 h-3.5" />
+                        Ready — click Convert for instant download
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -304,7 +334,10 @@ export default function Home() {
                   <Button
                     variant="gradient"
                     size="lg"
-                    className="w-full h-12 sm:h-14 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                    className={cn(
+                      "w-full h-12 sm:h-14 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all",
+                      cacheReady && !convertMutation.isPending && "bg-green-500 hover:bg-green-600 shadow-green-500/30"
+                    )}
                     onClick={handleConvert}
                     disabled={convertMutation.isPending}
                   >
@@ -312,6 +345,11 @@ export default function Home() {
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                         {t("converting")}
+                      </>
+                    ) : cacheReady ? (
+                      <>
+                        <Zap className="w-5 h-5 mr-2" />
+                        {t("convertMedia")}
                       </>
                     ) : (
                       <>
@@ -321,7 +359,19 @@ export default function Home() {
                     )}
                   </Button>
 
-                  {/* Progress Bar */}
+                  {cacheReady && !convertMutation.isPending && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-3 text-center"
+                    >
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-500">
+                        <Zap className="w-3.5 h-3.5" />
+                        Ready for instant download
+                      </span>
+                    </motion.div>
+                  )}
+
                   {convertMutation.isPending && (
                     <motion.div
                       initial={{ opacity: 0 }}

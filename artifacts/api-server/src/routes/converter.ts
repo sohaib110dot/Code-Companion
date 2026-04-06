@@ -24,6 +24,39 @@ function isValidMediaUrl(url: string): boolean {
   } catch { return false; }
 }
 
+// ─── Pre-conversion cache — start converting the moment a URL is pasted ──────
+interface CacheEntry {
+  status: "converting" | "done" | "failed";
+  title: string;
+  download?: string;
+  startedAt: number;
+  donePromise: Promise<void>;
+}
+
+const conversionCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 30 * 60 * 1000;
+const MAX_CACHE_ENTRIES = 50;
+let activePrefetches = 0;
+const MAX_PREFETCHES = 3;
+
+function cacheKey(url: string, quality: string): string {
+  return crypto.createHash("md5").update(url + quality).digest("hex");
+}
+
+function normalizeUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    if (u.hostname.includes("youtu.be")) {
+      const id = u.pathname.slice(1).split("/")[0];
+      return `https://www.youtube.com/watch?v=${id}`;
+    }
+    if (u.hostname.includes("youtube.com") && u.searchParams.has("v")) {
+      return `https://www.youtube.com/watch?v=${u.searchParams.get("v")}`;
+    }
+  } catch {}
+  return raw;
+}
+
 // ─── yt-dlp availability check ───────────────────────────────────────────────
 let ytDlpAvailable: boolean | null = null;
 
@@ -257,6 +290,77 @@ function makeProxyLink(externalUrl: string, safeTitle: string): string {
   return `/api/proxy-download?u=${encoded}&t=${encodeURIComponent(safeTitle)}`;
 }
 
+// ─── Pre-conversion engine — starts converting in background on URL paste ─────
+function startPreConversion(url: string, quality: string, title: string): void {
+  const norm = normalizeUrl(url);
+  const key = cacheKey(norm, quality);
+  if (conversionCache.has(key)) return;
+  if (activePrefetches >= MAX_PREFETCHES) return;
+
+  if (conversionCache.size >= MAX_CACHE_ENTRIES) {
+    const oldest = conversionCache.keys().next().value;
+    if (oldest) conversionCache.delete(oldest);
+  }
+
+  let resolveDone: () => void;
+  const donePromise = new Promise<void>((r) => { resolveDone = r; });
+
+  const entry: CacheEntry = { status: "converting", title, startedAt: Date.now(), donePromise };
+  conversionCache.set(key, entry);
+  activePrefetches++;
+
+  (async () => {
+    try {
+      const hasYtDlp = await checkYtDlp();
+      if (hasYtDlp) {
+        console.log(`[prefetch] ⚡ ${norm} @ ${quality}kbps`);
+        const { fileId, title: dlpTitle } = await ytDlpConvert(norm, quality);
+        const finalTitle = (dlpTitle || title).replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+        entry.status = "done";
+        entry.title = dlpTitle || title;
+        entry.download = `/api/download/${fileId}?t=${encodeURIComponent(finalTitle)}`;
+        console.log(`[prefetch] ✅ ${entry.title} (${((Date.now() - entry.startedAt) / 1000).toFixed(1)}s)`);
+        return;
+      }
+    } catch (err: any) {
+      console.warn(`[prefetch] yt-dlp failed: ${err.message.slice(0, 100)}`);
+    }
+    try {
+      console.log(`[prefetch] loader.to fallback: ${norm}`);
+      const externalUrl = await loaderToConvert(norm);
+      const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+      entry.status = "done";
+      entry.download = makeProxyLink(externalUrl, safeTitle);
+      console.log(`[prefetch] ✅ loader.to done`);
+    } catch (err: any) {
+      entry.status = "failed";
+      console.warn(`[prefetch] ❌ All tiers failed: ${err.message.slice(0, 100)}`);
+    }
+  })().finally(() => { activePrefetches--; resolveDone!(); });
+}
+
+// Clean old cache entries every 5 min
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of conversionCache) {
+    if (now - v.startedAt > CACHE_TTL) conversionCache.delete(k);
+  }
+}, 5 * 60_000);
+
+// ─── /cache-status — frontend polls this to show ⚡ Ready indicator ───────────
+router.get("/cache-status", (req: Request, res: Response) => {
+  const rawUrl = String(req.query.url || "");
+  const quality = String(req.query.quality || "192");
+  if (!rawUrl) { res.json({ ready: false }); return; }
+  const key = cacheKey(normalizeUrl(rawUrl), quality);
+  const entry = conversionCache.get(key);
+  res.json({
+    ready: entry?.status === "done",
+    status: entry?.status || "none",
+    title: entry?.title || "",
+  });
+});
+
 // ─── /info endpoint ───────────────────────────────────────────────────────────
 router.post("/info", async (req: Request, res: Response) => {
   try {
@@ -281,6 +385,8 @@ router.post("/info", async (req: Request, res: Response) => {
     if (info.duration > MAX_DURATION_SECONDS) {
       res.status(400).json({ error: "Media too long. Maximum is 10 hours." }); return;
     }
+
+    startPreConversion(url, "192", info.title);
 
     res.json(GetVideoInfoResponse.parse(info));
   } catch (err: any) {
@@ -312,6 +418,31 @@ router.post("/convert", async (req: Request, res: Response) => {
       res.status(400).json({ error: "Invalid quality." }); return;
     }
 
+    const norm = normalizeUrl(url);
+    const ck = cacheKey(norm, quality);
+    const cached = conversionCache.get(ck);
+
+    if (cached) {
+      if (cached.status === "done" && cached.download) {
+        console.log(`[convert] ⚡ INSTANT cache hit: ${cached.title}`);
+        res.json(ConvertVideoResponse.parse({
+          success: true, title: cached.title, download: cached.download,
+        }));
+        return;
+      }
+      if (cached.status === "converting") {
+        console.log(`[convert] ⏳ Waiting for pre-conversion to finish...`);
+        await cached.donePromise;
+        if (cached.status === "done" && cached.download) {
+          console.log(`[convert] ⚡ Pre-converted: ${cached.title}`);
+          res.json(ConvertVideoResponse.parse({
+            success: true, title: cached.title, download: cached.download,
+          }));
+          return;
+        }
+      }
+    }
+
     const jobKey = crypto.createHash("md5").update(url + quality).digest("hex");
     if (inProgress.size >= MAX_CONCURRENT) {
       res.status(429).json({ error: "Server busy. Please wait a moment." }); return;
@@ -323,12 +454,10 @@ router.post("/convert", async (req: Request, res: Response) => {
     inProgress.add(jobKey);
 
     try {
-      // ── Get title ──────────────────────────────────────────────────────────
       let title = "audio";
       try { const i = await youtubeOembedInfo(url); title = i.title; } catch {}
       const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
 
-      // ── PRIMARY: yt-dlp (tv_embedded bypasses YouTube datacenter IP block) ─
       const hasYtDlp = await checkYtDlp();
       if (hasYtDlp) {
         try {
@@ -336,9 +465,18 @@ router.post("/convert", async (req: Request, res: Response) => {
           const { fileId, title: dlpTitle } = await ytDlpConvert(url, quality);
           const finalTitle = (dlpTitle || title).replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
           console.log(`[yt-dlp] ✅ ${dlpTitle}`);
+
+          let resolveCache: () => void;
+          const dp = new Promise<void>((r) => { resolveCache = r; });
+          conversionCache.set(ck, {
+            status: "done", title: dlpTitle || title,
+            download: `/api/download/${fileId}?t=${encodeURIComponent(finalTitle)}`,
+            startedAt: Date.now(), donePromise: dp,
+          });
+          resolveCache!();
+
           res.json(ConvertVideoResponse.parse({
-            success: true,
-            title: dlpTitle || title,
+            success: true, title: dlpTitle || title,
             download: `/api/download/${fileId}?t=${encodeURIComponent(finalTitle)}`,
           }));
           return;
@@ -347,13 +485,11 @@ router.post("/convert", async (req: Request, res: Response) => {
         }
       }
 
-      // ── FALLBACK: loader.to ────────────────────────────────────────────────
       console.log(`[loader.to] ${url}`);
       const externalUrl = await loaderToConvert(url);
       console.log(`[loader.to] ✅ Done`);
       res.json(ConvertVideoResponse.parse({
-        success: true,
-        title,
+        success: true, title,
         download: makeProxyLink(externalUrl, safeTitle),
       }));
 
