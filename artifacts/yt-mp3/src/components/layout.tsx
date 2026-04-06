@@ -106,21 +106,19 @@ export function Layout({ children }: LayoutProps) {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/10 blur-[120px]" />
       </div>
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
-        <div className="max-w-full px-4 h-auto sm:h-20 flex items-center py-3 sm:py-0">
-          {/* Left Half */}
-          <div className="flex-1 flex items-center">
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group" aria-label="FastAudio - Convert Videos to MP3">
-              <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform flex-shrink-0">
-                <Headphones className="w-4 sm:w-5 h-4 sm:h-5" aria-hidden="true" />
-              </div>
-              <span className="font-display font-bold text-lg sm:text-xl tracking-tight">
-                Fast<span className="text-primary">Audio</span>
-              </span>
-            </Link>
-          </div>
+        <div className="px-4 h-auto sm:h-20 flex items-center py-3 sm:py-0 justify-between">
+          {/* Left Half - Logo */}
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0" aria-label="FastAudio - Convert Videos to MP3">
+            <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform flex-shrink-0">
+              <Headphones className="w-4 sm:w-5 h-4 sm:h-5" aria-hidden="true" />
+            </div>
+            <span className="font-display font-bold text-lg sm:text-xl tracking-tight">
+              Fast<span className="text-primary">Audio</span>
+            </span>
+          </Link>
 
-          {/* Right Half */}
-          <nav className="flex-1 flex items-center gap-2 sm:gap-6 flex-wrap justify-end" role="navigation" aria-label="Primary navigation">
+          {/* Right Half - Navigation */}
+          <nav className="flex items-center gap-2 sm:gap-6" role="navigation" aria-label="Primary navigation">
             <Link
               href="/"
               className={cn(
