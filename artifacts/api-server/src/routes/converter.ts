@@ -84,7 +84,8 @@ async function ytDlpGetInfo(url: string): Promise<{ title: string; thumbnail: st
       "--no-playlist",
       "--no-warnings",
       "--quiet",
-      "--extractor-args", "youtube:player_client=tv_embedded",
+      "--js-runtimes", "node",
+      "--proxy", "socks5://127.0.0.1:40000",
     ]);
     proc.stdout.on("data", (d: Buffer) => { json += d.toString(); });
     proc.on("close", (code) => {
@@ -158,12 +159,10 @@ async function ytDlpConvert(url: string, quality: string): Promise<ConversionRes
       "--no-warnings",
       "--print", "%(title)s",
       "--no-simulate",
-      // tv_embedded → triggers android vr API path, bypasses bot detection on datacenter IPs
-      "--extractor-args", "youtube:player_client=tv_embedded",
+      "--js-runtimes", "node",
+      "--proxy", "socks5://127.0.0.1:40000",
+      "--concurrent-fragments", "8",
       "--add-header", "Accept-Language:en-US,en;q=0.9",
-      // aria2c: 16 parallel connections — cuts download time by ~50% on throttled IPs
-      "--downloader", "aria2c",
-      "--downloader-args", "aria2c:-x 16 -s 16 -k 1M --quiet=true",
     ];
 
     const proc = spawn("yt-dlp", args, { stdio: ["ignore", "pipe", "pipe"] });
