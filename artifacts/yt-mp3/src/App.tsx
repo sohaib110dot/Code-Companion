@@ -54,7 +54,7 @@ function Router() {
 
 function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <I18nProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
