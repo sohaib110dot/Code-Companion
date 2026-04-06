@@ -146,20 +146,20 @@ export default function Home() {
                   Paste
                 </button>
                 
-                {!infoMutation.data && !convertMutation.data && (
+                {!convertMutation.data && (
                   <Button 
                     variant="gradient" 
                     className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 h-10 sm:h-14 md:h-16 rounded-lg sm:rounded-xl px-5 sm:px-8 md:px-10 font-semibold whitespace-nowrap text-xs sm:text-base md:text-lg shadow-lg"
                     onClick={() => {
                       if (isValidMediaUrl(url)) {
-                        infoMutation.mutate({ data: { url } });
+                        convertMutation.mutate({ data: { url, quality } });
                       }
                     }}
                     disabled={!url || isProcessing}
                   >
-                    {infoMutation.isPending ? <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin mr-2" /> : null}
-                    <span className="hidden sm:inline">{infoMutation.isPending ? t("converting") : "Convert"}</span>
-                    <span className="sm:hidden">{infoMutation.isPending ? "..." : "Go"}</span>
+                    {convertMutation.isPending ? <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin mr-2" /> : null}
+                    <span className="hidden sm:inline">{convertMutation.isPending ? t("converting") : "Convert"}</span>
+                    <span className="sm:hidden">{convertMutation.isPending ? "..." : "Go"}</span>
                   </Button>
                 )}
               </div>
@@ -171,6 +171,35 @@ export default function Home() {
                 </p>
               )}
             </div>
+
+            {/* Quality Selection - User Friendly */}
+            {url && isValidMediaUrl(url) && !infoMutation.data && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-6 pt-6 border-t border-border/30"
+              >
+                <p className="text-sm font-semibold text-muted-foreground mb-4">Select Audio Quality:</p>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {(["128", "192", "320"] as const).map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => setQuality(q)}
+                      disabled={infoMutation.isPending}
+                      className={cn(
+                        "py-2 sm:py-3 rounded-lg border-2 font-medium transition-all text-xs sm:text-sm md:text-base",
+                        quality === q 
+                          ? "border-primary bg-primary/10 text-primary" 
+                          : "border-border bg-background/50 hover:border-primary/50 text-muted-foreground"
+                      )}
+                    >
+                      {q} kbps
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Dynamic Content Area (Preview, Settings, Results) */}
