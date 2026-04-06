@@ -98,11 +98,25 @@ PKG
 fi
 npm install --production --silent 2>&1 | tail -3 || echo "deps already installed"
 
-echo "  → Writing HTTP-only Nginx config (no SSL needed yet)..."
+echo "  → Writing Nginx config with HTTPS..."
 cat > /etc/nginx/sites-available/fastaudio << 'NGINX'
+# HTTP to HTTPS redirect
 server {
     listen 80;
     server_name fastaudio.cc www.fastaudio.cc;
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# HTTPS server
+server {
+    listen 443 ssl;
+    server_name fastaudio.cc www.fastaudio.cc;
+    ssl_certificate /etc/letsencrypt/live/fastaudio.cc/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/fastaudio.cc/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
 
     root /var/www/fastaudio/public;
     index index.html;
@@ -110,10 +124,6 @@ server {
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml image/svg+xml;
     gzip_min_length 1000;
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
 
     location /api/ {
         proxy_pass http://127.0.0.1:3000;
