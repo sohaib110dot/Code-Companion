@@ -124,7 +124,7 @@ export default function Home() {
                 </div>
                 <Input 
                   placeholder="Paste URL here to Download..."
-                  className="w-full h-16 sm:h-20 pl-14 sm:pl-20 pr-32 sm:pr-44 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-0"
+                  className="w-full h-16 sm:h-20 pl-14 sm:pl-20 pr-32 sm:pr-44 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-0 align-middle leading-none"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
@@ -132,7 +132,7 @@ export default function Home() {
                 
                 {/* Button Group - Right Side */}
                 {!convertMutation.data && (
-                  <div className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 flex gap-2 sm:gap-3">
+                  <div className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 flex gap-2 sm:gap-3 items-center">
                     <button
                       onClick={async () => {
                         try {
