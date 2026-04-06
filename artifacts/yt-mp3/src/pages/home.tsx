@@ -113,16 +113,16 @@ export default function Home() {
           transition={{ delay: 0.3 }}
           className="max-w-3xl mx-auto"
         >
-          <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 relative z-10 pl-[0px] pr-[0px] pt-[24px] pb-[24px]">
+          <div className="glass-card rounded-2xl sm:rounded-3xl p-8 sm:p-10 md:p-12 relative z-10">
             {/* Input Area - Responsive Layout */}
             <div className="w-full">
-              <div className="relative group border-2 border-border rounded-xl sm:rounded-2xl bg-card/50 hover:border-primary/50 transition-colors">
-                <div className="absolute left-5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
-                  <Search className="w-6 h-6 sm:w-7 sm:h-7" />
+              <div className="relative group border-3 border-primary/30 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-card/80 to-card/40 hover:border-primary/60 focus-within:border-primary transition-all duration-200 shadow-lg">
+                <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
+                  <Search className="w-7 h-7 sm:w-8 sm:h-8" />
                 </div>
                 <Input 
                   placeholder={t("placeholder")}
-                  className="w-full h-14 sm:h-16 md:h-18 pl-14 pr-5 sm:pr-28 text-base sm:text-lg md:text-lg rounded-lg sm:rounded-xl bg-transparent border-0 placeholder:text-muted-foreground/70 placeholder:font-medium focus:outline-none focus:ring-0"
+                  className="w-full h-16 sm:h-20 md:h-24 pl-16 sm:pl-20 pr-6 sm:pr-32 text-lg sm:text-xl md:text-2xl rounded-2xl sm:rounded-3xl bg-transparent border-0 placeholder:text-muted-foreground/60 placeholder:font-semibold focus:outline-none focus:ring-0"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
@@ -131,7 +131,7 @@ export default function Home() {
                 {!infoMutation.data && !convertMutation.data && (
                   <Button 
                     variant="gradient" 
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 sm:h-12 md:h-14 rounded-lg sm:rounded-xl px-4 sm:px-7 md:px-8 font-semibold whitespace-nowrap text-sm sm:text-base md:text-base"
+                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-12 sm:h-16 md:h-20 rounded-lg sm:rounded-2xl px-6 sm:px-10 md:px-12 font-bold whitespace-nowrap text-sm sm:text-lg md:text-xl shadow-lg"
                     onClick={() => {
                       if (isValidMediaUrl(url)) {
                         infoMutation.mutate({ data: { url } });
@@ -139,7 +139,7 @@ export default function Home() {
                     }}
                     disabled={!url || isProcessing}
                   >
-                    {infoMutation.isPending ? <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin mr-2 sm:mr-3" /> : null}
+                    {infoMutation.isPending ? <Loader2 className="w-5 sm:w-6 h-5 sm:h-6 animate-spin mr-2 sm:mr-3" /> : null}
                     <span className="hidden sm:inline">{infoMutation.isPending ? t("converting") : t("start")}</span>
                     <span className="sm:hidden">{infoMutation.isPending ? t("converting") : "Go"}</span>
                   </Button>
