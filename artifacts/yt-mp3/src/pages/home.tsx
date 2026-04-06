@@ -124,11 +124,27 @@ export default function Home() {
                 </div>
                 <Input 
                   placeholder="Paste URL here to Download..."
-                  className="w-full h-16 sm:h-20 pl-14 sm:pl-20 pr-24 sm:pr-32 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-0"
+                  className="w-full h-16 sm:h-20 pl-20 sm:pl-28 pr-24 sm:pr-32 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-0"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
                 />
+                
+                {/* Paste Button - Left Side */}
+                <button
+                  onClick={async () => {
+                    try {
+                      const text = await navigator.clipboard.readText();
+                      setUrl(text);
+                    } catch (err) {
+                      console.error('Failed to read clipboard:', err);
+                    }
+                  }}
+                  disabled={isProcessing}
+                  className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 h-10 sm:h-12 rounded-lg px-3 sm:px-4 font-semibold text-xs sm:text-sm text-primary bg-primary/10 hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                >
+                  Paste
+                </button>
                 
                 {!infoMutation.data && !convertMutation.data && (
                   <Button 
