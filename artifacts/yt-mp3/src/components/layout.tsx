@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Headphones, DownloadCloud, Zap, ShieldCheck, Sun, Moon, ChevronDown } from "lucide-react";
+import { Headphones, Zap, ShieldCheck, Sun, Moon, ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useI18n } from "@/lib/i18n-context";
@@ -32,6 +32,7 @@ export function Layout({ children }: LayoutProps) {
   const [mounted, setMounted] = useState(false);
   const { language, setLanguage, t } = useI18n();
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -39,19 +40,17 @@ export function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setShowMobileMenu(false);
   }, [location]);
 
   useEffect(() => {
     if (!showLanguageDropdown) return;
-    
-    // Close dropdown when clicking outside
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (!target.closest('[aria-label="Change language"]') && !target.closest('.language-dropdown')) {
+      if (!target.closest('.language-dropdown')) {
         setShowLanguageDropdown(false);
       }
     };
-    
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, [showLanguageDropdown]);
@@ -59,6 +58,7 @@ export function Layout({ children }: LayoutProps) {
   const handleLanguageChange = (langCode: string) => {
     setLanguage(langCode as any);
     setShowLanguageDropdown(false);
+    setShowMobileMenu(false);
   };
 
   const currentLang = LANGUAGES.find(l => l.code === language) || LANGUAGES[0];
@@ -73,11 +73,6 @@ export function Layout({ children }: LayoutProps) {
       "/disclaimer": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Disclaimer", url: "https://fastaudio.cc/disclaimer" }],
       "/dmca": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "DMCA Policy", url: "https://fastaudio.cc/dmca" }],
       "/faqs": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "FAQs", url: "https://fastaudio.cc/faqs" }],
-      "/convert-video-to-mp3": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Convert Video to MP3", url: "https://fastaudio.cc/convert-video-to-mp3" }],
-      "/extract-audio": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Extract Audio", url: "https://fastaudio.cc/extract-audio" }],
-      "/mobile-convert": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Convert on Mobile", url: "https://fastaudio.cc/mobile-convert" }],
-      "/mp3-vs-wav": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "MP3 vs WAV", url: "https://fastaudio.cc/mp3-vs-wav" }],
-      "/convert-without-software": [{ name: "Home", url: "https://fastaudio.cc/" }, { name: "Convert Without Software", url: "https://fastaudio.cc/convert-without-software" }],
     };
     const breadcrumbs = breadcrumbMap[location] || [{ name: "Home", url: "https://fastaudio.cc/" }];
     let breadcrumbScript = document.querySelector('script[data-type="breadcrumb-schema"]') as HTMLScriptElement | null;
@@ -105,11 +100,12 @@ export function Layout({ children }: LayoutProps) {
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/10 blur-[120px]" />
       </div>
+
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
-        <div className="relative px-4 h-auto sm:h-20 flex items-center justify-center py-3 sm:py-0">
-          {/* Left - Logo (Absolute) */}
-          <Link href="/" className="absolute left-4 flex items-center gap-2 sm:gap-3 group flex-shrink-0 pl-[0px] pr-[0px] ml-[500px] mr-[500px]" aria-label="FastAudio - Convert Videos to MP3">
-            <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform flex-shrink-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0" aria-label="FastAudio - Convert Videos to MP3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
               <Headphones className="w-4 sm:w-5 h-4 sm:h-5" aria-hidden="true" />
             </div>
             <span className="font-display font-bold text-lg sm:text-xl tracking-tight">
@@ -117,13 +113,13 @@ export function Layout({ children }: LayoutProps) {
             </span>
           </Link>
 
-          {/* Center - Navigation */}
-          <nav className="flex items-center gap-2 sm:gap-6 pl-32 sm:pl-40" role="navigation" aria-label="Primary navigation">
+          {/* Desktop Navigation */}
+          <nav className="hidden sm:flex items-center gap-1 sm:gap-4" role="navigation" aria-label="Primary navigation">
             <Link
               href="/"
               className={cn(
-                "text-xs sm:text-sm font-medium transition-colors hover:text-primary px-2 py-1 rounded",
-                location === "/" ? "text-primary" : "text-muted-foreground"
+                "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-lg hover:bg-primary/5",
+                location === "/" ? "text-primary bg-primary/5" : "text-muted-foreground"
               )}
               aria-current={location === "/" ? "page" : undefined}
             >
@@ -132,46 +128,46 @@ export function Layout({ children }: LayoutProps) {
             <Link
               href="/faqs"
               className={cn(
-                "text-xs sm:text-sm font-medium transition-colors hover:text-primary px-2 py-1 rounded",
-                location === "/faqs" ? "text-primary" : "text-muted-foreground"
+                "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-lg hover:bg-primary/5",
+                location === "/faqs" ? "text-primary bg-primary/5" : "text-muted-foreground"
               )}
               aria-current={location === "/faqs" ? "page" : undefined}
             >
               {t("faqs")}
             </Link>
+
+            {/* Theme Toggle */}
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-1.5 sm:p-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex-shrink-0"
+              className="p-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
               aria-label={t("toggleTheme")}
             >
               {mounted ? (
-                theme === "dark" ? <Sun className="w-4 sm:w-5 h-4 sm:h-5" /> : <Moon className="w-4 sm:w-5 h-4 sm:h-5" />
+                theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />
               ) : (
-                <div className="w-4 sm:w-5 h-4 sm:h-5" />
+                <div className="w-5 h-5" />
               )}
             </button>
-            
+
             {/* Language Selector */}
-            <div className="relative language-dropdown flex-shrink-0">
+            <div className="relative language-dropdown">
               <button
                 onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                className="p-1.5 sm:p-2 px-2 sm:px-3 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex items-center gap-1 text-xs sm:text-sm font-medium"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary text-sm font-medium language-dropdown"
                 aria-label={t("changeLanguage")}
               >
-                <span className="mr-1">{currentLang.flag}</span>
-                <span className="hidden sm:inline">{currentLang.name}</span>
-                <ChevronDown className="w-3 sm:w-4 h-3 sm:h-4" />
+                <span>{currentLang.flag}</span>
+                <span className="hidden md:inline">{currentLang.name}</span>
+                <ChevronDown className={cn("w-4 h-4 transition-transform", showLanguageDropdown && "rotate-180")} />
               </button>
-              
-              {/* Dropdown Menu */}
               {showLanguageDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto language-dropdown">
+                <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-lg z-50 max-h-64 overflow-y-auto language-dropdown">
                   {LANGUAGES.map((lang) => (
                     <button
                       key={lang.code}
                       onClick={() => handleLanguageChange(lang.code)}
                       className={cn(
-                        "w-full px-4 py-2.5 text-left text-sm flex items-center gap-2 transition-colors hover:bg-primary/10",
+                        "w-full px-4 py-2.5 text-left text-sm flex items-center gap-2 transition-colors hover:bg-primary/10 first:rounded-t-xl last:rounded-b-xl",
                         language === lang.code ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-primary"
                       )}
                     >
@@ -184,29 +180,87 @@ export function Layout({ children }: LayoutProps) {
               )}
             </div>
           </nav>
+
+          {/* Mobile: Theme + Hamburger */}
+          <div className="flex sm:hidden items-center gap-2">
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
+              aria-label={t("toggleTheme")}
+            >
+              {mounted ? (
+                theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />
+              ) : <div className="w-5 h-5" />}
+            </button>
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="p-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
+              aria-label="Toggle menu"
+            >
+              {showMobileMenu ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {showMobileMenu && (
+          <div className="sm:hidden border-t border-border/40 bg-background/95 backdrop-blur-xl px-4 py-3 space-y-1">
+            <Link
+              href="/"
+              className={cn(
+                "flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                location === "/" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
+              )}
+            >
+              {t("home")}
+            </Link>
+            <Link
+              href="/faqs"
+              className={cn(
+                "flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                location === "/faqs" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
+              )}
+            >
+              {t("faqs")}
+            </Link>
+            <div className="pt-2 border-t border-border/40">
+              <p className="px-3 py-1 text-xs text-muted-foreground font-medium uppercase tracking-wider">Language</p>
+              <div className="grid grid-cols-2 gap-1 mt-1">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => handleLanguageChange(lang.code)}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors",
+                      language === lang.code ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-primary/5"
+                    )}
+                  >
+                    <span>{lang.flag}</span>
+                    <span className="truncate">{lang.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </header>
-      <div className="container mx-auto px-4 py-6">
-        <div className="ad-slot-placeholder w-full h-[90px] md:h-[120px] max-w-4xl mx-auto" />
-      </div>
-      <main className="flex-1 container mx-auto px-4 pb-12">
+
+      <main className="flex-1">
         {children}
       </main>
-      <div className="container mx-auto px-4 py-8">
-        <div className="ad-slot-placeholder w-full h-[90px] max-w-4xl mx-auto" />
-      </div>
+
       <footer className="border-t border-border/50 bg-card/50 mt-auto">
-        <div className="container mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="col-span-1 md:col-span-2">
               <Link href="/" className="flex items-center gap-2 mb-4">
                 <Headphones className="w-6 h-6 text-primary" />
                 <span className="font-display font-bold text-lg">FastAudio</span>
               </Link>
-              <p className="text-muted-foreground max-w-sm mb-6">
+              <p className="text-muted-foreground max-w-sm mb-6 text-sm leading-relaxed">
                 {t("tagline")}
               </p>
-              <div className="flex gap-4">
+              <div className="flex gap-4 flex-wrap">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Zap className="w-4 h-4 text-accent" /> {t("lightningFast")}
                 </div>
@@ -217,74 +271,42 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             <div>
-              <h4 className="font-bold mb-4 text-foreground">{t("legal")}</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("termsOfService")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("privacyPolicy")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/disclaimer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("disclaimer")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("contact")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("about")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dmca" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("dmcaPolicy")}
-                  </Link>
-                </li>
+              <h4 className="font-bold mb-4 text-foreground text-sm uppercase tracking-wider">{t("legal")}</h4>
+              <ul className="space-y-2.5">
+                {[
+                  { href: "/terms", label: t("termsOfService") },
+                  { href: "/privacy-policy", label: t("privacyPolicy") },
+                  { href: "/disclaimer", label: t("disclaimer") },
+                  { href: "/contact", label: t("contact") },
+                  { href: "/about", label: t("about") },
+                  { href: "/dmca", label: t("dmcaPolicy") },
+                ].map(({ href, label }) => (
+                  <li key={href}>
+                    <Link href={href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      {label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-4 text-foreground">{t("resources")}</h4>
-              <ul className="space-y-3">
-                <li>
-                  <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("videoToMp3Converter")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/faqs" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("faqs")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/convert-video-to-mp3" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("convertVideoToMp3")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/extract-audio" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("extractAudio")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/mp3-vs-wav" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("mp3VsWavGuide")}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/mobile-convert" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-                    {t("convertOnMobile")}
-                  </Link>
-                </li>
+              <h4 className="font-bold mb-4 text-foreground text-sm uppercase tracking-wider">{t("resources")}</h4>
+              <ul className="space-y-2.5">
+                {[
+                  { href: "/", label: t("videoToMp3Converter") },
+                  { href: "/faqs", label: t("faqs") },
+                  { href: "/convert-video-to-mp3", label: t("convertVideoToMp3") },
+                  { href: "/extract-audio", label: t("extractAudio") },
+                  { href: "/mp3-vs-wav", label: t("mp3VsWavGuide") },
+                  { href: "/mobile-convert", label: t("convertOnMobile") },
+                ].map(({ href, label }) => (
+                  <li key={href}>
+                    <Link href={href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                      {label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>

@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useGetVideoInfo, useConvertVideo } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoPreview } from "@/components/video-preview";
 import { isValidMediaUrl, cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n-context";
-import { Search, Loader2, Download, ArrowRight, Zap, CheckCircle2, Shield, Music } from "lucide-react";
+import { Search, Loader2, Download, ArrowRight, Zap, CheckCircle2, Shield, Music, ClipboardPaste, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export default function Home() {
-  const reduceMotion = useReducedMotion();
   const [url, setUrl] = useState("");
   const [quality, setQuality] = useState<"128" | "192" | "320">("192");
-  const { lang, t } = useI18n();
+  const { t } = useI18n();
+  const fetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const infoMutation = useGetVideoInfo();
   const convertMutation = useConvertVideo();
 
-  // Handle URL changes and auto-fetch preview
+  // Set page metadata once
   useEffect(() => {
     document.title = "FastAudio Media Converter - Convert Media Files to High Quality Audio Online";
     const setMeta = (name: string, content: string, prop = false) => {
@@ -28,14 +26,13 @@ export default function Home() {
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "FastAudio Media Converter lets you convert media files to high quality audio online for free. Fast, easy and secure audio conversion tool for personal use.");
-    setMeta("keywords", "media converter, audio converter, convert media, audio extraction, online converter, audio processing");
+    setMeta("description", "FastAudio Media Converter lets you convert media files to high quality audio online for free. Fast, easy and secure audio conversion tool.");
+    setMeta("keywords", "media converter, audio converter, convert media, audio extraction, online converter");
     setMeta("robots", "index, follow");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
     canonical.setAttribute("href", "https://fastaudio.cc/");
-    
-    // JSON-LD Structured Data for SoftwareApplication
+
     let schemaScript = document.querySelector('script[data-type="application-schema"]');
     if (!schemaScript) {
       schemaScript = document.createElement("script") as HTMLScriptElement;
@@ -53,236 +50,294 @@ export default function Home() {
       });
       document.head.appendChild(schemaScript);
     }
+  }, []);
 
-    if (isValidMediaUrl(url)) {
-      // Avoid refetching if we already have it for this exact URL (basic check)
-      if (!infoMutation.isPending && !convertMutation.isSuccess) {
-        infoMutation.mutate({ data: { url } });
-      }
-      // Reset conversion state if user pastes a new URL
-      if (convertMutation.isSuccess || convertMutation.isError) {
-        convertMutation.reset();
-      }
+  // Auto-fetch video info when valid URL is pasted with debounce
+  useEffect(() => {
+    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+
+    if (!isValidMediaUrl(url)) return;
+
+    // Reset conversion if user changes URL
+    if (convertMutation.isSuccess || convertMutation.isError) {
+      convertMutation.reset();
     }
+    if (infoMutation.isSuccess || infoMutation.isError) {
+      infoMutation.reset();
+    }
+
+    fetchTimeoutRef.current = setTimeout(() => {
+      infoMutation.mutate({ data: { url } });
+    }, 500);
+
+    return () => {
+      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
-  const handleConvert = () => {
+  const handleConvert = useCallback(() => {
     if (!isValidMediaUrl(url)) return;
     convertMutation.mutate({ data: { url, quality } });
-  };
+  }, [url, quality, convertMutation]);
+
+  const handlePaste = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setUrl(text.trim());
+    } catch {
+      // Clipboard access denied — ignore silently
+    }
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setUrl("");
+    convertMutation.reset();
+    infoMutation.reset();
+  }, [convertMutation, infoMutation]);
 
   const isProcessing = infoMutation.isPending || convertMutation.isPending;
+  const hasValidUrl = url && isValidMediaUrl(url);
+  const hasInvalidUrl = url && !isValidMediaUrl(url);
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 md:pt-14 lg:pt-20 pb-16">
         
         {/* Hero Section */}
-        <div className="text-center space-y-8 md:space-y-10 mb-12 md:mb-16">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+        <div className="text-center mb-10 md:mb-14 space-y-5 md:space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex justify-center"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Zap className="w-4 h-4" /> {t("fastestConverterOnline")}
-            </div>
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold border border-primary/20">
+              <Zap className="w-3.5 h-3.5" /> {t("fastestConverterOnline")}
+            </span>
           </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
+            className="text-3xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight"
           >
-            {t("heroTitle1")} <span className="text-gradient block sm:inline">{t("heroTitle2")}</span>
+            {t("heroTitle1")}{" "}
+            <span className="text-gradient">{t("heroTitle2")}</span>
           </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+            className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
           >
             {t("heroDescription")}
           </motion.p>
         </div>
 
-        {/* Main Converter Card */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+        {/* Converter Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="max-w-3xl mx-auto"
         >
-          <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 relative z-10 text-[15px] ml-[-50px] mr-[-50px]">
-            {/* Input Area - Responsive Layout */}
+          <div className="glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10">
+
+            {/* URL Input Row */}
             <div className="w-full">
-              <div className="relative group border-2 sm:border-3 border-primary/30 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-card/60 to-card/40 hover:border-primary/60 focus-within:border-primary focus-within:shadow-lg focus-within:shadow-primary/20 transition-all duration-150 shadow-md sm:shadow-lg backdrop-blur-sm">
-                <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none duration-200">
-                  <Search className="w-6 sm:w-7 h-6 sm:h-7" />
+              <div className={cn(
+                "relative flex items-center border-2 rounded-2xl transition-all duration-200 bg-gradient-to-r from-card/60 to-card/40 backdrop-blur-sm shadow-sm",
+                hasInvalidUrl
+                  ? "border-destructive/50 shadow-destructive/10"
+                  : "border-primary/30 hover:border-primary/60 focus-within:border-primary focus-within:shadow-lg focus-within:shadow-primary/15"
+              )}>
+                {/* Search Icon */}
+                <div className="absolute left-4 sm:left-5 text-muted-foreground pointer-events-none flex-shrink-0">
+                  <Search className="w-5 h-5" />
                 </div>
-                <input 
-                  type="text"
-                  placeholder="Paste URL here to Download..."
-                  className="w-full h-16 sm:h-20 sm:pl-24 sm:pr-56 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-muted-foreground/50 focus:outline-none focus:ring-0 focus-visible:ring-0 align-middle leading-tight font-medium text-foreground pl-[1px] rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[20px] pr-[140px] ml-[-20px] mr-[-20px]"
+
+                {/* Input */}
+                <input
+                  type="url"
+                  placeholder={t("placeholder") || "Paste URL here to Download..."}
+                  className="flex-1 h-14 sm:h-16 pl-12 sm:pl-14 pr-4 text-sm sm:text-base bg-transparent border-none outline-none placeholder-muted-foreground/50 text-foreground font-medium min-w-0"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                 />
-                
-                {/* Button Group - Right Side */}
-                {!convertMutation.data && (
-                  <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex gap-2 sm:gap-2.5 items-center">
-                    <button
-                      onClick={async () => {
-                        try {
-                          const text = await navigator.clipboard.readText();
-                          setUrl(text);
-                        } catch (err) {
-                          console.error('Failed to read clipboard:', err);
+
+                {/* Buttons */}
+                <div className="flex items-center gap-2 pr-3 sm:pr-4 flex-shrink-0">
+                  {!convertMutation.data && (
+                    <>
+                      <button
+                        onClick={handlePaste}
+                        disabled={isProcessing}
+                        className="h-9 sm:h-10 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition-all disabled:opacity-50 active:scale-95 flex items-center gap-1.5"
+                      >
+                        <ClipboardPaste className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Paste</span>
+                      </button>
+                      <Button
+                        variant="gradient"
+                        className="h-9 sm:h-10 px-4 sm:px-6 text-xs sm:text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all active:scale-95 whitespace-nowrap"
+                        onClick={handleConvert}
+                        disabled={!hasValidUrl || isProcessing}
+                      >
+                        {convertMutation.isPending
+                          ? <Loader2 className="w-4 h-4 animate-spin" />
+                          : <span className="hidden sm:inline">Convert</span>
                         }
-                      }}
-                      disabled={isProcessing}
-                      className="h-11 sm:h-12 md:h-14 rounded-lg px-3 sm:px-4 font-semibold text-xs sm:text-sm text-primary bg-primary/10 hover:bg-primary/20 hover:shadow-md disabled:opacity-50 transition-all duration-150 active:scale-95"
-                    >
-                      Paste
-                    </button>
-                    <Button 
-                      variant="gradient" 
-                      className="h-11 sm:h-12 md:h-14 rounded-lg px-6 sm:px-7 md:px-9 font-semibold whitespace-nowrap text-xs sm:text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
-                      onClick={() => {
-                        if (isValidMediaUrl(url)) {
-                          convertMutation.mutate({ data: { url, quality } });
-                        }
-                      }}
-                      disabled={!url || isProcessing}
-                    >
-                      {convertMutation.isPending ? <Loader2 className="w-4 sm:w-4 h-4 sm:h-4 animate-spin mr-1.5" /> : null}
-                      <span className="hidden sm:inline">{convertMutation.isPending ? t("converting") : "Convert"}</span>
-                      <span className="sm:hidden">{convertMutation.isPending ? "..." : "Go"}</span>
-                    </Button>
-                  </div>
-                )}
+                        {!convertMutation.isPending && <span className="sm:hidden">Go</span>}
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
 
-              {/* Validation Feedback */}
-              {url && !isValidMediaUrl(url) && (
-                <p className="text-destructive text-sm mt-3 ml-2 animate-in fade-in slide-in-from-top-2">
-                  {t("validationError")}
-                </p>
-              )}
+              {/* Validation Error */}
+              <AnimatePresence>
+                {hasInvalidUrl && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-center gap-1.5 text-destructive text-sm mt-2 ml-1"
+                  >
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    {t("validationError")}
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
 
-            {/* Quality Selection - User Friendly */}
-            {url && isValidMediaUrl(url) && !infoMutation.data && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl border border-primary/20 shadow-md"
-              >
-                <p className="text-sm font-bold text-foreground mb-4">✨ Select Your Audio Quality:</p>
-                <div className="grid grid-cols-3 gap-3">
-                  {(["128", "192", "320"] as const).map((q) => (
-                    <button
-                      key={q}
-                      onClick={() => setQuality(q)}
-                      disabled={convertMutation.isPending}
-                      className={cn(
-                        "py-3 sm:py-4 rounded-lg border-2 font-semibold transition-all text-xs sm:text-sm md:text-base cursor-pointer",
-                        quality === q 
-                          ? "border-primary bg-primary/15 text-primary shadow-lg shadow-primary/20 scale-105" 
-                          : "border-border/50 bg-background hover:border-primary hover:bg-primary/5 text-muted-foreground hover:text-primary"
-                      )}
-                    >
-                      {q} kbps
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+            {/* Quick Quality Selection (before preview loads) */}
+            <AnimatePresence>
+              {hasValidUrl && !infoMutation.data && !convertMutation.isSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="mt-5"
+                >
+                  <div className="p-5 bg-primary/5 border border-primary/15 rounded-xl">
+                    <p className="text-xs sm:text-sm font-bold text-foreground mb-3 flex items-center gap-1.5">
+                      <Music className="w-4 h-4 text-primary" />
+                      {t("selectAudioQuality")}
+                    </p>
+                    <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                      {(["128", "192", "320"] as const).map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => setQuality(q)}
+                          disabled={convertMutation.isPending}
+                          className={cn(
+                            "py-2.5 sm:py-3 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all cursor-pointer",
+                            quality === q
+                              ? "border-primary bg-primary/15 text-primary shadow-md scale-[1.02]"
+                              : "border-border/60 bg-background hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary"
+                          )}
+                        >
+                          {q} kbps
+                        </button>
+                      ))}
+                    </div>
+                    {infoMutation.isPending && (
+                      <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                        Loading video info...
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Dynamic Content Area (Preview, Settings, Results) */}
+          {/* Dynamic States */}
           <AnimatePresence mode="wait">
-            
-            {/* 1. Preview & Settings State */}
-            {infoMutation.data && !convertMutation.isSuccess && (
-              <motion.div 
+
+            {/* Preview + Settings State */}
+            {infoMutation.isSuccess && infoMutation.data && !convertMutation.isSuccess && (
+              <motion.div
                 key="preview-state"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-8 space-y-8"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.3 }}
+                className="mt-6 space-y-4"
               >
                 <VideoPreview data={infoMutation.data} />
-                
-                <div className="bg-gradient-to-br from-primary/8 via-accent/5 to-background rounded-3xl p-8 border-2 border-primary/20 shadow-xl">
-                  <h4 className="font-bold text-lg mb-6 flex items-center gap-3 text-foreground">
-                    <span className="text-2xl">🎵</span>
+
+                <div className="glass-card rounded-2xl p-6 sm:p-8">
+                  <h4 className="font-bold text-base sm:text-lg mb-5 flex items-center gap-2.5 text-foreground">
+                    <span className="text-xl">🎵</span>
                     {t("selectAudioQuality")}
                   </h4>
-                  <div className="grid grid-cols-3 gap-4 mb-8">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
                     {(["128", "192", "320"] as const).map((q) => (
                       <motion.button
                         key={q}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                         onClick={() => setQuality(q)}
                         disabled={convertMutation.isPending}
                         className={cn(
-                          "py-5 sm:py-6 rounded-2xl border-2 font-bold transition-all flex flex-col items-center justify-center gap-2 cursor-pointer",
-                          quality === q 
-                            ? "border-primary bg-gradient-to-br from-primary/20 to-primary/10 text-primary shadow-lg shadow-primary/30 scale-105" 
-                            : "border-primary/30 bg-background/40 hover:border-primary/60 hover:bg-primary/5 text-muted-foreground hover:text-primary"
+                          "py-4 sm:py-5 rounded-xl border-2 font-bold transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer",
+                          quality === q
+                            ? "border-primary bg-gradient-to-br from-primary/15 to-primary/8 text-primary shadow-lg shadow-primary/20 scale-[1.03]"
+                            : "border-border/60 bg-background/60 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary"
                         )}
                       >
-                        <span className="text-xl sm:text-2xl font-bold">{q}</span>
-                        <span className="text-xs sm:text-sm opacity-70 font-medium">{t("kbps")}</span>
+                        <span className="text-lg sm:text-xl font-bold">{q}</span>
+                        <span className="text-xs opacity-70 font-medium">{t("kbps")}</span>
                       </motion.button>
                     ))}
                   </div>
 
-                  <div className="flex justify-center sm:justify-end">
-                    <Button 
-                      variant="gradient" 
-                      size="lg" 
-                      className="w-full sm:w-auto h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-12 shadow-xl hover:shadow-2xl transition-all duration-200"
-                      onClick={handleConvert}
-                      disabled={convertMutation.isPending}
-                    >
-                      {convertMutation.isPending ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          {t("converting")}
-                        </>
-                      ) : (
-                        <>
-                          {t("convertMedia")} <ArrowRight className="w-5 h-5 ml-2" />
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  <Button
+                    variant="gradient"
+                    size="lg"
+                    className="w-full h-12 sm:h-14 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                    onClick={handleConvert}
+                    disabled={convertMutation.isPending}
+                  >
+                    {convertMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        {t("converting")}
+                      </>
+                    ) : (
+                      <>
+                        {t("convertMedia")}
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
 
-                  {/* Progress Indicator (Fake visual during actual API call) */}
+                  {/* Progress Bar */}
                   {convertMutation.isPending && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="mt-8 space-y-3"
+                      className="mt-5 space-y-2"
                     >
-                      <div className="flex justify-between text-sm font-bold text-primary">
+                      <div className="flex justify-between text-xs font-medium text-primary">
                         <span>{t("processingMedia")}</span>
-                        <span className="text-xs font-medium">Converting...</span>
+                        <span>Converting...</span>
                       </div>
-                      <div className="h-3 bg-primary/10 rounded-full overflow-hidden backdrop-blur-sm">
-                        <motion.div 
-                          className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full"
+                      <div className="h-2 bg-primary/10 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
                           initial={{ width: "0%" }}
-                          animate={{ width: "90%" }}
-                          transition={{ duration: 4, ease: "easeOut" }}
+                          animate={{ width: "88%" }}
+                          transition={{ duration: 5, ease: "easeOut" }}
                         />
                       </div>
                     </motion.div>
@@ -291,42 +346,47 @@ export default function Home() {
               </motion.div>
             )}
 
-            {/* 2. Success / Download State */}
+            {/* Success / Download State */}
             {convertMutation.isSuccess && convertMutation.data && (
-              <motion.div 
+              <motion.div
                 key="success-state"
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mt-8 text-center bg-green-500/5 border border-green-500/20 rounded-2xl p-8 md:p-12"
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mt-6 text-center bg-green-500/5 border border-green-500/20 rounded-2xl p-8 sm:p-12"
               >
-                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
-                  <CheckCircle2 className="w-10 h-10" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">{t("conversionSuccessful")}</h3>
-                <p className="text-muted-foreground mb-8 max-w-md mx-auto line-clamp-2">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.1 }}
+                  className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-5 text-green-500"
+                >
+                  <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
+                </motion.div>
+                <h3 className="text-xl sm:text-2xl font-bold mb-2">{t("conversionSuccessful")}</h3>
+                <p className="text-muted-foreground mb-8 max-w-md mx-auto text-sm sm:text-base line-clamp-2">
                   {convertMutation.data.title}
                 </p>
-                
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <a 
-                    href={convertMutation.data.download} 
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                  <a
+                    href={convertMutation.data.download}
                     download
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-full sm:w-auto"
                   >
-                    <Button variant="gradient" size="lg" className="w-full h-16 text-lg rounded-2xl px-12 shadow-glow">
-                      <Download className="w-6 h-6 mr-3" />
+                    <Button variant="gradient" size="lg" className="w-full h-12 sm:h-14 text-base rounded-xl px-8 sm:px-12 shadow-lg">
+                      <Download className="w-5 h-5 mr-2.5" />
                       {t("downloadMp3")}
                     </Button>
                   </a>
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    className="w-full sm:w-auto h-16 rounded-2xl"
-                    onClick={() => {
-                      setUrl("");
-                      convertMutation.reset();
-                      infoMutation.reset();
-                    }}
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto h-12 sm:h-14 rounded-xl"
+                    onClick={handleReset}
                   >
                     {t("convertAnother")}
                   </Button>
@@ -334,54 +394,69 @@ export default function Home() {
               </motion.div>
             )}
 
-            {/* 3. Error State */}
-            {convertMutation.isError && (
-              <motion.div 
+            {/* Error State */}
+            {(convertMutation.isError || infoMutation.isError) && (
+              <motion.div
                 key="error-state"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mt-8 p-6 bg-destructive/10 border border-destructive/20 rounded-2xl text-center text-destructive"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mt-6 p-5 sm:p-6 bg-destructive/8 border border-destructive/20 rounded-2xl"
               >
-                <p className="font-semibold mb-4">{t("errorOccurred")}</p>
-                <Button variant="outline" onClick={() => convertMutation.reset()}>
-                  {t("tryAgain")}
-                </Button>
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-destructive mb-1">{t("errorOccurred")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {convertMutation.isError
+                        ? "Conversion failed. The link may not be supported or has expired."
+                        : "Could not load video info. Please check the URL and try again."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      convertMutation.reset();
+                      infoMutation.reset();
+                    }}
+                  >
+                    {t("tryAgain")}
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={handleReset}>
+                    Clear
+                  </Button>
+                </div>
               </motion.div>
             )}
 
           </AnimatePresence>
         </motion.div>
 
-        {/* Disclaimer Section */}
-        <div className="max-w-3xl mx-auto mt-12 p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl text-center">
-          <p className="text-sm text-muted-foreground">
+        {/* Disclaimer */}
+        <div className="max-w-3xl mx-auto mt-10 px-4 py-3 bg-blue-500/5 border border-blue-500/15 rounded-xl text-center">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             <strong>Important:</strong> {t("disclaimer_text")}
           </p>
         </div>
 
-        {/* Features Section below converter */}
-        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
-            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mx-auto mb-4">
-              <Zap className="w-6 h-6" />
+        {/* Features Section */}
+        <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
+          {[
+            { icon: Zap, color: "text-primary", bg: "bg-primary/10", title: t("instantConversions"), desc: t("instantConversionsDesc") },
+            { icon: Music, color: "text-accent", bg: "bg-accent/10", title: t("highQualityAudio"), desc: t("highQualityAudioDesc") },
+            { icon: Shield, color: "text-green-500", bg: "bg-green-500/10", title: t("safeSecure"), desc: t("safeSecureDesc") },
+          ].map(({ icon: Icon, color, bg, title, desc }) => (
+            <div key={title} className="p-5 sm:p-6 bg-card rounded-2xl border border-border/50 text-center hover:border-primary/30 hover:shadow-md transition-all">
+              <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center mx-auto mb-4", bg, color)}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base mb-1.5">{title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
             </div>
-            <h3 className="font-bold text-lg mb-2">{t("instantConversions")}</h3>
-            <p className="text-muted-foreground text-sm">{t("instantConversionsDesc")}</p>
-          </div>
-          <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
-            <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mx-auto mb-4">
-              <Music className="w-6 h-6" />
-            </div>
-            <h3 className="font-bold text-lg mb-2">{t("highQualityAudio")}</h3>
-            <p className="text-muted-foreground text-sm">{t("highQualityAudioDesc")}</p>
-          </div>
-          <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
-            <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500 mx-auto mb-4">
-              <Shield className="w-6 h-6" />
-            </div>
-            <h3 className="font-bold text-lg mb-2">{t("safeSecure")}</h3>
-            <p className="text-muted-foreground text-sm">{t("safeSecureDesc")}</p>
-          </div>
+          ))}
         </div>
 
       </div>
