@@ -1,400 +1,433 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { GetVideoInfoBody, GetVideoInfoResponse, ConvertVideoBody, ConvertVideoResponse } from "@workspace/api-zod";
-import ffmpeg from "fluent-ffmpeg";
+import { spawn } from "child_process";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import { pipeline } from "stream/promises";
-import { Readable } from "stream";
 
 const router: IRouter = Router();
 
-const DOWNLOADS_DIR = path.join(process.cwd(), "downloads");
+// ─── Constants ────────────────────────────────────────────────────────────────
+const TEMP_DIR = path.join(process.cwd(), "downloads");
+const MAX_CONCURRENT = 5;
+const MAX_DURATION_SECONDS = 10 * 60 * 60; // 10 hours
 
-if (!fs.existsSync(DOWNLOADS_DIR)) {
-  fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
-}
+if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR, { recursive: true });
 
+// ─── URL Validation ───────────────────────────────────────────────────────────
 function isValidMediaUrl(url: string): boolean {
   try {
-    const parsed = new URL(url);
-    const hostname = parsed.hostname || '';
-    // Check if hostname contains any valid media platform
-    return hostname.includes('youtube.com') || 
-           hostname.includes('youtu.be') || 
-           hostname.includes('vimeo.com') || 
-           hostname.includes('instagram.com') || 
-           hostname.includes('tiktok.com') || 
-           hostname.includes('facebook.com') || 
-           hostname.includes('twitter.com') || 
-           hostname.includes('x.com');
+    const u = new URL(url);
+    return u.protocol === "http:" || u.protocol === "https:";
   } catch {
     return false;
   }
 }
 
-function extractMediaId(url: string): string {
-  try {
-    const parsed = new URL(url);
-    if (parsed.hostname.includes("youtu.be")) {
-      return parsed.pathname.slice(1).split("?")[0];
-    }
-    return parsed.searchParams.get("v") || "";
-  } catch {
-    return "";
-  }
+// ─── yt-dlp availability check ───────────────────────────────────────────────
+let ytDlpAvailable: boolean | null = null;
+
+async function checkYtDlp(): Promise<boolean> {
+  if (ytDlpAvailable !== null) return ytDlpAvailable;
+  return new Promise((resolve) => {
+    const proc = spawn("yt-dlp", ["--version"]);
+    proc.on("close", (code) => {
+      ytDlpAvailable = code === 0;
+      if (ytDlpAvailable) console.log("[yt-dlp] ✅ Available — using local conversion");
+      else console.warn("[yt-dlp] ⚠️ Not found — falling back to loader.to");
+      resolve(ytDlpAvailable!);
+    });
+    proc.on("error", () => {
+      ytDlpAvailable = false;
+      console.warn("[yt-dlp] ⚠️ Not installed — falling back to loader.to");
+      resolve(false);
+    });
+  });
 }
 
-const inProgressConversions = new Set<string>();
-const MAX_CONCURRENT_CONVERSIONS = 3;
-const MAX_FILE_SIZE = 500 * 1024 * 1024;
-const BITRATE_LIMITS: Record<string, number> = {
-  "128": 128,
-  "192": 192,
-  "320": 320
-};
+// ─── yt-dlp: Fetch video info ─────────────────────────────────────────────────
+async function ytDlpGetInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
+  return new Promise((resolve, reject) => {
+    let json = "";
+    const proc = spawn("yt-dlp", [
+      url,
+      "--dump-json",
+      "--no-download",
+      "--no-playlist",
+      "--no-warnings",
+      "--quiet",
+    ]);
 
-// FFmpeg quality presets for faster encoding
-// Higher number = higher quality but slower
-function getQualityPreset(quality: string): number {
-  const presets: Record<string, number> = {
-    "128": 8,  // Fast: 128kbps (VBR)
-    "192": 5,  // Medium: 192kbps (VBR)
-    "320": 2   // Best: 320kbps (VBR)
-  };
-  return presets[quality] || 5;
+    proc.stdout.on("data", (d: Buffer) => { json += d.toString(); });
+
+    proc.on("close", (code) => {
+      if (code !== 0) { reject(new Error("yt-dlp info failed")); return; }
+      try {
+        const info = JSON.parse(json.trim());
+        resolve({
+          title: info.title || "Unknown",
+          thumbnail: info.thumbnail || info.thumbnails?.[0]?.url || "",
+          duration: info.duration || 0,
+        });
+      } catch {
+        reject(new Error("Failed to parse yt-dlp JSON"));
+      }
+    });
+
+    proc.on("error", reject);
+
+    // Timeout after 30 seconds
+    setTimeout(() => { proc.kill(); reject(new Error("yt-dlp info timeout")); }, 30_000);
+  });
 }
 
-async function fetchMediaInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
-  const mediaId = extractMediaId(url);
-  
-  let title = "Unknown Title";
-  let thumbnail = mediaId ? `https://img.youtube.com/vi/${mediaId}/hqdefault.jpg` : "";
-  let duration = 0;
+// ─── Fallback: YouTube oEmbed info ───────────────────────────────────────────
+async function youtubeOembedInfo(url: string): Promise<{ title: string; thumbnail: string; duration: number }> {
+  const parsed = new URL(url);
+  let mediaId = "";
+  if (parsed.hostname.includes("youtu.be")) mediaId = parsed.pathname.slice(1).split("?")[0];
+  else mediaId = parsed.searchParams.get("v") || "";
 
-  // Parallelize both API calls for faster execution
   const [oembedData, pageData] = await Promise.all([
-    // Fetch metadata from oembed
     fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
-      .then(res => res.ok ? res.json() : null)
-      .catch(() => null),
-    // Fetch duration from page
-    fetch(`https://www.youtube.com/watch?v=${mediaId}`, {
-      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
-    })
-      .then(res => res.ok ? res.text() : null)
-      .catch(() => null)
+      .then(r => r.ok ? r.json() as Promise<any> : null).catch(() => null),
+    mediaId
+      ? fetch(`https://www.youtube.com/watch?v=${mediaId}`, {
+          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+        }).then(r => r.ok ? r.text() : null).catch(() => null)
+      : Promise.resolve(null),
   ]);
 
-  if (oembedData) {
-    title = oembedData.title || title;
-    thumbnail = oembedData.thumbnail_url || thumbnail;
-  }
-
+  const title = oembedData?.title || "Unknown Title";
+  const thumbnail = oembedData?.thumbnail_url || (mediaId ? `https://img.youtube.com/vi/${mediaId}/hqdefault.jpg` : "");
+  let duration = 0;
   if (pageData) {
-    const match = pageData.match(/"lengthSeconds":"(\d+)"/);
-    if (match) duration = parseInt(match[1], 10);
+    const m = pageData.match(/"lengthSeconds":"(\d+)"/);
+    if (m) duration = parseInt(m[1], 10);
   }
-
   return { title, thumbnail, duration };
 }
 
-const LOADER_API = "https://loader.to/ajax/download.php";
-const PROGRESS_BASE = "https://p.savenow.to/api/progress";
+// ─── yt-dlp: Convert video to MP3 ────────────────────────────────────────────
+const inProgress = new Set<string>();
 
-async function convertWithLoaderTo(url: string): Promise<string> {
-  const initRes = await fetch(`${LOADER_API}?format=mp3&url=${encodeURIComponent(url)}`, {
-    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
-  });
-  if (!initRes.ok) throw new Error("Failed to initiate conversion");
-
-  const initData = await initRes.json() as any;
-  if (!initData.success) throw new Error("Conversion service rejected the request");
-
-  const jobId = initData.id;
-  const progressUrl = initData.progress_url || `${PROGRESS_BASE}?id=${jobId}`;
-
-  // Aggressive polling: faster intervals for quicker completion
-  const pollIntervals = [1000, 1500, 2000, 2500, 3000]; // Progressive backoff
-  for (let attempt = 0; attempt < 240; attempt++) {
-    const pollDelay = pollIntervals[Math.min(attempt, pollIntervals.length - 1)];
-    await new Promise(r => setTimeout(r, pollDelay));
-
-    try {
-      const progRes = await fetch(progressUrl);
-      if (!progRes.ok) continue;
-
-      const progData = await progRes.json() as any;
-      if (progData.success === 1 && progData.download_url) {
-        return progData.download_url.replace(/\\\//g, "/");
-      }
-      if (progData.success === -1) throw new Error("Conversion failed on remote server");
-    } catch (e) {
-      // Retry on network error
-      continue;
-    }
-  }
-
-  throw new Error("Conversion timed out after 12 minutes");
+interface ConversionResult {
+  fileId: string;
+  title: string;
+  filePath: string;
 }
 
-router.post("/info", async (req: Request, res: Response) => {
-  try {
-    const parsed = GetVideoInfoBody.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: "Invalid request body" });
-      return;
-    }
-    const { url } = parsed.data;
-    if (!isValidMediaUrl(url)) {
-      res.status(400).json({ error: "Invalid media URL. Please provide a valid media source link." });
-      return;
-    }
+const QUALITY_MAP: Record<string, string> = {
+  "128": "5",
+  "192": "2",
+  "320": "0",
+};
 
-    const { title, thumbnail, duration } = await fetchMediaInfo(url);
-    if (duration > 36000) {
-      res.status(400).json({ error: "Media file too long. Maximum duration is 10 hours." });
-      return;
-    }
+async function ytDlpConvert(url: string, quality: string): Promise<ConversionResult> {
+  const fileId = crypto.randomBytes(16).toString("hex");
+  const outputTemplate = path.join(TEMP_DIR, `${fileId}.%(ext)s`);
+  const expectedMp3 = path.join(TEMP_DIR, `${fileId}.mp3`);
 
-    const response = GetVideoInfoResponse.parse({ title, thumbnail, duration });
-    res.json(response);
-  } catch (err: any) {
-    console.error("Info error:", err.message);
-    res.status(400).json({ error: "Failed to fetch media info. Please ensure the URL is valid and publicly accessible." });
-  }
-});
+  return new Promise((resolve, reject) => {
+    let titleLine = "";
+    let stderr = "";
 
-router.post("/convert", async (req: Request, res: Response) => {
-  try {
-    const parsed = ConvertVideoBody.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: "Invalid request body" });
-      return;
-    }
-    const { url, quality } = parsed.data;
+    const args = [
+      url,
+      "-x",
+      "--audio-format", "mp3",
+      "--audio-quality", QUALITY_MAP[quality] || "2",
+      "-o", outputTemplate,
+      "--no-playlist",
+      "--no-warnings",
+      "--print", "%(title)s",
+      "--no-simulate",
+      "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "--add-header", "Accept-Language:en-US,en;q=0.9",
+    ];
 
-    if (!isValidMediaUrl(url)) {
-      res.status(400).json({ error: "Invalid media URL. Please provide a valid media source link." });
-      return;
-    }
+    const proc = spawn("yt-dlp", args, { stdio: ["ignore", "pipe", "pipe"] });
 
-    // Check concurrent conversion limit
-    if (inProgressConversions.size >= MAX_CONCURRENT_CONVERSIONS) {
-      res.status(429).json({ error: "Server busy. Too many conversions. Please wait a moment and try again." });
-      return;
-    }
+    proc.stdout.on("data", (d: Buffer) => { titleLine += d.toString(); });
+    proc.stderr.on("data", (d: Buffer) => { stderr += d.toString(); });
 
-    const urlKey = crypto.createHash("md5").update(url + quality).digest("hex");
-    if (inProgressConversions.has(urlKey)) {
-      res.status(400).json({ error: "This media is already being converted. Please wait." });
-      return;
-    }
+    // Kill if takes > 8 minutes
+    const killTimer = setTimeout(() => {
+      proc.kill("SIGKILL");
+      reject(new Error("yt-dlp conversion timed out after 8 minutes"));
+    }, 8 * 60_000);
 
-    // Validate bitrate
-    if (!BITRATE_LIMITS[quality]) {
-      res.status(400).json({ error: "Invalid quality selection. Choose 128, 192, or 320 kbps." });
-      return;
-    }
+    proc.on("close", (code) => {
+      clearTimeout(killTimer);
 
-    // Skip cache - stream directly from loader.to for instant conversion
-
-    inProgressConversions.add(urlKey);
-
-    try {
-      const { title, duration } = await fetchMediaInfo(url);
-      if (duration > 36000) {
-        res.status(400).json({ error: "Media file too long. Maximum duration is 10 hours." });
+      if (code !== 0) {
+        const errMsg = stderr.slice(0, 300);
+        reject(new Error(`yt-dlp exited ${code}: ${errMsg}`));
         return;
       }
 
-      // Get direct download URL from loader.to
-      const downloadUrl = await convertWithLoaderTo(url);
+      const title = titleLine.trim().split("\n")[0] || "audio";
 
-      // Build a safe filename for the Content-Disposition header
-      const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+      // Find output file — yt-dlp may name it exactly or with a suffix
+      if (fs.existsSync(expectedMp3)) {
+        resolve({ fileId, title, filePath: expectedMp3 });
+        return;
+      }
 
-      // Encode the remote URL so we can pass it to our proxy endpoint
-      const encodedUrl = Buffer.from(downloadUrl).toString("base64url");
-      const encodedTitle = encodeURIComponent(safeTitle);
+      // Scan temp dir for our file
+      try {
+        const files = fs.readdirSync(TEMP_DIR);
+        const match = files.find(f => f.startsWith(fileId));
+        if (match) {
+          const fp = path.join(TEMP_DIR, match);
+          resolve({ fileId: match.replace(/\.[^.]+$/, ""), title, filePath: fp });
+        } else {
+          reject(new Error("Output file not found after yt-dlp conversion"));
+        }
+      } catch {
+        reject(new Error("Failed to locate output file"));
+      }
+    });
 
-      // Return a same-origin proxy URL — this is the key fix:
-      // cross-origin download links ignore the `download` attribute, causing
-      // the browser to open / stream the file instead of saving it.
-      // By proxying through our own domain, the download attribute works correctly.
-      const proxyDownload = `/api/proxy-download?u=${encodedUrl}&t=${encodedTitle}`;
+    proc.on("error", (err) => {
+      clearTimeout(killTimer);
+      reject(new Error(`yt-dlp process error: ${err.message}`));
+    });
+  });
+}
 
-      const response = ConvertVideoResponse.parse({
-        success: true,
-        title,
-        download: proxyDownload
-      });
-      res.json(response);
-    } finally {
-      inProgressConversions.delete(urlKey);
+// ─── Fallback: loader.to ──────────────────────────────────────────────────────
+const LOADER_API = "https://loader.to/ajax/download.php";
+const PROGRESS_BASE = "https://p.savenow.to/api/progress";
+
+async function loaderToConvert(url: string): Promise<string> {
+  const initRes = await fetch(`${LOADER_API}?format=mp3&url=${encodeURIComponent(url)}`, {
+    headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+  });
+  if (!initRes.ok) throw new Error("Failed to initiate loader.to conversion");
+
+  const initData = await initRes.json() as any;
+  if (!initData.success) throw new Error("loader.to rejected the request");
+
+  const jobId = initData.id;
+  const progressUrl = initData.progress_url || `${PROGRESS_BASE}?id=${jobId}`;
+  const pollIntervals = [1500, 2000, 2500, 3000, 4000];
+
+  for (let i = 0; i < 200; i++) {
+    await new Promise(r => setTimeout(r, pollIntervals[Math.min(i, pollIntervals.length - 1)]));
+    try {
+      const r = await fetch(progressUrl);
+      if (!r.ok) continue;
+      const data = await r.json() as any;
+      if (data.success === 1 && data.download_url) return data.download_url.replace(/\\\//g, "/");
+      if (data.success === -1) throw new Error("loader.to conversion failed");
+    } catch { continue; }
+  }
+  throw new Error("loader.to timed out after 10 minutes");
+}
+
+// ─── /info endpoint ───────────────────────────────────────────────────────────
+router.post("/info", async (req: Request, res: Response) => {
+  try {
+    const parsed = GetVideoInfoBody.safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: "Invalid request" }); return; }
+
+    const { url } = parsed.data;
+    if (!isValidMediaUrl(url)) {
+      res.status(400).json({ error: "Invalid URL. Please provide a valid media link." });
+      return;
     }
+
+    let info: { title: string; thumbnail: string; duration: number };
+
+    const hasYtDlp = await checkYtDlp();
+    if (hasYtDlp) {
+      try {
+        info = await ytDlpGetInfo(url);
+      } catch {
+        // Fallback to oEmbed for YouTube
+        info = await youtubeOembedInfo(url);
+      }
+    } else {
+      info = await youtubeOembedInfo(url);
+    }
+
+    if (info.duration > MAX_DURATION_SECONDS) {
+      res.status(400).json({ error: "Media too long. Maximum is 10 hours." });
+      return;
+    }
+
+    res.json(GetVideoInfoResponse.parse(info));
   } catch (err: any) {
-    console.error("Convert error:", err.message);
-    res.status(500).json({ error: "Conversion failed: " + (err.message || "Please try again.") });
+    console.error("[info]", err.message);
+    res.status(400).json({ error: "Failed to fetch media info. Check the URL and try again." });
   }
 });
 
-// Proxy download endpoint — streams the remote MP3 through our server
-// so the browser's `download` attribute works (cross-origin URLs ignore it)
-router.get("/proxy-download", async (req: Request, res: Response) => {
-  const { u, t: titleParam } = req.query;
+// ─── /convert endpoint ────────────────────────────────────────────────────────
+router.post("/convert", async (req: Request, res: Response) => {
+  try {
+    const parsed = ConvertVideoBody.safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: "Invalid request" }); return; }
 
-  if (!u || typeof u !== "string") {
-    res.status(400).json({ error: "Missing download URL parameter" });
+    const { url, quality } = parsed.data;
+    if (!isValidMediaUrl(url)) {
+      res.status(400).json({ error: "Invalid URL." });
+      return;
+    }
+    if (!["128", "192", "320"].includes(quality)) {
+      res.status(400).json({ error: "Invalid quality. Choose 128, 192, or 320." });
+      return;
+    }
+
+    const jobKey = crypto.createHash("md5").update(url + quality).digest("hex");
+
+    if (inProgress.size >= MAX_CONCURRENT) {
+      res.status(429).json({ error: "Server busy. Please wait a moment and try again." });
+      return;
+    }
+    if (inProgress.has(jobKey)) {
+      res.status(400).json({ error: "Already converting this video. Please wait." });
+      return;
+    }
+
+    inProgress.add(jobKey);
+
+    try {
+      const hasYtDlp = await checkYtDlp();
+
+      if (hasYtDlp) {
+        // ─── PRIMARY: yt-dlp local conversion ───────────────────────────────
+        console.log(`[yt-dlp] Converting: ${url} at ${quality}kbps`);
+        const { fileId, title } = await ytDlpConvert(url, quality);
+        const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+        const download = `/api/download/${fileId}?t=${encodeURIComponent(safeTitle)}`;
+        console.log(`[yt-dlp] ✅ Done: ${title}`);
+        res.json(ConvertVideoResponse.parse({ success: true, title, download }));
+      } else {
+        // ─── FALLBACK: loader.to ─────────────────────────────────────────────
+        console.log(`[loader.to] Converting: ${url}`);
+        let title = "audio";
+        try { const info = await youtubeOembedInfo(url); title = info.title; } catch {}
+
+        const externalUrl = await loaderToConvert(url);
+        const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+        const encodedUrl = Buffer.from(externalUrl).toString("base64url");
+        const download = `/api/proxy-download?u=${encodedUrl}&t=${encodeURIComponent(safeTitle)}`;
+        res.json(ConvertVideoResponse.parse({ success: true, title, download }));
+      }
+    } finally {
+      inProgress.delete(jobKey);
+    }
+  } catch (err: any) {
+    inProgress.delete(crypto.createHash("md5").update((req.body?.url || "") + (req.body?.quality || "")).digest("hex"));
+    console.error("[convert]", err.message);
+    res.status(500).json({ error: "Conversion failed: " + (err.message || "Unknown error") });
+  }
+});
+
+// ─── /download/:fileId — serve local yt-dlp converted files ─────────────────
+router.get("/download/:fileId", (req: Request, res: Response) => {
+  const { fileId } = req.params;
+
+  if (!/^[a-f0-9]{32}$/.test(fileId)) {
+    res.status(400).json({ error: "Invalid file ID" });
     return;
   }
+
+  const filePath = path.join(TEMP_DIR, `${fileId}.mp3`);
+
+  if (!fs.existsSync(filePath)) {
+    res.status(404).json({ error: "File not found or expired. Please convert again." });
+    return;
+  }
+
+  const titleParam = req.query.t;
+  const rawTitle = titleParam ? decodeURIComponent(String(titleParam)) : "audio";
+  const safeTitle = rawTitle.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+  const filename = `${safeTitle}.mp3`;
+
+  const stat = fs.statSync(filePath);
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.setHeader("Content-Type", "audio/mpeg");
+  res.setHeader("Content-Length", stat.size);
+  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("Cache-Control", "no-store");
+  res.sendFile(filePath);
+});
+
+// ─── /proxy-download — stream external URL (loader.to fallback) ───────────────
+router.get("/proxy-download", async (req: Request, res: Response) => {
+  const { u, t: titleParam } = req.query;
+  if (!u || typeof u !== "string") { res.status(400).json({ error: "Missing URL" }); return; }
 
   let remoteUrl: string;
   try {
     remoteUrl = Buffer.from(u, "base64url").toString("utf-8");
-    new URL(remoteUrl); // Validate it's a real URL
+    new URL(remoteUrl);
+    if (!remoteUrl.startsWith("https://")) throw new Error("HTTPS only");
   } catch {
-    res.status(400).json({ error: "Invalid download URL" });
-    return;
+    res.status(400).json({ error: "Invalid URL" }); return;
   }
 
-  // Only allow downloads from known CDNs used by loader.to
-  const allowed = ["savenow.to", "loader.to", "cobalt.tools", "cdn.", "dl.", "download.", "files."];
-  const urlHost = new URL(remoteUrl).hostname;
-  const isAllowed = allowed.some(h => urlHost.includes(h));
-  if (!isAllowed) {
-    // Allow any HTTPS URL as a fallback — the key is we serve it from our domain
-    if (!remoteUrl.startsWith("https://")) {
-      res.status(403).json({ error: "Only HTTPS sources are allowed" });
-      return;
-    }
-  }
-
-  const safeTitle = titleParam
-    ? decodeURIComponent(String(titleParam)).replace(/[^a-zA-Z0-9 _\-]/g, "").trim()
-    : "audio";
-  const filename = `${safeTitle || "audio"}.mp3`;
+  const rawTitle = titleParam ? decodeURIComponent(String(titleParam)) : "audio";
+  const safeTitle = rawTitle.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+  const filename = `${safeTitle}.mp3`;
 
   try {
     const upstream = await fetch(remoteUrl, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Referer": "https://loader.to/",
-      }
+      },
     });
 
     if (!upstream.ok) {
-      res.status(502).json({ error: "Failed to fetch audio from upstream server" });
-      return;
+      res.status(502).json({ error: "Failed to fetch from upstream" }); return;
     }
 
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.setHeader("Content-Type", upstream.headers.get("Content-Type") || "audio/mpeg");
-
-    const contentLength = upstream.headers.get("Content-Length");
-    if (contentLength) res.setHeader("Content-Length", contentLength);
-
+    const cl = upstream.headers.get("Content-Length");
+    if (cl) res.setHeader("Content-Length", cl);
     res.setHeader("Cache-Control", "no-store");
-    res.setHeader("Access-Control-Allow-Origin", "*");
 
-    if (!upstream.body) {
-      res.status(502).json({ error: "No response body from upstream" });
-      return;
-    }
+    if (!upstream.body) { res.status(502).json({ error: "No body" }); return; }
 
-    // Stream the response — no buffering, memory-efficient
     const reader = upstream.body.getReader();
-    const passThrough = new (await import("stream")).Transform({
-      transform(chunk, _enc, cb) { cb(null, chunk); }
-    });
-
+    const { Transform } = await import("stream");
+    const pass = new Transform({ transform(chunk, _enc, cb) { cb(null, chunk); } });
     res.on("close", () => reader.cancel());
 
     (async () => {
       try {
         while (true) {
           const { done, value } = await reader.read();
-          if (done) { passThrough.end(); break; }
-          passThrough.push(value);
+          if (done) { pass.end(); break; }
+          pass.push(value);
         }
-      } catch { passThrough.destroy(); }
+      } catch { pass.destroy(); }
     })();
 
-    passThrough.pipe(res);
+    pass.pipe(res);
   } catch (err: any) {
-    console.error("Proxy download error:", err.message);
-    if (!res.headersSent) {
-      res.status(500).json({ error: "Download proxy error: " + err.message });
+    if (!res.headersSent) res.status(500).json({ error: "Proxy error: " + err.message });
+  }
+});
+
+// ─── Cleanup: delete files older than 1 hour ──────────────────────────────────
+setInterval(() => {
+  try {
+    const now = Date.now();
+    const ONE_HOUR = 60 * 60 * 1000;
+    for (const file of fs.readdirSync(TEMP_DIR)) {
+      const fp = path.join(TEMP_DIR, file);
+      try {
+        const { mtimeMs } = fs.statSync(fp);
+        if (now - mtimeMs > ONE_HOUR) fs.unlinkSync(fp);
+      } catch {}
     }
-  }
-});
-
-router.get("/downloads/:filename", (req: Request, res: Response) => {
-  const { filename } = req.params;
-  // Accept both .mp3 and .mp3 for backwards compatibility
-  if (!/^[a-f0-9]{32}\.(mp3|m4a)$/.test(filename)) {
-    res.status(400).json({ error: "Invalid filename" });
-    return;
-  }
-  const filePath = path.join(DOWNLOADS_DIR, filename);
-  if (!fs.existsSync(filePath)) {
-    res.status(404).json({ error: "File not found or expired" });
-    return;
-  }
-
-  // Get file stats for size
-  const fileStats = fs.statSync(filePath);
-  if (fileStats.size > MAX_FILE_SIZE) {
-    res.status(413).json({ error: "File too large" });
-    return;
-  }
-
-  const metaFile = path.join(DOWNLOADS_DIR, filename.replace(/\.(mp3|m4a)$/, ".json"));
-  let downloadName = "audio.mp3";
-  if (fs.existsSync(metaFile)) {
-    try {
-      const meta = JSON.parse(fs.readFileSync(metaFile, "utf-8"));
-      if (meta.title) {
-        downloadName = meta.title.replace(/[^a-zA-Z0-9 _-]/g, "").trim() + ".mp3";
-      }
-    } catch {}
-  }
-
-  // Optimize for fast download (simple, reliable approach)
-  res.setHeader("Content-Disposition", `attachment; filename="${downloadName}"`);
-  res.setHeader("Content-Type", "audio/mpeg");
-  res.setHeader("Content-Length", fileStats.size);
-  res.setHeader("Cache-Control", "public, max-age=3600");
-  // Remove problematic headers for downloads
-  res.setHeader("Accept-Ranges", "bytes");
-  res.sendFile(filePath);
-});
-
-function scheduleCleanup() {
-  const ONE_HOUR = 60 * 60 * 1000;
-  setInterval(() => {
-    try {
-      const files = fs.readdirSync(DOWNLOADS_DIR);
-      const now = Date.now();
-      for (const file of files) {
-        if (!file.endsWith(".json")) continue;
-        const metaPath = path.join(DOWNLOADS_DIR, file);
-        try {
-          const meta = JSON.parse(fs.readFileSync(metaPath, "utf-8"));
-          if (now - meta.createdAt > ONE_HOUR) {
-            fs.unlinkSync(metaPath);
-            const audioFile = metaPath.replace(".json", ".mp3");
-            if (fs.existsSync(audioFile)) fs.unlinkSync(audioFile);
-            // Also clean up old .mp3 files for backwards compatibility
-            const mp3File = metaPath.replace(".json", ".mp3");
-            if (fs.existsSync(mp3File)) fs.unlinkSync(mp3File);
-          }
-        } catch {}
-      }
-    } catch {}
-  }, 15 * 60 * 1000);
-}
-
-scheduleCleanup();
+  } catch {}
+}, 15 * 60 * 1000);
 
 export default router;

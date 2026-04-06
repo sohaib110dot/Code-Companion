@@ -80,6 +80,20 @@ echo "  → Fixing permissions..."
 chown -R www-data:www-data /var/www/fastaudio/public/ 2>/dev/null || chmod -R 755 /var/www/fastaudio/public/
 chmod -R 755 /var/www/fastaudio/
 
+echo "  → Installing ffmpeg..."
+if ! command -v ffmpeg &>/dev/null; then
+  apt-get install -y ffmpeg --quiet 2>&1 | tail -3
+  echo "    ffmpeg installed: $(ffmpeg -version 2>&1 | head -1)"
+else
+  echo "    ffmpeg already installed: $(ffmpeg -version 2>&1 | head -1)"
+fi
+
+echo "  → Installing yt-dlp..."
+YT_DLP_URL="https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp"
+curl -sSL "$YT_DLP_URL" -o /usr/local/bin/yt-dlp
+chmod +x /usr/local/bin/yt-dlp
+echo "    yt-dlp version: $(yt-dlp --version)"
+
 echo "  → Checking backend deps..."
 cd /var/www/fastaudio/api
 if [ ! -f package.json ]; then
@@ -87,16 +101,11 @@ if [ ! -f package.json ]; then
 {
   "name": "fastaudio-api",
   "version": "1.0.0",
-  "dependencies": {
-    "@distube/ytdl-core": "^4.14.4",
-    "cookie-parser": "^1.4.7",
-    "fluent-ffmpeg": "^2.1.3",
-    "yt-dlp-exec": "^1.0.5"
-  }
+  "dependencies": {}
 }
 PKG
 fi
-npm install --production --silent 2>&1 | tail -3 || echo "deps already installed"
+echo "    No extra npm deps needed (uses system yt-dlp + ffmpeg)"
 
 echo "  → Writing Nginx config with HTTPS..."
 cat > /etc/nginx/sites-available/fastaudio << 'NGINX'
@@ -135,8 +144,9 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
-        proxy_read_timeout 300s;
+        proxy_read_timeout 600s;
         proxy_connect_timeout 75s;
+        proxy_send_timeout 600s;
     }
 
     location / {
