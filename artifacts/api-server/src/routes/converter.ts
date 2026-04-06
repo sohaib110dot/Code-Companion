@@ -10,18 +10,18 @@ const router: IRouter = Router();
 // ─── Constants ────────────────────────────────────────────────────────────────
 const TEMP_DIR = path.join(process.cwd(), "downloads");
 const MAX_CONCURRENT = 5;
-const MAX_DURATION_SECONDS = 10 * 60 * 60; // 10 hours
+const MAX_DURATION_SECONDS = 10 * 60 * 60;
 
 if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR, { recursive: true });
+
+const QUALITY_MAP: Record<string, string> = { "128": "5", "192": "2", "320": "0" };
 
 // ─── URL Validation ───────────────────────────────────────────────────────────
 function isValidMediaUrl(url: string): boolean {
   try {
     const u = new URL(url);
     return u.protocol === "http:" || u.protocol === "https:";
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 // ─── yt-dlp availability check ───────────────────────────────────────────────
@@ -33,15 +33,10 @@ async function checkYtDlp(): Promise<boolean> {
     const proc = spawn("yt-dlp", ["--version"]);
     proc.on("close", (code) => {
       ytDlpAvailable = code === 0;
-      if (ytDlpAvailable) console.log("[yt-dlp] ✅ Available — using local conversion");
-      else console.warn("[yt-dlp] ⚠️ Not found — falling back to loader.to");
+      console.log(ytDlpAvailable ? "[yt-dlp] ✅ Available" : "[yt-dlp] ⚠️ Not found");
       resolve(ytDlpAvailable!);
     });
-    proc.on("error", () => {
-      ytDlpAvailable = false;
-      console.warn("[yt-dlp] ⚠️ Not installed — falling back to loader.to");
-      resolve(false);
-    });
+    proc.on("error", () => { ytDlpAvailable = false; resolve(false); });
   });
 }
 
@@ -56,10 +51,9 @@ async function ytDlpGetInfo(url: string): Promise<{ title: string; thumbnail: st
       "--no-playlist",
       "--no-warnings",
       "--quiet",
+      "--extractor-args", "youtube:player_client=ios,mweb",
     ]);
-
     proc.stdout.on("data", (d: Buffer) => { json += d.toString(); });
-
     proc.on("close", (code) => {
       if (code !== 0) { reject(new Error("yt-dlp info failed")); return; }
       try {
@@ -69,14 +63,9 @@ async function ytDlpGetInfo(url: string): Promise<{ title: string; thumbnail: st
           thumbnail: info.thumbnail || info.thumbnails?.[0]?.url || "",
           duration: info.duration || 0,
         });
-      } catch {
-        reject(new Error("Failed to parse yt-dlp JSON"));
-      }
+      } catch { reject(new Error("Failed to parse yt-dlp JSON")); }
     });
-
     proc.on("error", reject);
-
-    // Timeout after 30 seconds
     setTimeout(() => { proc.kill(); reject(new Error("yt-dlp info timeout")); }, 30_000);
   });
 }
@@ -108,7 +97,7 @@ async function youtubeOembedInfo(url: string): Promise<{ title: string; thumbnai
   return { title, thumbnail, duration };
 }
 
-// ─── yt-dlp: Convert video to MP3 ────────────────────────────────────────────
+// ─── PRIMARY: yt-dlp with iOS client (bypasses YouTube bot detection) ─────────
 const inProgress = new Set<string>();
 
 interface ConversionResult {
@@ -116,12 +105,6 @@ interface ConversionResult {
   title: string;
   filePath: string;
 }
-
-const QUALITY_MAP: Record<string, string> = {
-  "128": "5",
-  "192": "2",
-  "320": "0",
-};
 
 async function ytDlpConvert(url: string, quality: string): Promise<ConversionResult> {
   const fileId = crypto.randomBytes(16).toString("hex");
@@ -142,47 +125,42 @@ async function ytDlpConvert(url: string, quality: string): Promise<ConversionRes
       "--no-warnings",
       "--print", "%(title)s",
       "--no-simulate",
-      "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      // ── KEY FIX: Use iOS/mweb clients — bypass YouTube bot detection ──────
+      "--extractor-args", "youtube:player_client=ios,mweb,web_creator",
+      // Use iOS-like user agent for consistency
+      "--user-agent", "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iPhone OS 17_5_1 like Mac OS X;)",
       "--add-header", "Accept-Language:en-US,en;q=0.9",
+      "--no-check-certificates",
     ];
 
     const proc = spawn("yt-dlp", args, { stdio: ["ignore", "pipe", "pipe"] });
-
     proc.stdout.on("data", (d: Buffer) => { titleLine += d.toString(); });
     proc.stderr.on("data", (d: Buffer) => { stderr += d.toString(); });
 
-    // Kill if takes > 8 minutes
     const killTimer = setTimeout(() => {
       proc.kill("SIGKILL");
-      reject(new Error("yt-dlp conversion timed out after 8 minutes"));
+      reject(new Error("yt-dlp timed out after 8 minutes"));
     }, 8 * 60_000);
 
     proc.on("close", (code) => {
       clearTimeout(killTimer);
-
       if (code !== 0) {
-        const errMsg = stderr.slice(0, 300);
-        reject(new Error(`yt-dlp exited ${code}: ${errMsg}`));
+        reject(new Error(`yt-dlp exit ${code}: ${stderr.slice(0, 500)}`));
         return;
       }
-
       const title = titleLine.trim().split("\n")[0] || "audio";
-
-      // Find output file — yt-dlp may name it exactly or with a suffix
       if (fs.existsSync(expectedMp3)) {
         resolve({ fileId, title, filePath: expectedMp3 });
         return;
       }
-
-      // Scan temp dir for our file
+      // Scan for any output file with our ID prefix
       try {
         const files = fs.readdirSync(TEMP_DIR);
         const match = files.find(f => f.startsWith(fileId));
         if (match) {
-          const fp = path.join(TEMP_DIR, match);
-          resolve({ fileId: match.replace(/\.[^.]+$/, ""), title, filePath: fp });
+          resolve({ fileId: match.replace(/\.[^.]+$/, ""), title, filePath: path.join(TEMP_DIR, match) });
         } else {
-          reject(new Error("Output file not found after yt-dlp conversion"));
+          reject(new Error("Output file not found"));
         }
       } catch {
         reject(new Error("Failed to locate output file"));
@@ -191,12 +169,59 @@ async function ytDlpConvert(url: string, quality: string): Promise<ConversionRes
 
     proc.on("error", (err) => {
       clearTimeout(killTimer);
-      reject(new Error(`yt-dlp process error: ${err.message}`));
+      reject(new Error(`yt-dlp spawn error: ${err.message}`));
     });
   });
 }
 
-// ─── Fallback: loader.to ──────────────────────────────────────────────────────
+// ─── FALLBACK 1: cobalt.tools — open-source, handles YouTube reliably ─────────
+async function cobaltConvert(url: string, quality: string): Promise<string> {
+  const bitrateMap: Record<string, string> = { "128": "128", "192": "192", "320": "320" };
+
+  const res = await fetch("https://api.cobalt.tools/", {
+    method: "POST",
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      // Required by cobalt.tools to identify API clients
+      "User-Agent": "FastAudio/1.0 (https://fastaudio.cc)",
+    },
+    body: JSON.stringify({
+      url,
+      downloadMode: "audio",
+      audioFormat: "mp3",
+      audioBitrate: bitrateMap[quality] || "192",
+    }),
+    signal: AbortSignal.timeout(30_000),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`cobalt.tools ${res.status}: ${body.slice(0, 200)}`);
+  }
+
+  const data = await res.json() as any;
+  console.log("[cobalt] Response:", JSON.stringify(data).slice(0, 300));
+
+  if (data.status === "error") {
+    throw new Error(`cobalt.tools error: ${data.error?.code || JSON.stringify(data)}`);
+  }
+
+  // tunnel/redirect = direct stream/download URL
+  if ((data.status === "tunnel" || data.status === "redirect") && data.url) {
+    return data.url;
+  }
+
+  // picker = multiple options — prefer audio track
+  if (data.status === "picker") {
+    const audioUrl = data.audio || data.picker?.find((p: any) => p.type === "audio")?.url || data.picker?.[0]?.url;
+    if (audioUrl) return audioUrl;
+  }
+
+  throw new Error(`cobalt.tools unexpected response: ${JSON.stringify(data).slice(0, 200)}`);
+}
+
+// ─── FALLBACK 2: loader.to ────────────────────────────────────────────────────
 const LOADER_API = "https://loader.to/ajax/download.php";
 const PROGRESS_BASE = "https://p.savenow.to/api/progress";
 
@@ -204,10 +229,10 @@ async function loaderToConvert(url: string): Promise<string> {
   const initRes = await fetch(`${LOADER_API}?format=mp3&url=${encodeURIComponent(url)}`, {
     headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
   });
-  if (!initRes.ok) throw new Error("Failed to initiate loader.to conversion");
+  if (!initRes.ok) throw new Error("loader.to failed to initiate");
 
   const initData = await initRes.json() as any;
-  if (!initData.success) throw new Error("loader.to rejected the request");
+  if (!initData.success) throw new Error("loader.to rejected request");
 
   const jobId = initData.id;
   const progressUrl = initData.progress_url || `${PROGRESS_BASE}?id=${jobId}`;
@@ -223,7 +248,13 @@ async function loaderToConvert(url: string): Promise<string> {
       if (data.success === -1) throw new Error("loader.to conversion failed");
     } catch { continue; }
   }
-  throw new Error("loader.to timed out after 10 minutes");
+  throw new Error("loader.to timed out");
+}
+
+// ─── Helper: wrap external URL as proxy download link ─────────────────────────
+function makeProxyLink(externalUrl: string, safeTitle: string): string {
+  const encoded = Buffer.from(externalUrl).toString("base64url");
+  return `/api/proxy-download?u=${encoded}&t=${encodeURIComponent(safeTitle)}`;
 }
 
 // ─── /info endpoint ───────────────────────────────────────────────────────────
@@ -234,27 +265,21 @@ router.post("/info", async (req: Request, res: Response) => {
 
     const { url } = parsed.data;
     if (!isValidMediaUrl(url)) {
-      res.status(400).json({ error: "Invalid URL. Please provide a valid media link." });
-      return;
+      res.status(400).json({ error: "Invalid URL." }); return;
     }
 
     let info: { title: string; thumbnail: string; duration: number };
-
     const hasYtDlp = await checkYtDlp();
+
     if (hasYtDlp) {
-      try {
-        info = await ytDlpGetInfo(url);
-      } catch {
-        // Fallback to oEmbed for YouTube
-        info = await youtubeOembedInfo(url);
-      }
+      try { info = await ytDlpGetInfo(url); }
+      catch { info = await youtubeOembedInfo(url); }
     } else {
       info = await youtubeOembedInfo(url);
     }
 
     if (info.duration > MAX_DURATION_SECONDS) {
-      res.status(400).json({ error: "Media too long. Maximum is 10 hours." });
-      return;
+      res.status(400).json({ error: "Media too long. Maximum is 10 hours." }); return;
     }
 
     res.json(GetVideoInfoResponse.parse(info));
@@ -264,91 +289,106 @@ router.post("/info", async (req: Request, res: Response) => {
   }
 });
 
+// ─── YouTube URL detector ─────────────────────────────────────────────────────
+function isYouTubeUrl(url: string): boolean {
+  try {
+    const h = new URL(url).hostname;
+    return h.includes("youtube.com") || h.includes("youtu.be");
+  } catch { return false; }
+}
+
 // ─── /convert endpoint ────────────────────────────────────────────────────────
+// Strategy:
+//   YouTube URLs → loader.to directly (yt-dlp blocked on datacenter IPs)
+//   Other sites  → yt-dlp (works great) → loader.to fallback
 router.post("/convert", async (req: Request, res: Response) => {
   try {
     const parsed = ConvertVideoBody.safeParse(req.body);
     if (!parsed.success) { res.status(400).json({ error: "Invalid request" }); return; }
 
     const { url, quality } = parsed.data;
-    if (!isValidMediaUrl(url)) {
-      res.status(400).json({ error: "Invalid URL." });
-      return;
-    }
+    if (!isValidMediaUrl(url)) { res.status(400).json({ error: "Invalid URL." }); return; }
     if (!["128", "192", "320"].includes(quality)) {
-      res.status(400).json({ error: "Invalid quality. Choose 128, 192, or 320." });
-      return;
+      res.status(400).json({ error: "Invalid quality." }); return;
     }
 
     const jobKey = crypto.createHash("md5").update(url + quality).digest("hex");
-
     if (inProgress.size >= MAX_CONCURRENT) {
-      res.status(429).json({ error: "Server busy. Please wait a moment and try again." });
-      return;
+      res.status(429).json({ error: "Server busy. Please wait a moment." }); return;
     }
     if (inProgress.has(jobKey)) {
-      res.status(400).json({ error: "Already converting this video. Please wait." });
-      return;
+      res.status(400).json({ error: "Already converting this video. Please wait." }); return;
     }
 
     inProgress.add(jobKey);
 
     try {
-      const hasYtDlp = await checkYtDlp();
+      // ── Get title ──────────────────────────────────────────────────────────
+      let title = "audio";
+      try { const i = await youtubeOembedInfo(url); title = i.title; } catch {}
+      const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+      const isYT = isYouTubeUrl(url);
 
-      if (hasYtDlp) {
-        // ─── PRIMARY: yt-dlp local conversion ───────────────────────────────
-        console.log(`[yt-dlp] Converting: ${url} at ${quality}kbps`);
-        const { fileId, title } = await ytDlpConvert(url, quality);
-        const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
-        const download = `/api/download/${fileId}?t=${encodeURIComponent(safeTitle)}`;
-        console.log(`[yt-dlp] ✅ Done: ${title}`);
-        res.json(ConvertVideoResponse.parse({ success: true, title, download }));
+      // ── For non-YouTube: try yt-dlp first (it works!) ─────────────────────
+      if (!isYT) {
+        const hasYtDlp = await checkYtDlp();
+        if (hasYtDlp) {
+          try {
+            console.log(`[yt-dlp] Non-YouTube: ${url} @ ${quality}kbps`);
+            const { fileId, title: dlpTitle } = await ytDlpConvert(url, quality);
+            const finalTitle = (dlpTitle || title).replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+            console.log(`[yt-dlp] ✅ ${dlpTitle}`);
+            res.json(ConvertVideoResponse.parse({
+              success: true,
+              title: dlpTitle || title,
+              download: `/api/download/${fileId}?t=${encodeURIComponent(finalTitle)}`,
+            }));
+            return;
+          } catch (err: any) {
+            console.warn(`[yt-dlp] ❌ ${err.message.slice(0, 150)} → loader.to`);
+          }
+        }
       } else {
-        // ─── FALLBACK: loader.to ─────────────────────────────────────────────
-        console.log(`[loader.to] Converting: ${url}`);
-        let title = "audio";
-        try { const info = await youtubeOembedInfo(url); title = info.title; } catch {}
-
-        const externalUrl = await loaderToConvert(url);
-        const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
-        const encodedUrl = Buffer.from(externalUrl).toString("base64url");
-        const download = `/api/proxy-download?u=${encodedUrl}&t=${encodeURIComponent(safeTitle)}`;
-        res.json(ConvertVideoResponse.parse({ success: true, title, download }));
+        console.log(`[YouTube] Skipping yt-dlp (datacenter IP blocked) → loader.to`);
       }
+
+      // ── loader.to (reliable for YouTube) ──────────────────────────────────
+      console.log(`[loader.to] ${url}`);
+      const externalUrl = await loaderToConvert(url);
+      console.log(`[loader.to] ✅ Done`);
+      res.json(ConvertVideoResponse.parse({
+        success: true,
+        title,
+        download: makeProxyLink(externalUrl, safeTitle),
+      }));
+
     } finally {
       inProgress.delete(jobKey);
     }
   } catch (err: any) {
     inProgress.delete(crypto.createHash("md5").update((req.body?.url || "") + (req.body?.quality || "")).digest("hex"));
-    console.error("[convert]", err.message);
-    res.status(500).json({ error: "Conversion failed: " + (err.message || "Unknown error") });
+    console.error("[convert] Failed:", err.message);
+    res.status(500).json({ error: "Conversion failed. Please try again." });
   }
 });
 
-// ─── /download/:fileId — serve local yt-dlp converted files ─────────────────
+// ─── /download/:fileId — serve yt-dlp local files ─────────────────────────────
 router.get("/download/:fileId", (req: Request, res: Response) => {
   const { fileId } = req.params;
-
   if (!/^[a-f0-9]{32}$/.test(fileId)) {
-    res.status(400).json({ error: "Invalid file ID" });
-    return;
+    res.status(400).json({ error: "Invalid file ID" }); return;
   }
 
   const filePath = path.join(TEMP_DIR, `${fileId}.mp3`);
-
   if (!fs.existsSync(filePath)) {
-    res.status(404).json({ error: "File not found or expired. Please convert again." });
-    return;
+    res.status(404).json({ error: "File not found or expired. Please convert again." }); return;
   }
 
-  const titleParam = req.query.t;
-  const rawTitle = titleParam ? decodeURIComponent(String(titleParam)) : "audio";
+  const rawTitle = req.query.t ? decodeURIComponent(String(req.query.t)) : "audio";
   const safeTitle = rawTitle.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
-  const filename = `${safeTitle}.mp3`;
-
   const stat = fs.statSync(filePath);
-  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+  res.setHeader("Content-Disposition", `attachment; filename="${safeTitle}.mp3"`);
   res.setHeader("Content-Type", "audio/mpeg");
   res.setHeader("Content-Length", stat.size);
   res.setHeader("Accept-Ranges", "bytes");
@@ -356,7 +396,7 @@ router.get("/download/:fileId", (req: Request, res: Response) => {
   res.sendFile(filePath);
 });
 
-// ─── /proxy-download — stream external URL (loader.to fallback) ───────────────
+// ─── /proxy-download — stream external URL (cobalt/loader.to fallback) ────────
 router.get("/proxy-download", async (req: Request, res: Response) => {
   const { u, t: titleParam } = req.query;
   if (!u || typeof u !== "string") { res.status(400).json({ error: "Missing URL" }); return; }
@@ -366,27 +406,24 @@ router.get("/proxy-download", async (req: Request, res: Response) => {
     remoteUrl = Buffer.from(u, "base64url").toString("utf-8");
     new URL(remoteUrl);
     if (!remoteUrl.startsWith("https://")) throw new Error("HTTPS only");
-  } catch {
-    res.status(400).json({ error: "Invalid URL" }); return;
-  }
+  } catch { res.status(400).json({ error: "Invalid URL" }); return; }
 
   const rawTitle = titleParam ? decodeURIComponent(String(titleParam)) : "audio";
   const safeTitle = rawTitle.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
-  const filename = `${safeTitle}.mp3`;
 
   try {
     const upstream = await fetch(remoteUrl, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Referer": "https://loader.to/",
+        "Referer": "https://cobalt.tools/",
       },
     });
 
     if (!upstream.ok) {
-      res.status(502).json({ error: "Failed to fetch from upstream" }); return;
+      res.status(502).json({ error: `Upstream error: ${upstream.status}` }); return;
     }
 
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Disposition", `attachment; filename="${safeTitle}.mp3"`);
     res.setHeader("Content-Type", upstream.headers.get("Content-Type") || "audio/mpeg");
     const cl = upstream.headers.get("Content-Length");
     if (cl) res.setHeader("Content-Length", cl);
@@ -398,7 +435,6 @@ router.get("/proxy-download", async (req: Request, res: Response) => {
     const { Transform } = await import("stream");
     const pass = new Transform({ transform(chunk, _enc, cb) { cb(null, chunk); } });
     res.on("close", () => reader.cancel());
-
     (async () => {
       try {
         while (true) {
@@ -408,7 +444,6 @@ router.get("/proxy-download", async (req: Request, res: Response) => {
         }
       } catch { pass.destroy(); }
     })();
-
     pass.pipe(res);
   } catch (err: any) {
     if (!res.headersSent) res.status(500).json({ error: "Proxy error: " + err.message });
@@ -423,8 +458,7 @@ setInterval(() => {
     for (const file of fs.readdirSync(TEMP_DIR)) {
       const fp = path.join(TEMP_DIR, file);
       try {
-        const { mtimeMs } = fs.statSync(fp);
-        if (now - mtimeMs > ONE_HOUR) fs.unlinkSync(fp);
+        if (now - fs.statSync(fp).mtimeMs > ONE_HOUR) fs.unlinkSync(fp);
       } catch {}
     }
   } catch {}
