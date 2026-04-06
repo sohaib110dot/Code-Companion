@@ -118,13 +118,13 @@ export default function Home() {
           <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 relative z-10">
             {/* Input Area - Responsive Layout */}
             <div className="w-full">
-              <div className="relative group border-3 border-primary/30 rounded-2xl sm:rounded-3xl bg-card/50 hover:border-primary/60 focus-within:border-primary transition-all duration-100 shadow-md sm:shadow-lg">
-                <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
-                  <Search className="w-7 h-7 sm:w-8 sm:h-8" />
+              <div className="relative group border-2 sm:border-3 border-primary/30 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-card/60 to-card/40 hover:border-primary/60 focus-within:border-primary focus-within:shadow-lg focus-within:shadow-primary/20 transition-all duration-150 shadow-md sm:shadow-lg backdrop-blur-sm">
+                <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none duration-200">
+                  <Search className="w-6 sm:w-7 h-6 sm:h-7" />
                 </div>
                 <Input 
                   placeholder="Paste URL here to Download..."
-                  className="w-full h-16 sm:h-20 pl-14 sm:pl-20 pr-32 sm:pr-44 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-0 align-middle leading-none"
+                  className="w-full h-16 sm:h-20 pl-16 sm:pl-24 pr-32 sm:pr-44 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-muted-foreground/50 focus:outline-none focus:ring-0 focus-visible:ring-0 align-middle leading-tight font-medium"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
@@ -132,7 +132,7 @@ export default function Home() {
                 
                 {/* Button Group - Right Side */}
                 {!convertMutation.data && (
-                  <div className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 flex gap-2 sm:gap-3 items-center">
+                  <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex gap-2 sm:gap-2.5 items-center">
                     <button
                       onClick={async () => {
                         try {
@@ -143,13 +143,13 @@ export default function Home() {
                         }
                       }}
                       disabled={isProcessing}
-                      className="h-10 sm:h-12 md:h-14 rounded-lg px-3 sm:px-4 font-semibold text-xs sm:text-sm text-primary bg-primary/10 hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                      className="h-11 sm:h-12 md:h-14 rounded-lg px-3 sm:px-4 font-semibold text-xs sm:text-sm text-primary bg-primary/10 hover:bg-primary/20 hover:shadow-md disabled:opacity-50 transition-all duration-150 active:scale-95"
                     >
                       Paste
                     </button>
                     <Button 
                       variant="gradient" 
-                      className="h-10 sm:h-12 md:h-14 rounded-lg px-5 sm:px-6 md:px-8 font-semibold whitespace-nowrap text-xs sm:text-sm md:text-base shadow-lg"
+                      className="h-11 sm:h-12 md:h-14 rounded-lg px-6 sm:px-7 md:px-9 font-semibold whitespace-nowrap text-xs sm:text-sm md:text-base shadow-lg hover:shadow-xl transition-all duration-150 active:scale-95"
                       onClick={() => {
                         if (isValidMediaUrl(url)) {
                           convertMutation.mutate({ data: { url, quality } });
@@ -157,7 +157,7 @@ export default function Home() {
                       }}
                       disabled={!url || isProcessing}
                     >
-                      {convertMutation.isPending ? <Loader2 className="w-4 sm:w-4 h-4 sm:h-4 animate-spin mr-1" /> : null}
+                      {convertMutation.isPending ? <Loader2 className="w-4 sm:w-4 h-4 sm:h-4 animate-spin mr-1.5" /> : null}
                       <span className="hidden sm:inline">{convertMutation.isPending ? t("converting") : "Convert"}</span>
                       <span className="sm:hidden">{convertMutation.isPending ? "..." : "Go"}</span>
                     </Button>
