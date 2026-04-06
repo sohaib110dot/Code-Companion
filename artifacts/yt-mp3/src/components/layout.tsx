@@ -109,7 +109,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-full px-4 h-auto sm:h-20 flex items-center py-3 sm:py-0">
           {/* Left Half */}
           <div className="w-1/2 flex items-center">
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group ml-[500px] mr-[500px]" aria-label="FastAudio - Convert Videos to MP3">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group" aria-label="FastAudio - Convert Videos to MP3">
               <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform flex-shrink-0">
                 <Headphones className="w-4 sm:w-5 h-4 sm:h-5" aria-hidden="true" />
               </div>
