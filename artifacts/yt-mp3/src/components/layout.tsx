@@ -153,7 +153,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="relative language-dropdown">
               <button
                 onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                className="p-2 px-3 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium pl-[10px] pr-[10px] pt-[10px] pb-[10px]"
+                className="p-2 px-3 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium pl-[0px] pr-[0px] pt-[0px] pb-[0px]"
                 aria-label={t("changeLanguage")}
               >
                 <span className="text-[15px]">{currentLang.flag}</span>
