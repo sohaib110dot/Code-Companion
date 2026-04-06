@@ -219,34 +219,37 @@ export default function Home() {
               >
                 <VideoPreview data={infoMutation.data} />
                 
-                <div className="bg-background/50 rounded-2xl p-6 border border-border">
-                  <h4 className="font-semibold mb-4 flex items-center gap-2">
+                <div className="bg-gradient-to-br from-primary/8 via-accent/5 to-background rounded-3xl p-8 border-2 border-primary/20 shadow-xl">
+                  <h4 className="font-bold text-lg mb-6 flex items-center gap-3 text-foreground">
+                    <span className="text-2xl">🎵</span>
                     {t("selectAudioQuality")}
                   </h4>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-4 mb-8">
                     {(["128", "192", "320"] as const).map((q) => (
-                      <button
+                      <motion.button
                         key={q}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setQuality(q)}
                         disabled={convertMutation.isPending}
                         className={cn(
-                          "w-24 h-24 rounded-xl border-2 font-medium transition-all interactive-scale flex flex-col items-center justify-center gap-1",
+                          "py-5 sm:py-6 rounded-2xl border-2 font-bold transition-all flex flex-col items-center justify-center gap-2 cursor-pointer",
                           quality === q 
-                            ? "border-primary bg-primary/5 text-primary" 
-                            : "border-border bg-background hover:border-primary/50 text-muted-foreground"
+                            ? "border-primary bg-gradient-to-br from-primary/20 to-primary/10 text-primary shadow-lg shadow-primary/30 scale-105" 
+                            : "border-primary/30 bg-background/40 hover:border-primary/60 hover:bg-primary/5 text-muted-foreground hover:text-primary"
                         )}
                       >
-                        <span className="text-lg font-semibold">{q}</span>
-                        <span className="text-xs opacity-80">{t("kbps")}</span>
-                      </button>
+                        <span className="text-xl sm:text-2xl font-bold">{q}</span>
+                        <span className="text-xs sm:text-sm opacity-70 font-medium">{t("kbps")}</span>
+                      </motion.button>
                     ))}
                   </div>
 
-                  <div className="mt-6 flex justify-end">
+                  <div className="flex justify-center sm:justify-end">
                     <Button 
                       variant="gradient" 
                       size="lg" 
-                      className="w-full md:w-auto"
+                      className="w-full sm:w-auto h-14 sm:h-16 text-base sm:text-lg px-8 sm:px-12 shadow-xl hover:shadow-2xl transition-all duration-200"
                       onClick={handleConvert}
                       disabled={convertMutation.isPending}
                     >
@@ -265,19 +268,24 @@ export default function Home() {
 
                   {/* Progress Indicator (Fake visual during actual API call) */}
                   {convertMutation.isPending && (
-                    <div className="mt-6 space-y-2">
-                      <div className="flex justify-between text-sm font-medium text-primary">
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-8 space-y-3"
+                    >
+                      <div className="flex justify-between text-sm font-bold text-primary">
                         <span>{t("processingMedia")}</span>
+                        <span className="text-xs font-medium">Converting...</span>
                       </div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-3 bg-primary/10 rounded-full overflow-hidden backdrop-blur-sm">
                         <motion.div 
-                          className="h-full bg-gradient-to-r from-primary to-accent"
+                          className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full"
                           initial={{ width: "0%" }}
                           animate={{ width: "90%" }}
                           transition={{ duration: 4, ease: "easeOut" }}
                         />
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
               </motion.div>
