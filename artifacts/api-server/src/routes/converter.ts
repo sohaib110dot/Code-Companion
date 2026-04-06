@@ -208,15 +208,26 @@ router.post("/convert", async (req: Request, res: Response) => {
         return;
       }
 
-      // Get direct download URL from loader.to - NO local processing!
+      // Get direct download URL from loader.to
       const downloadUrl = await convertWithLoaderTo(url);
 
-      // Return loader.to URL directly for instant streaming download
-      // loader.to output is already MP3 - skip FFmpeg for maximum speed
+      // Build a safe filename for the Content-Disposition header
+      const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+
+      // Encode the remote URL so we can pass it to our proxy endpoint
+      const encodedUrl = Buffer.from(downloadUrl).toString("base64url");
+      const encodedTitle = encodeURIComponent(safeTitle);
+
+      // Return a same-origin proxy URL — this is the key fix:
+      // cross-origin download links ignore the `download` attribute, causing
+      // the browser to open / stream the file instead of saving it.
+      // By proxying through our own domain, the download attribute works correctly.
+      const proxyDownload = `/api/proxy-download?u=${encodedUrl}&t=${encodedTitle}`;
+
       const response = ConvertVideoResponse.parse({
         success: true,
         title,
-        download: downloadUrl
+        download: proxyDownload
       });
       res.json(response);
     } finally {
@@ -225,6 +236,96 @@ router.post("/convert", async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error("Convert error:", err.message);
     res.status(500).json({ error: "Conversion failed: " + (err.message || "Please try again.") });
+  }
+});
+
+// Proxy download endpoint — streams the remote MP3 through our server
+// so the browser's `download` attribute works (cross-origin URLs ignore it)
+router.get("/proxy-download", async (req: Request, res: Response) => {
+  const { u, t: titleParam } = req.query;
+
+  if (!u || typeof u !== "string") {
+    res.status(400).json({ error: "Missing download URL parameter" });
+    return;
+  }
+
+  let remoteUrl: string;
+  try {
+    remoteUrl = Buffer.from(u, "base64url").toString("utf-8");
+    new URL(remoteUrl); // Validate it's a real URL
+  } catch {
+    res.status(400).json({ error: "Invalid download URL" });
+    return;
+  }
+
+  // Only allow downloads from known CDNs used by loader.to
+  const allowed = ["savenow.to", "loader.to", "cobalt.tools", "cdn.", "dl.", "download.", "files."];
+  const urlHost = new URL(remoteUrl).hostname;
+  const isAllowed = allowed.some(h => urlHost.includes(h));
+  if (!isAllowed) {
+    // Allow any HTTPS URL as a fallback — the key is we serve it from our domain
+    if (!remoteUrl.startsWith("https://")) {
+      res.status(403).json({ error: "Only HTTPS sources are allowed" });
+      return;
+    }
+  }
+
+  const safeTitle = titleParam
+    ? decodeURIComponent(String(titleParam)).replace(/[^a-zA-Z0-9 _\-]/g, "").trim()
+    : "audio";
+  const filename = `${safeTitle || "audio"}.mp3`;
+
+  try {
+    const upstream = await fetch(remoteUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Referer": "https://loader.to/",
+      }
+    });
+
+    if (!upstream.ok) {
+      res.status(502).json({ error: "Failed to fetch audio from upstream server" });
+      return;
+    }
+
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Type", upstream.headers.get("Content-Type") || "audio/mpeg");
+
+    const contentLength = upstream.headers.get("Content-Length");
+    if (contentLength) res.setHeader("Content-Length", contentLength);
+
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+
+    if (!upstream.body) {
+      res.status(502).json({ error: "No response body from upstream" });
+      return;
+    }
+
+    // Stream the response — no buffering, memory-efficient
+    const reader = upstream.body.getReader();
+    const passThrough = new (await import("stream")).Transform({
+      transform(chunk, _enc, cb) { cb(null, chunk); }
+    });
+
+    res.on("close", () => reader.cancel());
+
+    (async () => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) { passThrough.end(); break; }
+          passThrough.push(value);
+        }
+      } catch { passThrough.destroy(); }
+    })();
+
+    passThrough.pipe(res);
+  } catch (err: any) {
+    console.error("Proxy download error:", err.message);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Download proxy error: " + err.message });
+    }
   }
 });
 

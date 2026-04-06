@@ -372,9 +372,7 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
                   <a
                     href={convertMutation.data.download}
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    download={`${convertMutation.data.title?.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio"}.mp3`}
                     className="w-full sm:w-auto"
                   >
                     <Button variant="gradient" size="lg" className="w-full h-12 sm:h-14 text-base rounded-xl px-8 sm:px-12 shadow-lg">
