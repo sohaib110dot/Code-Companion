@@ -6,8 +6,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { lazy, Suspense } from "react";
+import Home from "./pages/home";
 
-const Home = lazy(() => import("./pages/home"));
 const About = lazy(() => import("./pages/about"));
 const Privacy = lazy(() => import("./pages/privacy"));
 const Terms = lazy(() => import("./pages/terms"));
