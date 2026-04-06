@@ -2,7 +2,6 @@ import React from "react";
 import { Clock, Music } from "lucide-react";
 import { formatDuration } from "@/lib/utils";
 import type { VideoInfoResponse } from "@workspace/api-client-react/src/generated/api.schemas";
-import { motion } from "framer-motion";
 
 interface VideoPreviewProps {
   data: VideoInfoResponse;
@@ -10,10 +9,8 @@ interface VideoPreviewProps {
 
 export function VideoPreview({ data }: VideoPreviewProps) {
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      className="w-full bg-card rounded-2xl overflow-hidden border border-border shadow-sm flex flex-col sm:flex-row"
+    <div 
+      className="w-full bg-card rounded-2xl overflow-hidden border border-border shadow-sm flex flex-col sm:flex-row animate-fade-in-up"
     >
       <div className="relative w-full sm:w-64 aspect-video sm:aspect-auto bg-muted shrink-0">
         <img 
@@ -36,6 +33,6 @@ export function VideoPreview({ data }: VideoPreviewProps) {
           Ready to convert to MP3
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
