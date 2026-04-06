@@ -107,7 +107,7 @@ export function Layout({ children }: LayoutProps) {
       </div>
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
         <div className="container mx-auto px-4 h-20 flex items-center justify-center relative">
-          <Link href="/" className="absolute left-14 flex items-center gap-3 group mt-[0px] pl-[22px] pr-[22px] border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px] rounded-tl-[0px] rounded-tr-[0px] rounded-br-[0px] rounded-bl-[0px] text-[45px] ml-[201px] mr-[201px] mb-[0px] pt-[5px] pb-[5px] bg-[transparent] font-bold" aria-label="FastAudio - Convert Videos to MP3">
+          <Link href="/" className="absolute left-14 flex items-center gap-3 group mt-[0px] pl-[22px] pr-[22px] border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px] rounded-tl-[0px] rounded-tr-[0px] rounded-br-[0px] rounded-bl-[0px] text-[45px] mb-[0px] pt-[5px] pb-[5px] bg-[transparent] font-bold ml-[230px] mr-[230px]" aria-label="FastAudio - Convert Videos to MP3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
               <Headphones className="w-5 h-5" aria-hidden="true" />
             </div>
