@@ -22,12 +22,35 @@
     <link rel="shortcut icon" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    <style>
+      body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;background:#fff}
+      .dark body{background:#0a0a0a}
+      #skeleton{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;opacity:1;transition:opacity .2s}
+      #skeleton.hide{opacity:0;pointer-events:none}
+      .sk-bar{height:14px;border-radius:7px;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+      .dark .sk-bar{background:linear-gradient(90deg,#1a1a1a 25%,#252525 50%,#1a1a1a 75%);background-size:200% 100%}
+      @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    </style>
   </head>
   <body>
+    <div id="skeleton">
+      <div style="width:100%;max-width:500px;text-align:center">
+        <div class="sk-bar" style="width:60%;height:18px;margin:0 auto 18px"></div>
+        <div class="sk-bar" style="width:80%;height:12px;margin:0 auto 30px"></div>
+        <div class="sk-bar" style="width:100%;height:56px;border-radius:16px;margin-bottom:16px"></div>
+        <div style="display:flex;gap:10px">
+          <div class="sk-bar" style="flex:1;height:44px;border-radius:12px"></div>
+          <div class="sk-bar" style="flex:1;height:44px;border-radius:12px"></div>
+          <div class="sk-bar" style="flex:1;height:44px;border-radius:12px"></div>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      var f=document.createElement('link');f.rel='stylesheet';f.href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';document.head.appendChild(f);
+      var ro=new MutationObserver(function(){if(document.getElementById('root').children.length){document.getElementById('skeleton').classList.add('hide');setTimeout(function(){var s=document.getElementById('skeleton');if(s)s.remove()},300);ro.disconnect()}});
+      ro.observe(document.getElementById('root'),{childList:true});
+    </script>
   </body>
 </html>
