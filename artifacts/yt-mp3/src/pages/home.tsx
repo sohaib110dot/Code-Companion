@@ -133,7 +133,7 @@ export default function Home() {
                 {!infoMutation.data && !convertMutation.data && (
                   <Button 
                     variant="gradient" 
-                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-12 sm:h-16 md:h-20 rounded-lg sm:rounded-2xl px-6 sm:px-10 md:px-12 font-bold whitespace-nowrap text-sm sm:text-lg md:text-xl shadow-lg"
+                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-12 sm:h-16 md:h-20 rounded-lg sm:rounded-2xl px-6 sm:px-10 md:px-12 font-bold whitespace-nowrap text-sm sm:text-lg md:text-xl shadow-lg pl-[55px] pr-[55px] ml-[-12px] mr-[-12px]"
                     onClick={() => {
                       if (isValidMediaUrl(url)) {
                         infoMutation.mutate({ data: { url } });
