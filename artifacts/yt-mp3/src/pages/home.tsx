@@ -122,7 +122,7 @@ export default function Home() {
                 </div>
                 <Input 
                   placeholder={t("placeholder")}
-                  className="w-full h-12 sm:h-14 pl-12 pr-4 sm:pr-24 text-sm sm:text-base rounded-lg sm:rounded-xl shadow-inner bg-background"
+                  className="w-full h-12 sm:h-14 pl-12 pr-4 sm:pr-24 text-sm sm:text-base rounded-lg sm:rounded-xl shadow-inner bg-background placeholder:text-muted-foreground/70 placeholder:font-medium"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
