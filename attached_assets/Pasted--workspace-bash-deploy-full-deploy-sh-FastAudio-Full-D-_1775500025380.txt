@@ -1,0 +1,120 @@
+~/workspace$ bash deploy/full-deploy.sh
+========================================
+ FastAudio Full Deployment
+========================================
+
+>>> STEP 1: Building frontend...
+
+> @workspace/yt-mp3@0.0.0 build /home/runner/workspace/artifacts/yt-mp3
+> vite build --config vite.config.ts
+
+vite v7.3.1 building client environment for production...
+src/components/ui/tooltip.tsx (2:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+✓ 2191 modules transformed.
+dist/public/index.html                   2.65 kB │ gzip:   0.79 kB
+dist/public/assets/index-DOS94w_o.css  129.78 kB │ gzip:  20.24 kB
+dist/public/assets/index-CLFy4mnq.js   815.38 kB │ gzip: 245.18 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 2.89s
+✅ Frontend built
+
+>>> STEP 2: Building backend...
+
+> @workspace/api-server@0.0.0 build /home/runner/workspace/artifacts/api-server
+> tsx ./build.ts
+
+building server...
+
+  dist/index.cjs  853.4kb
+
+⚡ Done in 61ms
+✅ Backend built
+
+>>> STEP 3: Creating frontend archive...
+✅ Frontend archived (1.9M)
+
+>>> STEP 4: Uploading files to VPS...
+  → Uploading frontend archive...
+  → Uploading backend...
+  → Uploading PM2 config...
+✅ Files uploaded
+
+>>> STEP 5: Setting up VPS...
+  → Creating directories...
+  → Extracting frontend...
+total 80
+drwxr-xr-x 4 ubuntu ubuntu  4096 Apr  6 18:25 .
+drwxr-xr-x 5 root   root    4096 Apr  2 23:45 ..
+drwxr-xr-x 2 ubuntu ubuntu  4096 Apr  6 18:25 assets
+-rw-r--r-- 1 ubuntu ubuntu   506 Apr  6 18:25 favicon.svg
+drwxr-xr-x 2 ubuntu ubuntu  4096 Apr  6 18:25 images
+-rw-r--r-- 1 ubuntu ubuntu  2650 Apr  6 18:25 index.html
+-rw-r--r-- 1 ubuntu ubuntu 46602 Apr  6 18:25 opengraph.jpg
+-rw-r--r-- 1 ubuntu ubuntu   529 Apr  6 18:25 robots.txt
+-rw-r--r-- 1 ubuntu ubuntu  2237 Apr  6 18:25 sitemap.xml
+  → Fixing permissions...
+  → Checking backend deps...
+  → Writing Nginx config with HTTPS...
+  → Testing Nginx config...
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+  → Restarting Nginx...
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2026-04-06 18:25:42 UTC; 6ms ago
+ Invocation: c228d5e65eb84061a536c94ebfe89f32
+       Docs: man:nginx(8)
+  → Restarting API with PM2...
+[PM2] Applying action deleteProcessId on app [fastaudio-api](ids: [ 0 ])
+[PM2] [fastaudio-api](0) ✓
+┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2][WARN] Applications fastaudio-api not running, starting...
+[PM2] App [fastaudio-api] launched (1 instances)
+┌────┬──────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name             │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ fastaudio-api    │ default     │ 1.0.0   │ cluster │ 27342    │ 0s     │ 0    │ online    │ 0%       │ 39.5mb   │ root     │ disabled │
+└────┴──────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+  → Waiting for API to start...
+┌────┬──────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name             │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ fastaudio-api    │ default     │ 1.0.0   │ cluster │ 27342    │ 3s     │ 0    │ online    │ 0%       │ 63.9mb   │ root     │ disabled │
+└────┴──────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+  → Testing API...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /</pre>
+</body>
+</html>
+  → Testing Nginx serving frontend...
+<html>
+<head><title>301 Moved Permanently</title></head>
+<body>
+<center><h1>301 Moved Permanently</h1></center>
+<hr><center>nginx/1.28.0 (Ubuntu)</center>
+
+✅ VPS setup complete!
+
+========================================
+ DEPLOYMENT COMPLETE!
+========================================
+
+Site: http://fastaudio.cc
+API:  http://fastaudio.cc/api
+
+Next step - enable SSL (run on VPS):
+  certbot --nginx -d fastaudio.cc -d www.fastaudio.cc --non-interactive --agree-tos -m sonujee@proton.me
