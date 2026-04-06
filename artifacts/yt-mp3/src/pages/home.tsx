@@ -124,43 +124,44 @@ export default function Home() {
                 </div>
                 <Input 
                   placeholder="Paste URL here to Download..."
-                  className="w-full h-16 sm:h-20 pl-20 sm:pl-28 pr-24 sm:pr-32 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-0"
+                  className="w-full h-16 sm:h-20 pl-14 sm:pl-20 pr-32 sm:pr-44 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-0"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
                 />
                 
-                {/* Paste Button - Left Side */}
-                <button
-                  onClick={async () => {
-                    try {
-                      const text = await navigator.clipboard.readText();
-                      setUrl(text);
-                    } catch (err) {
-                      console.error('Failed to read clipboard:', err);
-                    }
-                  }}
-                  disabled={isProcessing}
-                  className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 h-10 sm:h-12 rounded-lg px-3 sm:px-4 font-semibold text-xs sm:text-sm text-primary bg-primary/10 hover:bg-primary/20 disabled:opacity-50 transition-colors"
-                >
-                  Paste
-                </button>
-                
+                {/* Button Group - Right Side */}
                 {!convertMutation.data && (
-                  <Button 
-                    variant="gradient" 
-                    className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 h-10 sm:h-14 md:h-16 rounded-lg sm:rounded-xl px-5 sm:px-8 md:px-10 font-semibold whitespace-nowrap text-xs sm:text-base md:text-lg shadow-lg"
-                    onClick={() => {
-                      if (isValidMediaUrl(url)) {
-                        convertMutation.mutate({ data: { url, quality } });
-                      }
-                    }}
-                    disabled={!url || isProcessing}
-                  >
-                    {convertMutation.isPending ? <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin mr-2" /> : null}
-                    <span className="hidden sm:inline">{convertMutation.isPending ? t("converting") : "Convert"}</span>
-                    <span className="sm:hidden">{convertMutation.isPending ? "..." : "Go"}</span>
-                  </Button>
+                  <div className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 flex gap-2 sm:gap-3">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const text = await navigator.clipboard.readText();
+                          setUrl(text);
+                        } catch (err) {
+                          console.error('Failed to read clipboard:', err);
+                        }
+                      }}
+                      disabled={isProcessing}
+                      className="h-10 sm:h-12 md:h-14 rounded-lg px-3 sm:px-4 font-semibold text-xs sm:text-sm text-primary bg-primary/10 hover:bg-primary/20 disabled:opacity-50 transition-colors"
+                    >
+                      Paste
+                    </button>
+                    <Button 
+                      variant="gradient" 
+                      className="h-10 sm:h-12 md:h-14 rounded-lg px-5 sm:px-6 md:px-8 font-semibold whitespace-nowrap text-xs sm:text-sm md:text-base shadow-lg"
+                      onClick={() => {
+                        if (isValidMediaUrl(url)) {
+                          convertMutation.mutate({ data: { url, quality } });
+                        }
+                      }}
+                      disabled={!url || isProcessing}
+                    >
+                      {convertMutation.isPending ? <Loader2 className="w-4 sm:w-4 h-4 sm:h-4 animate-spin mr-1" /> : null}
+                      <span className="hidden sm:inline">{convertMutation.isPending ? t("converting") : "Convert"}</span>
+                      <span className="sm:hidden">{convertMutation.isPending ? "..." : "Go"}</span>
+                    </Button>
+                  </div>
                 )}
               </div>
 
