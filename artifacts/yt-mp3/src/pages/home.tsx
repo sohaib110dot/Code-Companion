@@ -116,13 +116,13 @@ export default function Home() {
           <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 relative z-10">
             {/* Input Area - Responsive Layout */}
             <div className="w-full">
-              <div className="relative group">
+              <div className="relative group border-2 border-border rounded-xl sm:rounded-2xl bg-card/50 hover:border-primary/50 transition-colors">
                 <div className="absolute left-5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
                   <Search className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
                 <Input 
                   placeholder={t("placeholder")}
-                  className="w-full h-14 sm:h-16 md:h-18 pl-14 pr-5 sm:pr-28 text-base sm:text-lg md:text-lg rounded-xl sm:rounded-2xl shadow-inner bg-background placeholder:text-muted-foreground/70 placeholder:font-medium"
+                  className="w-full h-14 sm:h-16 md:h-18 pl-14 pr-5 sm:pr-28 text-base sm:text-lg md:text-lg rounded-lg sm:rounded-xl bg-transparent border-0 placeholder:text-muted-foreground/70 placeholder:font-medium focus:outline-none focus:ring-0"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
