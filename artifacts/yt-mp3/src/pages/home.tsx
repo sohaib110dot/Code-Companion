@@ -8,8 +8,10 @@ import { isValidMediaUrl, cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n-context";
 import { Search, Loader2, Download, ArrowRight, Zap, CheckCircle2, Shield, Music } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 export default function Home() {
+  const reduceMotion = useReducedMotion();
   const [url, setUrl] = useState("");
   const [quality, setQuality] = useState<"128" | "192" | "320">("192");
   const { lang, t } = useI18n();
