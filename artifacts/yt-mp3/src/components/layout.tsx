@@ -106,21 +106,21 @@ export function Layout({ children }: LayoutProps) {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/10 blur-[120px]" />
       </div>
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
-        <div className="container mx-auto px-4 h-20 flex items-center justify-center relative">
-          <Link href="/" className="absolute left-14 flex items-center gap-3 group mt-[0px] pl-[22px] pr-[22px] border-t-[0px] border-r-[0px] border-b-[0px] border-l-[0px] rounded-tl-[0px] rounded-tr-[0px] rounded-br-[0px] rounded-bl-[0px] text-[45px] mb-[0px] pt-[5px] pb-[5px] bg-[transparent] font-bold ml-[230px] mr-[230px]" aria-label="FastAudio - Convert Videos to MP3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform">
-              <Headphones className="w-5 h-5" aria-hidden="true" />
+        <div className="max-w-full px-4 h-auto sm:h-20 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 py-3 sm:py-0">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 group" aria-label="FastAudio - Convert Videos to MP3">
+            <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform flex-shrink-0">
+              <Headphones className="w-4 sm:w-5 h-4 sm:h-5" aria-hidden="true" />
             </div>
-            <span className="font-display font-bold text-xl tracking-tight hidden sm:block">
+            <span className="font-display font-bold text-lg sm:text-xl tracking-tight">
               Fast<span className="text-primary">Audio</span>
             </span>
           </Link>
 
-          <nav className="flex items-center gap-6" role="navigation" aria-label="Primary navigation">
+          <nav className="flex items-center gap-2 sm:gap-6 flex-wrap justify-center sm:justify-end" role="navigation" aria-label="Primary navigation">
             <Link
               href="/"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
+                "text-xs sm:text-sm font-medium transition-colors hover:text-primary px-2 py-1 rounded",
                 location === "/" ? "text-primary" : "text-muted-foreground"
               )}
               aria-current={location === "/" ? "page" : undefined}
@@ -130,7 +130,7 @@ export function Layout({ children }: LayoutProps) {
             <Link
               href="/faqs"
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
+                "text-xs sm:text-sm font-medium transition-colors hover:text-primary px-2 py-1 rounded",
                 location === "/faqs" ? "text-primary" : "text-muted-foreground"
               )}
               aria-current={location === "/faqs" ? "page" : undefined}
@@ -139,26 +139,26 @@ export function Layout({ children }: LayoutProps) {
             </Link>
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary"
+              className="p-1.5 sm:p-2 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex-shrink-0"
               aria-label={t("toggleTheme")}
             >
               {mounted ? (
-                theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />
+                theme === "dark" ? <Sun className="w-4 sm:w-5 h-4 sm:h-5" /> : <Moon className="w-4 sm:w-5 h-4 sm:h-5" />
               ) : (
-                <div className="w-5 h-5" />
+                <div className="w-4 sm:w-5 h-4 sm:h-5" />
               )}
             </button>
             
             {/* Language Selector */}
-            <div className="relative language-dropdown">
+            <div className="relative language-dropdown flex-shrink-0">
               <button
                 onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                className="p-2 px-3 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium"
+                className="p-1.5 sm:p-2 px-2 sm:px-3 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex items-center gap-1 text-xs sm:text-sm font-medium"
                 aria-label={t("changeLanguage")}
               >
-                <span className="mr-2">{currentLang.flag}</span>
+                <span className="mr-1">{currentLang.flag}</span>
                 <span className="hidden sm:inline">{currentLang.name}</span>
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="w-3 sm:w-4 h-3 sm:h-4" />
               </button>
               
               {/* Dropdown Menu */}
