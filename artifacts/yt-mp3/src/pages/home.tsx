@@ -115,7 +115,7 @@ export default function Home() {
           transition={{ delay: 0.3 }}
           className="max-w-3xl mx-auto"
         >
-          <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 relative z-10">
+          <div className="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 relative z-10 text-[15px] ml-[-50px] mr-[-50px]">
             {/* Input Area - Responsive Layout */}
             <div className="w-full">
               <div className="relative group border-2 sm:border-3 border-primary/30 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-card/60 to-card/40 hover:border-primary/60 focus-within:border-primary focus-within:shadow-lg focus-within:shadow-primary/20 transition-all duration-150 shadow-md sm:shadow-lg backdrop-blur-sm">
