@@ -51,7 +51,7 @@ async function ytDlpGetInfo(url: string): Promise<{ title: string; thumbnail: st
       "--no-playlist",
       "--no-warnings",
       "--quiet",
-      "--extractor-args", "youtube:player_client=ios,mweb",
+      "--extractor-args", "youtube:player_client=tv_embedded",
     ]);
     proc.stdout.on("data", (d: Buffer) => { json += d.toString(); });
     proc.on("close", (code) => {
@@ -125,12 +125,9 @@ async function ytDlpConvert(url: string, quality: string): Promise<ConversionRes
       "--no-warnings",
       "--print", "%(title)s",
       "--no-simulate",
-      // ── KEY FIX: Use iOS/mweb clients — bypass YouTube bot detection ──────
-      "--extractor-args", "youtube:player_client=ios,mweb,web_creator",
-      // Use iOS-like user agent for consistency
-      "--user-agent", "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iPhone OS 17_5_1 like Mac OS X;)",
+      // tv_embedded → triggers android vr API path, bypasses bot detection on datacenter IPs
+      "--extractor-args", "youtube:player_client=tv_embedded",
       "--add-header", "Accept-Language:en-US,en;q=0.9",
-      "--no-check-certificates",
     ];
 
     const proc = spawn("yt-dlp", args, { stdio: ["ignore", "pipe", "pipe"] });
@@ -299,8 +296,8 @@ function isYouTubeUrl(url: string): boolean {
 
 // ─── /convert endpoint ────────────────────────────────────────────────────────
 // Strategy:
-//   YouTube URLs → loader.to directly (yt-dlp blocked on datacenter IPs)
-//   Other sites  → yt-dlp (works great) → loader.to fallback
+//   PRIMARY:  yt-dlp with tv_embedded client (works for YouTube + 1000+ sites)
+//   FALLBACK: loader.to (reliable but slow, ~30-90s)
 router.post("/convert", async (req: Request, res: Response) => {
   try {
     const parsed = ConvertVideoBody.safeParse(req.body);
@@ -327,32 +324,27 @@ router.post("/convert", async (req: Request, res: Response) => {
       let title = "audio";
       try { const i = await youtubeOembedInfo(url); title = i.title; } catch {}
       const safeTitle = title.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
-      const isYT = isYouTubeUrl(url);
 
-      // ── For non-YouTube: try yt-dlp first (it works!) ─────────────────────
-      if (!isYT) {
-        const hasYtDlp = await checkYtDlp();
-        if (hasYtDlp) {
-          try {
-            console.log(`[yt-dlp] Non-YouTube: ${url} @ ${quality}kbps`);
-            const { fileId, title: dlpTitle } = await ytDlpConvert(url, quality);
-            const finalTitle = (dlpTitle || title).replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
-            console.log(`[yt-dlp] ✅ ${dlpTitle}`);
-            res.json(ConvertVideoResponse.parse({
-              success: true,
-              title: dlpTitle || title,
-              download: `/api/download/${fileId}?t=${encodeURIComponent(finalTitle)}`,
-            }));
-            return;
-          } catch (err: any) {
-            console.warn(`[yt-dlp] ❌ ${err.message.slice(0, 150)} → loader.to`);
-          }
+      // ── PRIMARY: yt-dlp (tv_embedded bypasses YouTube datacenter IP block) ─
+      const hasYtDlp = await checkYtDlp();
+      if (hasYtDlp) {
+        try {
+          console.log(`[yt-dlp] ${url} @ ${quality}kbps`);
+          const { fileId, title: dlpTitle } = await ytDlpConvert(url, quality);
+          const finalTitle = (dlpTitle || title).replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio";
+          console.log(`[yt-dlp] ✅ ${dlpTitle}`);
+          res.json(ConvertVideoResponse.parse({
+            success: true,
+            title: dlpTitle || title,
+            download: `/api/download/${fileId}?t=${encodeURIComponent(finalTitle)}`,
+          }));
+          return;
+        } catch (err: any) {
+          console.warn(`[yt-dlp] ❌ ${err.message.slice(0, 200)} → loader.to fallback`);
         }
-      } else {
-        console.log(`[YouTube] Skipping yt-dlp (datacenter IP blocked) → loader.to`);
       }
 
-      // ── loader.to (reliable for YouTube) ──────────────────────────────────
+      // ── FALLBACK: loader.to ────────────────────────────────────────────────
       console.log(`[loader.to] ${url}`);
       const externalUrl = await loaderToConvert(url);
       console.log(`[loader.to] ✅ Done`);
