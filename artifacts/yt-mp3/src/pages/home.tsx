@@ -176,23 +176,24 @@ export default function Home() {
             {/* Quality Selection - User Friendly */}
             {url && isValidMediaUrl(url) && !infoMutation.data && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-6 pt-6 border-t border-border/30"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="mt-6 p-6 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl border border-primary/20 shadow-md"
               >
-                <p className="text-sm font-semibold text-muted-foreground mb-4">Select Audio Quality:</p>
-                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <p className="text-sm font-bold text-foreground mb-4">✨ Select Your Audio Quality:</p>
+                <div className="grid grid-cols-3 gap-3">
                   {(["128", "192", "320"] as const).map((q) => (
                     <button
                       key={q}
                       onClick={() => setQuality(q)}
-                      disabled={infoMutation.isPending}
+                      disabled={convertMutation.isPending}
                       className={cn(
-                        "py-2 sm:py-3 rounded-lg border-2 font-medium transition-all text-xs sm:text-sm md:text-base",
+                        "py-3 sm:py-4 rounded-lg border-2 font-semibold transition-all text-xs sm:text-sm md:text-base cursor-pointer",
                         quality === q 
-                          ? "border-primary bg-primary/10 text-primary" 
-                          : "border-border bg-background/50 hover:border-primary/50 text-muted-foreground"
+                          ? "border-primary bg-primary/15 text-primary shadow-lg shadow-primary/20 scale-105" 
+                          : "border-border/50 bg-background hover:border-primary hover:bg-primary/5 text-muted-foreground hover:text-primary"
                       )}
                     >
                       {q} kbps
