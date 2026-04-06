@@ -116,13 +116,13 @@ export default function Home() {
           <div className="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 relative z-10">
             {/* Input Area - Responsive Layout */}
             <div className="w-full">
-              <div className="relative group flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center">
-                <div className="absolute left-4 top-1/2 sm:top-4 -translate-y-1/2 sm:translate-y-0 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
+              <div className="relative group">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
                   <Search className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <Input 
                   placeholder={t("placeholder")}
-                  className="w-full h-14 sm:h-16 pl-12 pr-4 sm:pr-28 text-base rounded-xl sm:rounded-2xl shadow-inner bg-background"
+                  className="w-full h-12 sm:h-14 pl-12 pr-4 sm:pr-24 text-sm sm:text-base rounded-lg sm:rounded-xl shadow-inner bg-background"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
@@ -131,7 +131,7 @@ export default function Home() {
                 {!infoMutation.data && !convertMutation.data && (
                   <Button 
                     variant="gradient" 
-                    className="h-12 sm:h-14 sm:absolute right-2 rounded-xl px-6 sm:px-7 font-medium w-full sm:w-auto whitespace-nowrap"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 sm:h-11 rounded-lg px-3 sm:px-6 font-medium whitespace-nowrap text-xs sm:text-sm"
                     onClick={() => {
                       if (isValidMediaUrl(url)) {
                         infoMutation.mutate({ data: { url } });
@@ -139,8 +139,9 @@ export default function Home() {
                     }}
                     disabled={!url || isProcessing}
                   >
-                    {infoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                    {infoMutation.isPending ? t("converting") : t("start")}
+                    {infoMutation.isPending ? <Loader2 className="w-3 sm:w-4 h-3 sm:h-4 animate-spin mr-1.5 sm:mr-2" /> : null}
+                    <span className="hidden sm:inline">{infoMutation.isPending ? t("converting") : t("start")}</span>
+                    <span className="sm:hidden">{infoMutation.isPending ? t("converting") : "Go"}</span>
                   </Button>
                 )}
               </div>
