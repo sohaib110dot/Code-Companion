@@ -122,9 +122,10 @@ export default function Home() {
                 <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none duration-200">
                   <Search className="w-6 sm:w-7 h-6 sm:h-7" />
                 </div>
-                <Input 
+                <input 
+                  type="text"
                   placeholder="Paste URL here to Download..."
-                  className="w-full h-16 sm:h-20 pl-16 sm:pl-24 pr-40 sm:pr-56 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-muted-foreground/50 focus:outline-none focus:ring-0 focus-visible:ring-0 align-middle leading-tight font-medium"
+                  className="w-full h-16 sm:h-20 pl-16 sm:pl-24 pr-40 sm:pr-56 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-muted-foreground/50 focus:outline-none focus:ring-0 focus-visible:ring-0 align-middle leading-tight font-medium text-foreground"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
