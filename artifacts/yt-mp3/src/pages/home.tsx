@@ -125,7 +125,7 @@ export default function Home() {
                 <input 
                   type="text"
                   placeholder="Paste URL here to Download..."
-                  className="w-full h-16 sm:h-20 pl-16 sm:pl-24 pr-40 sm:pr-56 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-muted-foreground/50 focus:outline-none focus:ring-0 focus-visible:ring-0 align-middle leading-tight font-medium text-foreground"
+                  className="w-full h-16 sm:h-20 sm:pl-24 sm:pr-56 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-muted-foreground/50 focus:outline-none focus:ring-0 focus-visible:ring-0 align-middle leading-tight font-medium text-foreground pl-[1px] rounded-tl-[20px] rounded-tr-[20px] rounded-br-[20px] rounded-bl-[20px] ml-[-8px] mr-[-8px] pr-[140px]"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
