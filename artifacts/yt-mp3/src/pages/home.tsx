@@ -123,7 +123,7 @@ export default function Home() {
                   <Search className="w-7 h-7 sm:w-8 sm:h-8" />
                 </div>
                 <Input 
-                  placeholder="Upload your url or media source"
+                  placeholder="Paste URL Here To Download File..."
                   className="w-full h-16 sm:h-20 pl-14 sm:pl-20 pr-24 sm:pr-32 text-base sm:text-lg md:text-xl rounded-2xl sm:rounded-3xl bg-transparent border-none outline-none placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-0"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
