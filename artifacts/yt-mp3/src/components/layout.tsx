@@ -108,7 +108,7 @@ export function Layout({ children }: LayoutProps) {
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl" role="banner">
         <div className="relative px-4 h-auto sm:h-20 flex items-center justify-center py-3 sm:py-0">
           {/* Left - Logo (Absolute) */}
-          <Link href="/" className="absolute left-4 flex items-center gap-2 sm:gap-3 group flex-shrink-0 ml-[500px] mr-[500px]" aria-label="FastAudio - Convert Videos to MP3">
+          <Link href="/" className="absolute left-4 flex items-center gap-2 sm:gap-3 group flex-shrink-0 ml-[400px] mr-[400px]" aria-label="FastAudio - Convert Videos to MP3">
             <div className="w-9 sm:w-10 h-9 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white shadow-lg shadow-primary/25 group-hover:scale-110 transition-transform flex-shrink-0">
               <Headphones className="w-4 sm:w-5 h-4 sm:h-5" aria-hidden="true" />
             </div>
