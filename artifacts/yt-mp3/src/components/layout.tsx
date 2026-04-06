@@ -156,7 +156,7 @@ export function Layout({ children }: LayoutProps) {
                 className="p-2 px-3 rounded-lg hover:bg-primary/10 transition-colors text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium pl-[0px] pr-[0px] pt-[0px] pb-[0px]"
                 aria-label={t("changeLanguage")}
               >
-                <span className="text-[15px]">{currentLang.flag}</span>
+                <span className="text-[15px] text-left">{currentLang.flag}</span>
                 <span className="hidden sm:inline">{currentLang.name}</span>
                 <ChevronDown className="w-4 h-4" />
               </button>
