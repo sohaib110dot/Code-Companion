@@ -3,7 +3,7 @@ Allow: /
 Disallow: /api/
 Disallow: /*.json$
 
-Sitemap: https://fastyt.cc/sitemap.xml
+Sitemap: https://fastaudio.cc/sitemap.xml
 
 User-agent: Googlebot
 Allow: /
