@@ -1,66 +1,115 @@
 import React, { useEffect } from "react";
 import { Layout } from "@/components/layout";
+import { useI18n } from "@/lib/i18n-context";
+import { getPageTranslations } from "@/lib/page-translations";
 
 export default function Privacy() {
+  const { lang } = useI18n();
+  const t = getPageTranslations(lang);
+
   useEffect(() => {
-    document.title = "Privacy Policy - FastYT Converter";
+    document.title = `${t.privacy_h1} - FastAudio`;
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Read FastYT Converter's privacy policy. We protect your data and don't require registration. Learn how we handle your information.");
-    setMeta("keywords", "privacy policy, data protection, user privacy");
+    setMeta("description", t.privacy_intro.slice(0, 160));
+    setMeta("keywords", "privacy policy, data protection, user privacy, cookies, GDPR");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/privacy-policy");
-  }, []);
+    canonical.setAttribute("href", "https://fastaudio.cc/privacy-policy");
+  }, [lang, t]);
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto py-16 prose prose-lg dark:prose-invert">
-        <h1 className="text-4xl font-display font-bold mb-8">Privacy Policy</h1>
-        
-        <p className="text-muted-foreground mb-8">Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+        <h1 className="text-4xl font-display font-bold mb-8">{t.privacy_h1}</h1>
 
-        <p>
-          At FastYT, accessible from our website, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by FastYT and how we use it.
-        </p>
+        <p className="text-muted-foreground mb-8">{t.privacy_last_updated}: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
 
-        <h3>1. Information We Collect</h3>
-        <p>
-          We deliberately minimize the amount of data we collect. We do <strong>not</strong> require user registration.
-        </p>
+        <p>{t.privacy_intro}</p>
+
+        <h2>{t.privacy_s1_title}</h2>
+        <p>{t.privacy_s1_body}</p>
+
+        <h3>{t.privacy_s1_auto_title}</h3>
         <ul>
-          <li><strong>Log Files:</strong> Like many standard websites, we use log files. The information inside the log files includes internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date/time stamp, referring/exit pages, and possibly the number of clicks. These are not linked to any information that is personally identifiable.</li>
-          <li><strong>Cookies:</strong> We use cookies to store information about visitors' preferences, to record user-specific information on which pages the site visitor accesses or visits, and to personalize or customize our web page content based upon visitors' browser type or other information.</li>
+          <li><strong>{t.privacy_s1_auto_li1.split(":")[0]}:</strong> {t.privacy_s1_auto_li1.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s1_auto_li2.split(":")[0]}:</strong> {t.privacy_s1_auto_li2.split(":").slice(1).join(":")}</li>
         </ul>
 
-        <h3>2. How We Use Your Information</h3>
-        <p>We use the information we collect in various ways, including to:</p>
+        <h3>{t.privacy_s1_user_title}</h3>
         <ul>
-          <li>Provide, operate, and maintain our website</li>
-          <li>Improve, personalize, and expand our website</li>
-          <li>Understand and analyze how you use our website</li>
-          <li>Find and prevent fraud</li>
+          <li><strong>{t.privacy_s1_user_li1.split(":")[0]}:</strong> {t.privacy_s1_user_li1.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s1_user_li2.split(":")[0]}:</strong> {t.privacy_s1_user_li2.split(":").slice(1).join(":")}</li>
         </ul>
 
-        <h3>3. File Processing</h3>
-        <p>
-          When you use our service to convert a video, the processing occurs on our cloud servers. 
-          <strong>We do not keep permanent copies of your converted files.</strong> Files are cached temporarily for download purposes and are automatically purged from our servers shortly after the conversion is complete.
-        </p>
+        <h2>{t.privacy_s2_title}</h2>
+        <p><strong>{t.privacy_s2_body}</strong></p>
+        <ul>
+          <li>{t.privacy_s2_li1}</li>
+          <li>{t.privacy_s2_li2}</li>
+          <li>{t.privacy_s2_li3}</li>
+          <li>{t.privacy_s2_li4}</li>
+        </ul>
 
-        <h3>4. Third-Party Advertisers</h3>
-        <p>
-          Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons that are used in their respective advertisements and links that appear on FastYT, which are sent directly to users' browser. They automatically receive your IP address when this occurs.
-        </p>
+        <h2>{t.privacy_s3_title}</h2>
+        <p>{t.privacy_s3_body}</p>
+        <ul>
+          <li><strong>{t.privacy_s3_li1.split(":")[0]}:</strong> {t.privacy_s3_li1.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s3_li2.split(":")[0]}:</strong> {t.privacy_s3_li2.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s3_li3.split(":")[0]}:</strong> {t.privacy_s3_li3.split(":").slice(1).join(":")}</li>
+        </ul>
 
-        <h3>5. Consent</h3>
-        <p>
-          By using our website, you hereby consent to our Privacy Policy and agree to its terms.
-        </p>
+        <h2>{t.privacy_s4_title}</h2>
+        <p>{t.privacy_s4_body}</p>
+        <p>{t.privacy_s4_body2}</p>
+
+        <h2>{t.privacy_s5_title}</h2>
+        <p>{t.privacy_s5_intro}</p>
+        <ul>
+          <li>{t.privacy_s5_li1}</li>
+          <li>{t.privacy_s5_li2}</li>
+          <li>{t.privacy_s5_li3}</li>
+          <li>{t.privacy_s5_li4}</li>
+          <li>{t.privacy_s5_li5}</li>
+          <li>{t.privacy_s5_li6}</li>
+        </ul>
+
+        <h2>{t.privacy_s6_title}</h2>
+        <p>{t.privacy_s6_body}</p>
+        <ul>
+          <li><strong>{t.privacy_s6_li1.split(":")[0]}:</strong> {t.privacy_s6_li1.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s6_li2.split(":")[0]}:</strong> {t.privacy_s6_li2.split(":").slice(1).join(":")}</li>
+        </ul>
+
+        <h2>{t.privacy_s7_title}</h2>
+        <p>{t.privacy_s7_intro}</p>
+        <ul>
+          <li><strong>{t.privacy_s7_li1.split(":")[0]}:</strong> {t.privacy_s7_li1.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s7_li2.split(":")[0]}:</strong> {t.privacy_s7_li2.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s7_li3.split(":")[0]}:</strong> {t.privacy_s7_li3.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s7_li4.split(":")[0]}:</strong> {t.privacy_s7_li4.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s7_li5.split(":")[0]}:</strong> {t.privacy_s7_li5.split(":").slice(1).join(":")}</li>
+          <li><strong>{t.privacy_s7_li6.split(":")[0]}:</strong> {t.privacy_s7_li6.split(":").slice(1).join(":")}</li>
+        </ul>
+        <p>{t.privacy_s7_body2}</p>
+
+        <h2>{t.privacy_s8_title}</h2>
+        <p>{t.privacy_s8_body}</p>
+
+        <h2>{t.privacy_s9_title}</h2>
+        <p>{t.privacy_s9_body}</p>
+
+        <h2>{t.privacy_s10_title}</h2>
+        <p>{t.privacy_s10_body}</p>
+
+        <h2>{t.privacy_s11_title}</h2>
+        <p>{t.privacy_s11_body}</p>
+
+        <p className="text-sm text-muted-foreground mt-8 border-t border-border pt-6">{t.privacy_footer_note}</p>
       </div>
     </Layout>
   );

@@ -1,0 +1,49 @@
+DMCA Policy
+Last updated: April 1, 2026
+
+FastAudio Media Converter takes copyright infringement seriously and complies fully with the Digital Millennium Copyright Act (DMCA), 17 U.S.C. § 512. We respect the intellectual property rights of all content creators and rights holders.
+
+Our Commitment
+FastAudio operates as a technical utility that processes URLs submitted by users. We do not host, upload, store, or distribute any copyrighted content. Our Service acts as a passive technical conduit. However, we are committed to responding promptly to valid copyright claims.
+
+How to Submit a DMCA Takedown Notice
+If you are a copyright owner or an authorized representative and believe that a URL processed through our Service infringes your copyright, please send a written DMCA notice to our designated Copyright Agent at: sonujee@proton.me — Subject: DMCA Takedown Request
+
+Copyright Agent — FastAudio Media Converter
+
+sonujee@proton.me
+
+Subject line: DMCA Takedown Request
+
+Required Information in Your Notice
+Your DMCA notice must contain all of the following elements to be valid under 17 U.S.C. § 512(c)(3):
+
+Physical or electronic signature of the copyright owner or authorized person
+Identification of the copyrighted work(s) you claim has been infringed
+Identification of the infringing material — the URL(s) submitted through our Service
+Your contact information: full name, mailing address, telephone number, and email address
+Good-faith belief statement: "I have a good faith belief that the use of the material is not authorized by the copyright owner, its agent, or the law."
+Accuracy statement under penalty of perjury that you are the copyright owner or authorized to act on their behalf
+Warning: Under Section 512(f) of the DMCA, any person who knowingly misrepresents that material is infringing may be subject to liability for damages. Do not submit false DMCA notices.
+
+Our Response Process
+Upon receipt of a complete and valid DMCA notice, we will:
+
+Acknowledge receipt of your complaint within 3 business days
+Review the notice for completeness and validity
+Block the reported URL(s) from being processed through our Service
+Notify the user who submitted the URL of the blocking action (where possible)
+Counter-Notice Procedure
+If you believe that content was incorrectly blocked as a result of a DMCA notice, you may send a counter-notice. A valid counter-notice must contain:
+
+Your physical or electronic signature
+Identification of the material that was removed
+A statement under penalty of perjury that you have a good faith belief the material was removed by mistake
+Your name, address, telephone number, and a statement consenting to jurisdiction
+Repeat Infringer Policy
+FastAudio will, in appropriate circumstances, block users who are found to be repeat infringers from using our Service.
+
+User Responsibility
+All users of FastAudio are required to comply with copyright law and our Terms of Service. By using our Service, you represent that you have the legal right to convert any content you submit.
+
+For questions about this DMCA Policy, contact us at sonujee@proton.me

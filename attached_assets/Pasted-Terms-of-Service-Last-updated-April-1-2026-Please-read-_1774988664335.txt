@@ -1,0 +1,64 @@
+Terms of Service
+Last updated: April 1, 2026
+
+Please read these Terms of Service carefully before using FastAudio Media Converter (the "Service"). By accessing or using our Service, you confirm that you have read, understood, and agree to be bound by these Terms.
+
+1. Acceptance of Terms
+By accessing and using FastAudio, you accept and agree to be bound by these Terms and our Privacy Policy. If you do not agree, you must discontinue use of the Service immediately.
+
+2. Description of Service
+FastAudio provides a web-based audio extraction utility that processes publicly accessible URLs submitted by users and converts the audio component into downloadable MP3 format. The Service is a technical tool provided "AS IS" and "AS AVAILABLE" for personal, non-commercial use only.
+
+FastAudio does not host, store, upload, or distribute any third-party video or audio content. We act solely as a technical intermediary that processes URLs provided by users. All content remains on the originating platform's servers.
+
+3. User Responsibilities and Copyright Compliance
+You are solely responsible for ensuring that your use of this Service complies with all applicable laws, regulations, and the terms of service of any third-party platform whose content you process. You represent and warrant that:
+
+You own the copyright to any content you convert, OR
+You have explicit, written permission from the copyright owner to reproduce and download the content, OR
+The content is in the public domain or licensed under a Creative Commons or equivalent open license that permits downloading and format conversion.
+Converting, downloading, or reproducing copyrighted content without the owner's permission is a violation of copyright law and may expose you to civil and criminal liability. FastAudio does not encourage, condone, or facilitate copyright infringement.
+
+4. Prohibited Uses
+You agree NOT to use the Service to:
+
+Download or convert copyrighted material without the express permission of the copyright holder
+Circumvent any digital rights management (DRM) protections or technological measures
+Violate the terms of service of any third-party platform or website
+Use the Service for commercial purposes, including selling or redistributing converted files
+Use automated bots, scrapers, or scripts to send bulk requests to our Service
+Violate any local, national, or international law or regulation
+Interfere with or disrupt the integrity or performance of the Service
+5. DMCA Policy and Copyright Takedown Procedure
+FastAudio respects intellectual property rights and complies with the Digital Millennium Copyright Act (DMCA). If you believe your copyrighted work has been processed without authorization, please submit a DMCA takedown notice to our Copyright Agent.
+
+Your DMCA notice must include a signature, identification of the copyrighted work, identification of the infringing URL, your contact information, a good-faith belief statement, and an accuracy statement under penalty of perjury.
+
+Copyright Agent: FastAudio Media Converter
+
+Email: sonujee@proton.me
+
+Subject line: DMCA Takedown Request
+
+6. Safe Harbor Disclaimer
+FastAudio operates as a passive conduit and does not exercise editorial control over content submitted by users. In accordance with Section 512 of the DMCA, we claim safe harbor protection as a service provider.
+
+7. Disclaimer of Warranties
+THE SERVICE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS.
+
+8. Limitation of Liability
+TO THE FULLEST EXTENT PERMITTED BY LAW, FASTAUDIO SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR EXEMPLARY DAMAGES ARISING FROM OR RELATED TO YOUR USE OF THE SERVICE.
+
+9. Indemnification
+You agree to defend, indemnify, and hold harmless FastAudio and its operators from and against any claims, liabilities, damages, losses, and expenses arising out of or in any way connected to your use of the Service.
+
+10. Modifications to Terms
+We reserve the right to modify these Terms at any time. We will provide notice of significant changes by updating the "Last updated" date. Your continued use of the Service after any changes constitutes your acceptance of the new Terms.
+
+11. Governing Law
+These Terms shall be governed by and construed in accordance with applicable laws. Any dispute arising under these Terms shall be resolved by binding arbitration or in a court of competent jurisdiction.
+
+12. Contact Information
+If you have any questions about these Terms, please contact us at: sonujee@proton.me
+
+By using FastAudio Media Converter, you acknowledge that you have read these Terms of Service and agree to be bound by them.

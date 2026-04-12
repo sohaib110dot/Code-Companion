@@ -1,65 +1,44 @@
 import React, { useEffect } from "react";
 import { Layout } from "@/components/layout";
+import { useI18n } from "@/lib/i18n-context";
+import { getPageTranslations } from "@/lib/page-translations";
 
 export default function FAQs() {
+  const { lang } = useI18n();
+  const t = getPageTranslations(lang);
+
   useEffect(() => {
-    document.title = "FAQs - FastYT Media Converter";
+    document.title = `${t.faqs_h1} - FastAudio`;
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Frequently asked questions about FastYT Media Converter. Get answers to common questions about converting videos to MP3.");
+    setMeta("description", t.faqs_intro);
     setMeta("keywords", "faqs, faq, frequently asked questions, video converter, mp3 conversion");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/faqs");
-  }, []);
+    canonical.setAttribute("href", "https://fastaudio.cc/faqs");
+  }, [lang, t]);
 
   const faqs = [
-    {
-      q: "How do I convert a video to MP3?",
-      a: "Simply paste the video URL into the converter, select your preferred audio quality (128kbps, 192kbps, or 320kbps), and click 'Convert Video'. Your MP3 will be ready to download within seconds."
-    },
-    {
-      q: "Is FastYT converter free?",
-      a: "Yes! FastYT Media Converter is completely free to use. No registration, no hidden fees, no annoying ads. Just convert your videos to MP3 instantly."
-    },
-    {
-      q: "What video formats are supported?",
-      a: "We support YouTube links and most popular video platforms. Simply paste the video URL and our tool will automatically detect and convert it to high-quality MP3."
-    },
-    {
-      q: "Do you store my files?",
-      a: "No, we do not store any files. Your videos are converted on our secure servers and deleted immediately after download. Your privacy is guaranteed."
-    },
-    {
-      q: "What audio quality options are available?",
-      a: "We offer three quality levels: 128kbps (standard), 192kbps (high), and 320kbps (maximum quality). Choose based on your needs and device storage."
-    },
-    {
-      q: "How long does the conversion take?",
-      a: "Most conversions complete within seconds. The time depends on the video length and our server load. Typically, you'll have your MP3 ready in 15-30 seconds."
-    },
-    {
-      q: "Can I convert videos from other platforms?",
-      a: "Yes! While we specialize in YouTube, we support most major video platforms including Vimeo, TikTok, Instagram, and more."
-    },
-    {
-      q: "Is my download secure?",
-      a: "Absolutely. All conversions happen on secure servers, and files are automatically deleted after download. We never store or track your data."
-    }
+    { q: t.faqs_q1, a: t.faqs_a1 },
+    { q: t.faqs_q2, a: t.faqs_a2 },
+    { q: t.faqs_q3, a: t.faqs_a3 },
+    { q: t.faqs_q4, a: t.faqs_a4 },
+    { q: t.faqs_q5, a: t.faqs_a5 },
+    { q: t.faqs_q6, a: t.faqs_a6 },
+    { q: t.faqs_q7, a: t.faqs_a7 },
+    { q: t.faqs_q8, a: t.faqs_a8 },
   ];
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto py-16 prose prose-lg dark:prose-invert">
-        <h1 className="text-4xl font-display font-bold mb-8">Frequently Asked Questions</h1>
+        <h1 className="text-4xl font-display font-bold mb-8">{t.faqs_h1}</h1>
 
-        <p className="text-muted-foreground mb-12">
-          Have questions about FastYT Media Converter? Find answers to the most common questions below.
-        </p>
+        <p className="text-muted-foreground mb-12">{t.faqs_intro}</p>
 
         <div className="space-y-6">
           {faqs.map((item, idx) => (
@@ -74,9 +53,9 @@ export default function FAQs() {
         </div>
 
         <div className="mt-12 p-6 bg-primary/5 rounded-xl border border-primary/20">
-          <h3 className="font-bold mb-2 text-foreground">Still have questions?</h3>
+          <h3 className="font-bold mb-2 text-foreground">{t.faqs_still_questions}</h3>
           <p className="text-muted-foreground">
-            Visit our <a href="/contact" className="text-primary hover:underline">contact page</a> to reach out to our support team.
+            <a href="/contact" className="text-primary hover:underline">{t.faqs_contact_link}</a>
           </p>
         </div>
       </div>

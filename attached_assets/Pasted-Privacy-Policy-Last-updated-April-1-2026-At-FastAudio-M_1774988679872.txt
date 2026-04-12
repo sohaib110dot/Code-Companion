@@ -1,0 +1,70 @@
+Privacy Policy
+Last updated: April 1, 2026
+
+At FastAudio Media Converter, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.
+
+1. Information We Collect
+We deliberately minimize the data we collect. We do not require user registration, an account, or any personal information to use our Service.
+
+Automatically Collected Information
+Log Files: Standard log data including IP addresses, browser type, date and time of access, and the number of clicks. Used solely for analyzing trends and improving service quality.
+Usage Data: Anonymous, aggregated usage statistics to improve the Service. This data cannot identify individual users.
+Information You Provide
+URLs submitted for conversion: We process this URL to perform the conversion but do not store it permanently or associate it with your identity.
+Contact form submissions: If you contact us via email, we collect your email address and message content to respond to your inquiry.
+2. File Processing and Data Retention
+We do not permanently store any converted audio files. When you use our Service:
+
+Your submitted URL is processed on our servers to extract audio
+The resulting audio file is temporarily cached for immediate download (typically for less than 1 hour)
+All temporary files are automatically and permanently deleted from our servers
+We do not retain, archive, or distribute any converted media files
+3. Cookies
+We use cookies to enhance your experience. You can set your browser to refuse all cookies or to indicate when a cookie is being sent.
+
+Essential cookies: Required for the Service to function correctly (e.g., your theme preference).
+Analytics cookies: Used to understand how visitors interact with our website anonymously.
+Advertising cookies: Third-party advertisers may place cookies to deliver relevant advertisements.
+4. Third-Party Advertising
+We may display advertisements served by third-party advertising networks (such as Google AdSense). These third parties may use cookies and similar technologies to collect browsing activity information.
+
+You can opt out of personalized advertising by visiting Google's Ad Settings or the Digital Advertising Alliance opt-out page.
+
+5. How We Use Your Information
+The limited information we collect is used to:
+
+Provide, operate, and maintain the Service
+Improve and optimize the user experience
+Analyze usage patterns to enhance features
+Detect and prevent abuse, fraud, or unauthorized use
+Respond to user inquiries and support requests
+Comply with legal obligations
+6. Data Sharing and Disclosure
+We do not sell, trade, or rent your personal information to third parties. We may share information only in the following limited circumstances:
+
+Service providers: Trusted third-party companies to assist in operating our Service, who are contractually obligated to keep information confidential.
+Legal requirements: We may disclose information if required by law, court order, or government authority.
+7. Your Rights (GDPR / CCPA)
+Depending on your location, you may have the following rights:
+
+Right to Access: Request a copy of any personal data we hold about you
+Right to Rectification: Request correction of inaccurate personal data
+Right to Erasure: Request deletion of your personal data ("right to be forgotten")
+Right to Restriction: Request restriction of processing of your personal data
+Right to Object: Object to our processing of your personal data
+Right to Data Portability: Request transfer of your data to another organization
+To exercise any of these rights, please contact us at sonujee@proton.me. We will respond within 30 days.
+
+8. Children's Privacy
+Our Service is not directed to children under the age of 13. We do not knowingly collect personally identifiable information from children under 13.
+
+9. Data Security
+We implement reasonable technical and organizational measures to protect your information from unauthorized access, alteration, disclosure, or destruction.
+
+10. Changes to This Privacy Policy
+We reserve the right to update this Privacy Policy at any time. Your continued use of the Service after any changes constitutes your acceptance of the updated Policy.
+
+11. Contact Us
+If you have any questions about this Privacy Policy, please contact us: sonujee@proton.me
+
+By using FastAudio Media Converter, you consent to the data practices described in this Privacy Policy.

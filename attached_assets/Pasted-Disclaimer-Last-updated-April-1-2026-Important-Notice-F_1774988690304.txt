@@ -1,0 +1,47 @@
+Disclaimer
+Last updated: April 1, 2026
+
+Important Notice
+
+FastAudio Media Converter is a technical tool designed exclusively for personal, lawful use. Users are entirely and solely responsible for ensuring their use of this Service complies with all applicable laws and third-party terms of service.
+
+1. Personal Use Only
+This Service is intended strictly for personal, non-commercial use. You may only use this tool to convert audio from content that you own the copyright to, have explicit permission to download, or that is freely available under a license permitting such use.
+
+Commercial use, redistribution, or resale of converted audio files is strictly prohibited.
+
+2. No Hosting or Distribution of Content
+FastAudio does not host, store, upload, distribute, or transmit any third-party copyrighted content. Our Service functions as a technical conversion tool — we process URLs submitted by users and temporarily convert the audio component.
+
+Converted files are cached temporarily on our servers for immediate download and are automatically and permanently deleted within a short period.
+
+3. User Responsibility for Legal Compliance
+By using this Service, you expressly acknowledge and agree that:
+
+You are solely responsible for verifying that you have the legal right to convert and download any content you submit
+Downloading or reproducing copyrighted content without authorization may violate copyright laws in your jurisdiction
+You will not use this Service in any way that violates the terms of service of any third-party platform
+FastAudio bears no responsibility for any copyright infringement carried out by users
+4. Intellectual Property Rights
+All content available on third-party platforms is the property of its respective owners and is protected by applicable intellectual property laws.
+
+If you are unsure whether you have the right to download specific content, we recommend consulting with a qualified legal professional before using this Service.
+
+5. Use at Your Own Risk
+FastAudio Media Converter is provided on an "as-is" basis without warranties of any kind. We make no representations or warranties regarding:
+
+The accuracy, reliability, or completeness of the conversion output
+The availability or uninterrupted operation of the Service
+The legality of converting specific content in your jurisdiction
+Users assume all responsibility and risk for the use of this Service.
+
+6. Limitation of Liability
+FastAudio and its operators shall not be liable for any direct, indirect, incidental, special, or consequential damages resulting from your use or inability to use our Service.
+
+7. Third-Party Platforms
+FastAudio is an independent service and is not affiliated with, endorsed by, or sponsored by any video or content hosting platform. Users must independently comply with the terms of service of any platform whose content they choose to process.
+
+8. Changes to This Disclaimer
+We reserve the right to modify this disclaimer at any time without prior notice. Your continued use of the Service constitutes your acceptance of any changes.
+
+For questions or concerns, contact us at sonujee@proton.me. For copyright takedown requests, please see our DMCA Policy.

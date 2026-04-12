@@ -2,69 +2,34 @@ import React, { useEffect } from "react";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { Mail, MessageSquare } from "lucide-react";
+import { useI18n } from "@/lib/i18n-context";
+import { getPageTranslations } from "@/lib/page-translations";
 
 export default function Contact() {
+  const { lang } = useI18n();
+  const t = getPageTranslations(lang);
+
   useEffect(() => {
-    document.title = "Contact Us - FastYT Media Converter";
+    document.title = `${t.contact_h1} - FastAudio`;
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
-      const selector = `meta[${attr}="${name}"]`;
-      let el = document.querySelector(selector) as HTMLMetaElement | null;
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, name);
-        document.head.appendChild(el);
-      }
+      let el = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement | null;
+      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "Contact FastYT Media Converter support team. Get help, report issues, or send feedback about our video to MP3 conversion tool.");
+    setMeta("description", t.contact_lead);
     setMeta("keywords", "contact us, support, customer service, feedback, help");
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.setAttribute("rel", "canonical");
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute("href", "https://fastyt.io/contact");
-
-    let faqScript = document.querySelector('script[data-type="faq-schema"]') as HTMLScriptElement | null;
-    if (!faqScript) {
-      faqScript = document.createElement("script");
-      faqScript.type = "application/ld+json";
-      faqScript.setAttribute("data-type", "faq-schema");
-      faqScript.textContent = JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "Why did my conversion fail?",
-            "acceptedAnswer": {"@type": "Answer", "text": "Conversions may fail if the video is private, age-restricted, or longer than 20 minutes."}
-          },
-          {
-            "@type": "Question",
-            "name": "Is this tool free to use?",
-            "acceptedAnswer": {"@type": "Answer", "text": "Yes. FastYT Media Converter is completely free for personal use."}
-          },
-          {
-            "@type": "Question",
-            "name": "What audio quality options are available?",
-            "acceptedAnswer": {"@type": "Answer", "text": "We offer 128 kbps, 192 kbps, and 320 kbps MP3 quality options."}
-          }
-        ]
-      });
-      document.head.appendChild(faqScript);
-    }
-  }, []);
+    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
+    canonical.setAttribute("href", "https://fastaudio.cc/contact");
+  }, [lang, t]);
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto py-16 prose prose-lg dark:prose-invert">
-        <h1 className="text-4xl font-display font-bold mb-8">Contact Us</h1>
+        <h1 className="text-4xl font-display font-bold mb-8">{t.contact_h1}</h1>
 
-        <p className="lead text-xl text-muted-foreground mb-8">
-          Have a question, suggestion, or issue? We'd love to hear from you. Reach out using any of the options below.
-        </p>
+        <p className="lead text-xl text-muted-foreground mb-8">{t.contact_lead}</p>
 
         <div className="not-prose grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           <div className="bg-card p-6 rounded-2xl border border-border shadow-sm flex items-start gap-4">
@@ -72,8 +37,8 @@ export default function Contact() {
               <Mail className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-1">General Inquiries</h3>
-              <p className="text-muted-foreground text-sm">For general questions, feedback, or partnership requests.</p>
+              <h3 className="font-bold text-lg mb-1">{t.contact_general_title}</h3>
+              <p className="text-muted-foreground text-sm">{t.contact_general_desc}</p>
               <p className="text-primary font-medium mt-2 text-sm">sonujee@proton.me</p>
             </div>
           </div>
@@ -83,40 +48,32 @@ export default function Contact() {
               <MessageSquare className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-1">Technical Support</h3>
-              <p className="text-muted-foreground text-sm">Experiencing an issue with a conversion? Let us know.</p>
+              <h3 className="font-bold text-lg mb-1">{t.contact_support_title}</h3>
+              <p className="text-muted-foreground text-sm">{t.contact_support_desc}</p>
               <p className="text-primary font-medium mt-2 text-sm">sonujee@proton.me</p>
             </div>
           </div>
         </div>
 
-        <h2>Frequently Asked Questions</h2>
+        <h2>{t.contact_faq_title}</h2>
 
-        <h3>Why did my conversion fail?</h3>
-        <p>
-          Conversions may fail if the video is private, age-restricted, or longer than 20 minutes. Make sure the video is publicly accessible and try again. If the problem persists, please contact our technical support.
-        </p>
+        <h3>{t.contact_faq_q1}</h3>
+        <p>{t.contact_faq_a1}</p>
 
-        <h3>Is this tool free to use?</h3>
-        <p>
-          Yes. FastYT Media Converter is completely free for personal use. No registration, subscription, or payment is required.
-        </p>
+        <h3>{t.contact_faq_q2}</h3>
+        <p>{t.contact_faq_a2}</p>
 
-        <h3>What audio quality options are available?</h3>
-        <p>
-          We offer 128 kbps, 192 kbps, and 320 kbps MP3 quality options. For the best listening experience, we recommend 320 kbps.
-        </p>
+        <h3>{t.contact_faq_q3}</h3>
+        <p>{t.contact_faq_a3}</p>
 
-        <h3>How long are converted files stored?</h3>
-        <p>
-          Converted files are temporarily cached on our servers for immediate download and are automatically deleted within one hour. We do not permanently store any media files.
-        </p>
+        <h3>{t.contact_faq_q4}</h3>
+        <p>{t.contact_faq_a4}</p>
 
         <div className="not-prose bg-card/50 border border-border rounded-2xl p-6 mt-10">
           <p className="text-sm text-muted-foreground">
-            <strong>Important:</strong> This tool is for personal use only. Users must ensure they have the rights to download any content they convert. Please review our{" "}
-            <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> and{" "}
-            <Link href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link> before using the service.
+            <strong>Important:</strong> {t.contact_disclaimer_text}{" "}
+            <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> &amp;{" "}
+            <Link href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link>.
           </p>
         </div>
       </div>

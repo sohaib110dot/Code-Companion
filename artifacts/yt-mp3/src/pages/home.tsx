@@ -1,320 +1,417 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useGetVideoInfo, useConvertVideo } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { VideoPreview } from "@/components/video-preview";
-import { isValidYoutubeUrl, cn } from "@/lib/utils";
-import { Search, Loader2, Download, ArrowRight, Zap, CheckCircle2, Shield, Music } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { isValidMediaUrl, cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n-context";
+import { Search, Loader2, Download, ArrowRight, Zap, CheckCircle2, Shield, Music, ClipboardPaste, AlertCircle } from "lucide-react";
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [quality, setQuality] = useState<"128" | "192" | "320">("192");
+  const [cacheReady, setCacheReady] = useState(false);
+  const { t } = useI18n();
+  const fetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cachePollerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   
   const infoMutation = useGetVideoInfo();
   const convertMutation = useConvertVideo();
 
-  // Handle URL changes and auto-fetch preview
   useEffect(() => {
-    document.title = "FastYT Media Converter - Convert Video to MP3 Online Free";
+    document.title = "FastAudio Media Converter - Convert Media Files to High Quality Audio Online";
     const setMeta = (name: string, content: string, prop = false) => {
       const attr = prop ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${name}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
       el.setAttribute("content", content);
     };
-    setMeta("description", "FastYT Media Converter lets you convert video to MP3 online for free. Fast, easy and secure audio conversion tool for personal use.");
-    setMeta("keywords", "convert video to mp3, youtube to mp3, mp3 converter online free, extract audio from video, online audio converter, free mp3 download");
+    setMeta("description", "FastAudio Media Converter lets you convert media files to high quality audio online for free. Fast, easy and secure audio conversion tool.");
+    setMeta("keywords", "media converter, audio converter, convert media, audio extraction, online converter");
     setMeta("robots", "index, follow");
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://fastyt.io/");
-    
-    // JSON-LD Structured Data for SoftwareApplication
+    canonical.setAttribute("href", "https://fastaudio.cc/");
+
     let schemaScript = document.querySelector('script[data-type="application-schema"]');
     if (!schemaScript) {
-      schemaScript = document.createElement("script");
+      schemaScript = document.createElement("script") as HTMLScriptElement;
       schemaScript.type = "application/ld+json";
       schemaScript.setAttribute("data-type", "application-schema");
       schemaScript.textContent = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "FastYT Media Converter",
-        "description": "Free online tool to convert video to MP3 with high quality audio. No registration required.",
-        "url": "https://fastyt.io",
+        "name": "FastAudio Media Converter",
+        "description": "Free online tool to convert media files to high quality audio. No registration required.",
+        "url": "https://fastaudio.cc",
         "applicationCategory": "MultimediaApplication",
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
         "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1250"}
       });
       document.head.appendChild(schemaScript);
     }
+  }, []);
 
-    if (isValidYoutubeUrl(url)) {
-      // Avoid refetching if we already have it for this exact URL (basic check)
-      if (!infoMutation.isPending && !convertMutation.isSuccess) {
-        infoMutation.mutate({ data: { url } });
-      }
-      // Reset conversion state if user pastes a new URL
-      if (convertMutation.isSuccess || convertMutation.isError) {
-        convertMutation.reset();
-      }
+  useEffect(() => {
+    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+    if (cachePollerRef.current) { clearInterval(cachePollerRef.current); cachePollerRef.current = null; }
+    setCacheReady(false);
+
+    if (!isValidMediaUrl(url)) return;
+
+    if (convertMutation.isSuccess || convertMutation.isError) {
+      convertMutation.reset();
     }
+    if (infoMutation.isSuccess || infoMutation.isError) {
+      infoMutation.reset();
+    }
+
+    fetchTimeoutRef.current = setTimeout(() => {
+      infoMutation.mutate({ data: { url } });
+
+      const apiBase = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+      const pollUrl = `${apiBase}/api/cache-status?url=${encodeURIComponent(url)}&quality=192`;
+      let attempts = 0;
+      cachePollerRef.current = setInterval(async () => {
+        attempts++;
+        if (attempts > 30) {
+          if (cachePollerRef.current) clearInterval(cachePollerRef.current);
+          return;
+        }
+        try {
+          const r = await fetch(pollUrl);
+          const d = await r.json();
+          if (d.ready) {
+            setCacheReady(true);
+            if (cachePollerRef.current) clearInterval(cachePollerRef.current);
+          } else if (d.status === "failed") {
+            if (cachePollerRef.current) clearInterval(cachePollerRef.current);
+          }
+        } catch {}
+      }, 2000);
+    }, 500);
+
+    return () => {
+      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+      if (cachePollerRef.current) clearInterval(cachePollerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
-  const handleConvert = () => {
-    if (!isValidYoutubeUrl(url)) return;
+  const handleConvert = useCallback(() => {
+    if (!isValidMediaUrl(url)) return;
     convertMutation.mutate({ data: { url, quality } });
-  };
+  }, [url, quality, convertMutation]);
+
+  const handlePaste = useCallback(async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setUrl(text.trim());
+    } catch {
+    }
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setUrl("");
+    convertMutation.reset();
+    infoMutation.reset();
+  }, [convertMutation, infoMutation]);
 
   const isProcessing = infoMutation.isPending || convertMutation.isPending;
+  const hasValidUrl = url && isValidMediaUrl(url);
+  const hasInvalidUrl = url && !isValidMediaUrl(url);
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-16 lg:pt-24 pb-12 md:pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8 md:pt-14 lg:pt-20 pb-16">
         
-        {/* Hero Section */}
-        <div className="text-center space-y-8 md:space-y-10 mb-12 md:mb-16">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-center"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Zap className="w-4 h-4" /> The fastest converter online
-            </div>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight"
-          >
-            Convert Videos to <span className="text-gradient block sm:inline">High Quality MP3</span>
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed"
-          >
-            Paste your link below to instantly download audio in up to 320kbps. 
-            No registration required, completely free.
-          </motion.p>
+        <div className="text-center mb-10 md:mb-14 space-y-5 md:space-y-6">
+          <div className="flex justify-center animate-fade-in">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold border border-primary/20">
+              <Zap className="w-3.5 h-3.5" /> {t("fastestConverterOnline")}
+            </span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight animate-fade-in-up" style={{ animationDelay: '80ms' }}>
+            {t("heroTitle1")}{" "}
+            <span className="text-gradient">{t("heroTitle2")}</span>
+          </h1>
+
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '160ms' }}>
+            {t("heroDescription")}
+          </p>
         </div>
 
-        {/* Main Converter Card */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          className="max-w-3xl mx-auto"
-        >
-          <div className="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 relative z-10">
-            {/* Input Area - Responsive Layout */}
+        <div className="animate-fade-in-up" style={{ animationDelay: '240ms' }}>
+          <div className="glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10">
+
             <div className="w-full">
-              <div className="relative group flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center">
-                <div className="absolute left-4 top-1/2 sm:top-4 -translate-y-1/2 sm:translate-y-0 z-10 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none">
-                  <Search className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className={cn(
+                "relative flex items-center border-2 rounded-2xl transition-all duration-200 bg-gradient-to-r from-card/60 to-card/40 backdrop-blur-sm shadow-sm",
+                hasInvalidUrl
+                  ? "border-destructive/50 shadow-destructive/10"
+                  : "border-primary/30 hover:border-primary/60 focus-within:border-primary focus-within:shadow-lg focus-within:shadow-primary/15"
+              )}>
+                <div className="absolute left-4 sm:left-5 text-muted-foreground pointer-events-none flex-shrink-0">
+                  <Search className="w-5 h-5" />
                 </div>
-                <Input 
-                  placeholder="Paste your video link here..." 
-                  className="w-full h-14 sm:h-16 pl-12 pr-4 sm:pr-28 text-base rounded-xl sm:rounded-2xl shadow-inner bg-background"
+
+                <input
+                  type="url"
+                  placeholder={t("placeholder") || "Paste URL here to Download..."}
+                  className="flex-1 h-14 sm:h-16 pl-12 sm:pl-14 pr-4 text-sm sm:text-base bg-transparent border-none outline-none placeholder-muted-foreground/50 text-foreground font-medium min-w-0"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isProcessing}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
                 />
-                
-                {!infoMutation.data && !convertMutation.data && (
-                  <Button 
-                    variant="gradient" 
-                    className="h-12 sm:h-14 sm:absolute right-2 rounded-xl px-6 sm:px-7 font-medium w-full sm:w-auto whitespace-nowrap"
-                    onClick={() => {
-                      if (isValidYoutubeUrl(url)) {
-                        infoMutation.mutate({ data: { url } });
-                      }
-                    }}
-                    disabled={!url || isProcessing}
-                  >
-                    {infoMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                    {infoMutation.isPending ? "Converting..." : "Start"}
-                  </Button>
-                )}
+
+                <div className="flex items-center gap-2 pr-3 sm:pr-4 flex-shrink-0">
+                  {!convertMutation.data && (
+                    <>
+                      <button
+                        onClick={handlePaste}
+                        disabled={isProcessing}
+                        className="h-9 sm:h-10 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition-all disabled:opacity-50 active:scale-95 flex items-center gap-1.5"
+                      >
+                        <ClipboardPaste className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Paste</span>
+                      </button>
+                      <Button
+                        variant="gradient"
+                        className="h-9 sm:h-10 px-4 sm:px-6 text-xs sm:text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all active:scale-95 whitespace-nowrap"
+                        onClick={handleConvert}
+                        disabled={!hasValidUrl || isProcessing}
+                      >
+                        {convertMutation.isPending
+                          ? <Loader2 className="w-4 h-4 animate-spin" />
+                          : <span className="hidden sm:inline">Convert</span>
+                        }
+                        {!convertMutation.isPending && <span className="sm:hidden">Go</span>}
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
 
-              {/* Validation Feedback */}
-              {url && !isValidYoutubeUrl(url) && (
-                <p className="text-destructive text-sm mt-3 ml-2 animate-in fade-in slide-in-from-top-2">
-                  Please enter a valid YouTube URL.
+              {hasInvalidUrl && (
+                <p className="flex items-center gap-1.5 text-destructive text-sm mt-2 ml-1 animate-fade-in">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                  {t("validationError")}
                 </p>
               )}
             </div>
-          </div>
 
-          {/* Dynamic Content Area (Preview, Settings, Results) */}
-          <AnimatePresence mode="wait">
-            
-            {/* 1. Preview & Settings State */}
-            {infoMutation.data && !convertMutation.isSuccess && (
-              <motion.div 
-                key="preview-state"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-8 space-y-8"
-              >
-                <VideoPreview data={infoMutation.data} />
-                
-                <div className="bg-background/50 rounded-2xl p-6 border border-border">
-                  <h4 className="font-semibold mb-4 flex items-center gap-2">
-                    Select Audio Quality
-                  </h4>
-                  <div className="grid grid-cols-3 gap-3">
+            {hasValidUrl && !infoMutation.data && !convertMutation.isSuccess && (
+              <div className="mt-5 animate-fade-in">
+                <div className="p-5 bg-primary/5 border border-primary/15 rounded-xl">
+                  <p className="text-xs sm:text-sm font-bold text-foreground mb-3 flex items-center gap-1.5">
+                    <Music className="w-4 h-4 text-primary" />
+                    {t("selectAudioQuality")}
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {(["128", "192", "320"] as const).map((q) => (
                       <button
                         key={q}
                         onClick={() => setQuality(q)}
                         disabled={convertMutation.isPending}
                         className={cn(
-                          "py-3 rounded-xl border-2 font-medium transition-all interactive-scale flex flex-col items-center justify-center gap-1",
-                          quality === q 
-                            ? "border-primary bg-primary/5 text-primary" 
-                            : "border-border bg-background hover:border-primary/50 text-muted-foreground"
+                          "py-2.5 sm:py-3 rounded-xl border-2 font-bold text-xs sm:text-sm transition-all cursor-pointer",
+                          quality === q
+                            ? "border-primary bg-primary/15 text-primary shadow-md scale-[1.02]"
+                            : "border-border/60 bg-background hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary"
                         )}
                       >
-                        <span className="text-lg">{q}</span>
-                        <span className="text-xs opacity-80">kbps</span>
+                        {q} kbps
                       </button>
                     ))}
                   </div>
-
-                  <div className="mt-6 flex justify-end">
-                    <Button 
-                      variant="gradient" 
-                      size="lg" 
-                      className="w-full md:w-auto"
-                      onClick={handleConvert}
-                      disabled={convertMutation.isPending}
-                    >
-                      {convertMutation.isPending ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Converting...
-                        </>
-                      ) : (
-                        <>
-                          Convert Video <ArrowRight className="w-5 h-5 ml-2" />
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Progress Indicator (Fake visual during actual API call) */}
-                  {convertMutation.isPending && (
-                    <div className="mt-6 space-y-2">
-                      <div className="flex justify-between text-sm font-medium text-primary">
-                        <span>Processing audio track...</span>
-                      </div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                        <motion.div 
-                          className="h-full bg-gradient-to-r from-primary to-accent"
-                          initial={{ width: "0%" }}
-                          animate={{ width: "90%" }}
-                          transition={{ duration: 4, ease: "easeOut" }}
-                        />
-                      </div>
+                  {infoMutation.isPending && (
+                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                      Loading video info...
+                    </div>
+                  )}
+                  {!infoMutation.isPending && cacheReady && (
+                    <div className="mt-3 flex items-center gap-2 text-xs text-green-500 font-semibold">
+                      <Zap className="w-3.5 h-3.5" />
+                      Ready — click Convert for instant download
                     </div>
                   )}
                 </div>
-              </motion.div>
+              </div>
             )}
+          </div>
 
-            {/* 2. Success / Download State */}
-            {convertMutation.isSuccess && convertMutation.data && (
-              <motion.div 
-                key="success-state"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mt-8 text-center bg-green-500/5 border border-green-500/20 rounded-2xl p-8 md:p-12"
-              >
-                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
-                  <CheckCircle2 className="w-10 h-10" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">Conversion Successful!</h3>
-                <p className="text-muted-foreground mb-8 max-w-md mx-auto line-clamp-2">
-                  {convertMutation.data.title}
-                </p>
-                
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <a 
-                    href={convertMutation.data.download} 
-                    download
-                    className="w-full sm:w-auto"
-                  >
-                    <Button variant="gradient" size="lg" className="w-full h-16 text-lg rounded-2xl px-12 shadow-glow">
-                      <Download className="w-6 h-6 mr-3" />
-                      Download MP3
-                    </Button>
-                  </a>
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    className="w-full sm:w-auto h-16 rounded-2xl"
-                    onClick={() => {
-                      setUrl("");
-                      convertMutation.reset();
-                      infoMutation.reset();
-                    }}
-                  >
-                    Convert Another
-                  </Button>
-                </div>
-              </motion.div>
-            )}
+          {infoMutation.isSuccess && infoMutation.data && !convertMutation.isSuccess && (
+            <div className="mt-6 space-y-4 animate-fade-in-up">
+              <VideoPreview data={infoMutation.data} />
 
-            {/* 3. Error State */}
-            {convertMutation.isError && (
-              <motion.div 
-                key="error-state"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mt-8 p-6 bg-destructive/10 border border-destructive/20 rounded-2xl text-center text-destructive"
-              >
-                <p className="font-semibold mb-4">An error occurred during conversion.</p>
-                <Button variant="outline" onClick={() => convertMutation.reset()}>
-                  Try Again
+              <div className="glass-card rounded-2xl p-6 sm:p-8">
+                <h4 className="font-bold text-base sm:text-lg mb-5 flex items-center gap-2.5 text-foreground">
+                  <span className="text-xl">🎵</span>
+                  {t("selectAudioQuality")}
+                </h4>
+                <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+                  {(["128", "192", "320"] as const).map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => setQuality(q)}
+                      disabled={convertMutation.isPending}
+                      className={cn(
+                        "py-4 sm:py-5 rounded-xl border-2 font-bold transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:scale-[1.03] active:scale-[0.97]",
+                        quality === q
+                          ? "border-primary bg-gradient-to-br from-primary/15 to-primary/8 text-primary shadow-lg shadow-primary/20 scale-[1.03]"
+                          : "border-border/60 bg-background/60 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary"
+                      )}
+                    >
+                      <span className="text-lg sm:text-xl font-bold">{q}</span>
+                      <span className="text-xs opacity-70 font-medium">{t("kbps")}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <Button
+                  variant="gradient"
+                  size="lg"
+                  className={cn(
+                    "w-full h-12 sm:h-14 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all",
+                    cacheReady && !convertMutation.isPending && "bg-green-500 hover:bg-green-600 shadow-green-500/30"
+                  )}
+                  onClick={handleConvert}
+                  disabled={convertMutation.isPending}
+                >
+                  {convertMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      {t("converting")}
+                    </>
+                  ) : cacheReady ? (
+                    <>
+                      <Zap className="w-5 h-5 mr-2" />
+                      {t("convertMedia")}
+                    </>
+                  ) : (
+                    <>
+                      {t("convertMedia")}
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </>
+                  )}
                 </Button>
-              </motion.div>
-            )}
 
-          </AnimatePresence>
-        </motion.div>
+                {cacheReady && !convertMutation.isPending && (
+                  <div className="mt-3 text-center animate-fade-in">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-500">
+                      <Zap className="w-3.5 h-3.5" />
+                      Ready for instant download
+                    </span>
+                  </div>
+                )}
 
-        {/* Features Section below converter */}
-        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
-            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mx-auto mb-4">
-              <Zap className="w-6 h-6" />
+                {convertMutation.isPending && (
+                  <div className="mt-5 space-y-2 animate-fade-in">
+                    <div className="flex justify-between text-xs font-medium text-primary">
+                      <span>{t("processingMedia")}</span>
+                      <span>Converting...</span>
+                    </div>
+                    <div className="h-2 bg-primary/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full animate-progress-bar" />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <h3 className="font-bold text-lg mb-2">Instant Conversions</h3>
-            <p className="text-muted-foreground text-sm">Our powerful cloud servers process videos in seconds, not minutes.</p>
-          </div>
-          <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
-            <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent mx-auto mb-4">
-              <Music className="w-6 h-6" />
+          )}
+
+          {convertMutation.isSuccess && convertMutation.data && (
+            <div className="mt-6 text-center bg-green-500/5 border border-green-500/20 rounded-2xl p-8 sm:p-12 animate-fade-in-scale">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-5 text-green-500 animate-bounce-in">
+                <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-2">{t("conversionSuccessful")}</h3>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto text-sm sm:text-base line-clamp-2">
+                {convertMutation.data.title}
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                <a
+                  href={convertMutation.data.download}
+                  download={`${convertMutation.data.title?.replace(/[^a-zA-Z0-9 _\-]/g, "").trim() || "audio"}.mp3`}
+                  className="w-full sm:w-auto"
+                >
+                  <Button variant="gradient" size="lg" className="w-full h-12 sm:h-14 text-base rounded-xl px-8 sm:px-12 shadow-lg">
+                    <Download className="w-5 h-5 mr-2.5" />
+                    {t("downloadMp3")}
+                  </Button>
+                </a>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full sm:w-auto h-12 sm:h-14 rounded-xl"
+                  onClick={handleReset}
+                >
+                  {t("convertAnother")}
+                </Button>
+              </div>
             </div>
-            <h3 className="font-bold text-lg mb-2">High Quality Audio</h3>
-            <p className="text-muted-foreground text-sm">Choose between 128kbps, 192kbps, or pristine 320kbps MP3 files.</p>
-          </div>
-          <div className="p-6 bg-card rounded-2xl border border-border/50 text-center">
-            <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-500 mx-auto mb-4">
-              <Shield className="w-6 h-6" />
+          )}
+
+          {(convertMutation.isError || infoMutation.isError) && (
+            <div className="mt-6 p-5 sm:p-6 bg-destructive/8 border border-destructive/20 rounded-2xl animate-fade-in">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-destructive mb-1">{t("errorOccurred")}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {convertMutation.isError
+                      ? "Conversion failed. The link may not be supported or has expired."
+                      : "Could not load video info. Please check the URL and try again."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    convertMutation.reset();
+                    infoMutation.reset();
+                  }}
+                >
+                  {t("tryAgain")}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleReset}>
+                  Clear
+                </Button>
+              </div>
             </div>
-            <h3 className="font-bold text-lg mb-2">Safe & Secure</h3>
-            <p className="text-muted-foreground text-sm">No annoying popups, no required software. Completely safe to use.</p>
-          </div>
+          )}
+
+        </div>
+
+        <div className="max-w-3xl mx-auto mt-10 px-4 py-3 bg-blue-500/5 border border-blue-500/15 rounded-xl text-center">
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            <strong>Important:</strong> {t("disclaimer_text")}
+          </p>
+        </div>
+
+        <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
+          {[
+            { icon: Zap, color: "text-primary", bg: "bg-primary/10", title: t("instantConversions"), desc: t("instantConversionsDesc") },
+            { icon: Music, color: "text-accent", bg: "bg-accent/10", title: t("highQualityAudio"), desc: t("highQualityAudioDesc") },
+            { icon: Shield, color: "text-green-500", bg: "bg-green-500/10", title: t("safeSecure"), desc: t("safeSecureDesc") },
+          ].map(({ icon: Icon, color, bg, title, desc }) => (
+            <div key={title} className="p-5 sm:p-6 bg-card rounded-2xl border border-border/50 text-center hover:border-primary/30 hover:shadow-md transition-all">
+              <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center mx-auto mb-4", bg, color)}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base mb-1.5">{title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+            </div>
+          ))}
         </div>
 
       </div>
